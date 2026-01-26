@@ -1,0 +1,1317 @@
+{
+  "metadata": {
+    "empresa": "Puro Omega",
+    "version": "1.0",
+    "fecha_creacion": "2026-01-26",
+    "total_preguntas": 215,
+    "categorias": [
+      "empresa_marca",
+      "tecnologia_calidad",
+      "productos_linea_essential",
+      "productos_linea_complex",
+      "productos_linea_intense",
+      "diagnostico_omega3_index",
+      "indicaciones_clinicas",
+      "comparativas_competencia",
+      "objeciones_precio",
+      "objeciones_eficacia",
+      "objeciones_seguridad",
+      "argumentos_venta",
+      "dosificacion_posologia",
+      "certificaciones",
+      "perfil_paciente"
+    ]
+  },
+  "qa_pairs": [
+    {
+      "id": 1,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Qué es Puro Omega?",
+      "respuesta": "Puro Omega es una marca de Beps Biopharm especializada en suplementos de Omega-3 de calidad farmacéutica. Combinamos más de 35 años de experiencia con la ciencia más avanzada, potenciando el legado del Dr. Peter Lembke, pionero y referente internacional en ácidos grasos Omega-3."
+    },
+    {
+      "id": 2,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Quién es el Dr. Peter Lembke?",
+      "respuesta": "El Dr. Peter Lembke es un pionero y referente internacional en la ciencia de los ácidos grasos Omega-3 con más de 35 años de experiencia. Su legado científico es la base sobre la que Puro Omega construye sus fórmulas especializadas."
+    },
+    {
+      "id": 3,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Cuál es el eslogan de Puro Omega?",
+      "respuesta": "El eslogan de Puro Omega es 'Bienestar en estado puro', reflejando nuestro compromiso con la máxima pureza, concentración y biodisponibilidad en todos nuestros productos."
+    },
+    {
+      "id": 4,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Qué diferencia a Puro Omega de otros suplementos de Omega-3?",
+      "respuesta": "Puro Omega se diferencia por tres pilares: 1) Pureza total con niveles indetectables de metales pesados y contaminantes, 2) Concentración máxima superior al 80% en forma rTG, y 3) Biodisponibilidad superior con absorción hasta 3 veces mayor que la forma etil-éster común."
+    },
+    {
+      "id": 5,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Cuál es la propuesta de valor de Puro Omega?",
+      "respuesta": "Nuestra propuesta de valor se basa en el 'triángulo de la potencia': Pureza total (niveles indetectables de contaminantes), Concentración máxima (+80% DHA/EPA), y Biodisponibilidad superior (forma rTG con absorción 3x mayor). Esto permite dosis reales con solo 1-2 perlas."
+    },
+    {
+      "id": 6,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué es la forma rTG y por qué es importante?",
+      "respuesta": "rTG significa triglicérido reesterificado. Es la estructura molecular natural que el organismo reconoce y asimila de forma óptima. Garantiza una absorción hasta 3 veces superior a la forma de etil-éster (EE), que es la más común en el mercado."
+    },
+    {
+      "id": 7,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Cuál es la diferencia entre rTG y etil-éster (EE)?",
+      "respuesta": "La forma rTG (triglicérido reesterificado) es la estructura natural del Omega-3 que el cuerpo reconoce fácilmente, con absorción hasta 3 veces superior. El etil-éster (EE) es una forma sintética más barata de producir pero con menor biodisponibilidad y absorción."
+    },
+    {
+      "id": 8,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué es la tecnología de fluidos supercríticos SFC/SFE?",
+      "respuesta": "SFC (Cromatografía de Fluidos Supercríticos) y SFE (Extracción de Fluidos Supercríticos) son métodos avanzados de producción que utilizamos para obtener la máxima pureza y concentración de Omega-3 sin usar solventes químicos agresivos."
+    },
+    {
+      "id": 9,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿De dónde proviene el aceite de pescado de Puro Omega?",
+      "respuesta": "Utilizamos exclusivamente aceite de peces de ciclo de vida corto, específicamente sardina (Sardina pilchardus) y anchoa (Anchoa lyolepis). Estas especies acumulan menos contaminantes marinos por su corta vida, garantizando máxima pureza."
+    },
+    {
+      "id": 10,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Por qué usar peces de ciclo de vida corto?",
+      "respuesta": "Los peces de ciclo de vida corto como sardinas y anchoas acumulan significativamente menos metales pesados y contaminantes marinos que peces grandes como atún o salmón. Esto garantiza niveles indetectables de mercurio, PCBs y dioxinas en nuestros productos."
+    },
+    {
+      "id": 11,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué concentración de Omega-3 tienen los productos Puro Omega?",
+      "respuesta": "La Línea Essential ofrece concentraciones superiores al 90% de DHA y EPA, mientras que la Línea Complex supera el 80%. Esto contrasta con suplementos genéricos que típicamente contienen solo 30-50% de Omega-3 activo."
+    },
+    {
+      "id": 12,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Cuántas perlas de Puro Omega equivalen a otros suplementos?",
+      "respuesta": "Con solo 1 o 2 perlas de Puro Omega se obtienen dosis reales de DHA y EPA. En comparación, productos de menor calidad requieren 4 o más cápsulas para alcanzar la misma dosis efectiva. Esto mejora la adherencia del paciente."
+    },
+    {
+      "id": 13,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Los productos Puro Omega contienen aditivos?",
+      "respuesta": "No. Todas nuestras fórmulas son hipoalergénicas y libres de aditivos y colorantes artificiales. Algunas fórmulas utilizan colorantes naturales como clorofila o betacaroteno cuando es necesario."
+    },
+    {
+      "id": 14,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Cómo se protege el Omega-3 de la oxidación?",
+      "respuesta": "Nuestras fórmulas incluyen vitaminas antioxidantes (principalmente Vitamina E) que protegen al Omega-3 de la oxidación lipídica. Además, usamos envases de vidrio ámbar de grado farmacéutico que protegen de la luz."
+    },
+    {
+      "id": 15,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué tipos de cápsulas utiliza Puro Omega?",
+      "respuesta": "Ofrecemos tres tecnologías de encapsulación: cápsulas de gelatina de pescado, cápsulas de gelatina vegetal (para productos veganos), y cápsulas funcionales entéricas DELASOL® que aseguran liberación dirigida en el duodeno."
+    },
+    {
+      "id": 16,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué es la tecnología DELASOL®?",
+      "respuesta": "DELASOL® es una cápsula de gelatina funcional entérica que protege los activos del ácido estomacal y asegura su liberación dirigida en el duodeno. Se utiliza en Pro-Resolving Mediators para maximizar la absorción de los SPMs."
+    },
+    {
+      "id": 17,
+      "categoria": "certificaciones",
+      "pregunta": "¿Qué certificación IFOS tiene Puro Omega?",
+      "respuesta": "Contamos con certificación IFOS (International Fish Oil Standards), el estándar internacional más exigente para aceites de pescado. Ponemos a disposición de los profesionales de la salud los Reportes IFOS de cada lote de producto."
+    },
+    {
+      "id": 18,
+      "categoria": "certificaciones",
+      "pregunta": "¿Qué otras certificaciones tiene Puro Omega?",
+      "respuesta": "Contamos con múltiples certificaciones: IFOS, GOED Omega-3, FOS (Friends of the Sea), GMP (Buenas Prácticas de Manufactura), IFS Food, FSSC 22000, Non-GMO Project, V-Label (vegano) y Cologne List® para deportistas."
+    },
+    {
+      "id": 19,
+      "categoria": "certificaciones",
+      "pregunta": "¿Qué es la certificación Cologne List®?",
+      "respuesta": "Cologne List® certifica que el producto está 100% libre de sustancias prohibidas en el deporte. Natural EPA tiene esta certificación, siendo ideal para deportistas de alto rendimiento que compiten bajo regulaciones antidoping."
+    },
+    {
+      "id": 20,
+      "categoria": "certificaciones",
+      "pregunta": "¿Qué significa Non-GMO Project?",
+      "respuesta": "La certificación Non-GMO Project garantiza que nuestros productos no contienen organismos genéticamente modificados. Es parte de nuestro compromiso clean-label con un etiquetado transparente y honesto."
+    },
+    {
+      "id": 21,
+      "categoria": "certificaciones",
+      "pregunta": "¿Los productos veganos tienen certificación?",
+      "respuesta": "Sí, Natural DHA Vegan cuenta con certificación V-Label que garantiza que es 100% vegetal, incluyendo la cápsula de gelatina vegetal. Es completamente apta para veganos y vegetarianos."
+    },
+    {
+      "id": 22,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué productos componen la Línea Essential?",
+      "respuesta": "La Línea Essential incluye: Natural DHA, Natural DHA Embarazo y Lactancia, Natural DHA Vegan, Natural EPA, Puro EPA y Natural Omega-3 Líquido. Son fórmulas con ratios DHA:EPA específicos para nutrición de precisión."
+    },
+    {
+      "id": 23,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Natural DHA y para qué sirve?",
+      "respuesta": "Natural DHA es nuestra fórmula con ratio 4:1 DHA:EPA para triple soporte estructural: cerebral, visual y metabólico. Contiene 810mg de DHA y 190mg de EPA por 2 perlas, más Vitaminas D3 y E. Ideal para función cognitiva, visual y resistencia a la insulina."
+    },
+    {
+      "id": 24,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuáles son las indicaciones de Natural DHA?",
+      "respuesta": "Natural DHA está indicado para: mantenimiento de función cognitiva y visual, prevención de enfermedades neurodegenerativas y pérdida de memoria, prevención de DMAE (Degeneración Macular), normalización del metabolismo y prediabetes, y regímenes de pérdida de peso."
+    },
+    {
+      "id": 25,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué estudios respaldan Natural DHA?",
+      "respuesta": "Natural DHA está respaldado por estudios como Stonehouse (2013) que demostró mejora en memoria de trabajo y episódica, Lee (2013) con mejora en memoria en deterioro cognitivo leve, y Abbott (2020) que mostró reducción significativa en resistencia a la insulina (HOMA-IR -0.40)."
+    },
+    {
+      "id": 26,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Natural DHA Embarazo y Lactancia?",
+      "respuesta": "Es la fórmula específica para gestación y lactancia con ratio 4:1 DHA:EPA que imita la composición de la leche materna. Una sola perla cubre y supera las recomendaciones de la EFSA (450mg Omega-3) para embarazo. Contiene 563mg de Omega-3 total por perla."
+    },
+    {
+      "id": 27,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Por qué es importante el DHA en el embarazo?",
+      "respuesta": "El DHA es el principal ácido graso estructural del cerebro y la retina del bebé. Durante el embarazo atraviesa la placenta, y durante la lactancia se transfiere por la leche materna. Es fundamental para el desarrollo neurológico, visual y del sistema inmune del bebé."
+    },
+    {
+      "id": 28,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué beneficios tiene Natural DHA Embarazo para la madre?",
+      "respuesta": "Previene el agotamiento de los depósitos de DHA de la madre (factor de riesgo para depresión postparto), reduce el riesgo de preeclampsia y parto prematuro (hasta 75% menos riesgo de parto <34 semanas según estudios), y mejora la calidad ovocitaria en protocolos de fertilidad."
+    },
+    {
+      "id": 29,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Natural DHA Embarazo previene alergias en el bebé?",
+      "respuesta": "Sí. El estudio COPSAC demostró que la suplementación reduce en 1/3 el riesgo de asma o sibilancias persistentes y disminuye en 25% el riesgo de infecciones respiratorias en los primeros 3 años de vida del bebé."
+    },
+    {
+      "id": 30,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Natural DHA Vegan?",
+      "respuesta": "Es nuestra alternativa 100% vegetal con DHA extraído de microalgas (Schizochytrium sp.), la fuente original del Omega-3. Ofrece bioequivalencia demostrada con el aceite de pescado, siendo ideal para veganos, vegetarianos o alérgicos al pescado."
+    },
+    {
+      "id": 31,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿El DHA de algas es igual de efectivo que el de pescado?",
+      "respuesta": "Sí. Estudios como Bailey (2025) confirman bioequivalencia nutricional: no hay diferencias significativas en absorción y biodisponibilidad entre DHA de algas y de pescado. El cuerpo reconoce y utiliza ambas moléculas de la misma manera."
+    },
+    {
+      "id": 32,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Por qué el DHA de algas es mejor que el de linaza o chía?",
+      "respuesta": "La linaza y chía contienen ALA (Ácido Alfa-Linolénico) que requiere conversión metabólica a DHA, proceso muy ineficiente (menos del 5%). Natural DHA Vegan aporta DHA preformado directamente, eliminando esta dependencia de la enzima delta-6-desaturasa."
+    },
+    {
+      "id": 33,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuál es la dosis de Natural DHA Vegan para embarazadas?",
+      "respuesta": "En mujeres embarazadas o en lactancia se recomiendan 2 perlas al día para cubrir y superar las recomendaciones de la EFSA para gestación. En población general se recomiendan 3-4 perlas diarias."
+    },
+    {
+      "id": 34,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Natural EPA y para qué sirve?",
+      "respuesta": "Natural EPA es nuestra fórmula con ratio 2:1 EPA:DHA para soporte integral cardiovascular, intestinal e inmunológico. Contiene 1000mg de EPA y 500mg de DHA por 2 perlas. Está certificada por Cologne List® para deportistas."
+    },
+    {
+      "id": 35,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuáles son los beneficios cardiovasculares de Natural EPA?",
+      "respuesta": "Ayuda a mantener niveles saludables de triglicéridos y colesterol (aumenta HDL, reduce LDL), regula la presión arterial (reducción de 4.51 mmHg en hipertensos), promueve vasodilatación y tiene efecto antitrombótico. Es la base para prevención primaria cardiovascular."
+    },
+    {
+      "id": 36,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cómo ayuda Natural EPA a la microbiota intestinal?",
+      "respuesta": "El EPA previene la inflamación de la mucosa digestiva, fortalece la barrera intestinal, reduce la permeabilidad y modula la microbiota favoreciendo bacterias productoras de butirato (Bifidobacterium, Roseburia). Watson (2017) demostró cambios significativos en 8 semanas."
+    },
+    {
+      "id": 37,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Por qué Natural EPA es ideal para deportistas?",
+      "respuesta": "Reduce el dolor muscular post-ejercicio, mejora el flujo sanguíneo y entrega de oxígeno a músculos, acelera la recuperación. El estudio Buonocore (2020) mostró reducción del 90% en marcadores de estrés oxidativo (MDA) en atletas. La certificación Cologne List® garantiza uso seguro en competición."
+    },
+    {
+      "id": 38,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Puro EPA y en qué se diferencia de Natural EPA?",
+      "respuesta": "Puro EPA tiene ultra concentración de EPA (>80%, 1600mg por 2 perlas vs 50mg de DHA). Está diseñado específicamente para corregir déficits de EPA detectados en Omega-3 Index y para soporte de salud emocional y estado de ánimo."
+    },
+    {
+      "id": 39,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Por qué Puro EPA es el Omega-3 de elección para salud emocional?",
+      "respuesta": "El EPA modula la neurotransmisión de serotonina y dopamina, promueve resolvinas y reduce inflamación neuronal de bajo grado. El meta-análisis de Kelaiditis (2023) confirmó que solo fórmulas con alto EPA (>60%, 1-2g/día) muestran eficacia antidepresiva significativa."
+    },
+    {
+      "id": 40,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué estudios respaldan Puro EPA para ansiedad?",
+      "respuesta": "Kiecolt-Glaser (2011) demostró en estudiantes sanos bajo estrés una reducción del 20% en ansiedad y 14% menos citoquinas inflamatorias. Es efectivo incluso en personas sin diagnóstico psiquiátrico previo."
+    },
+    {
+      "id": 41,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuándo usar Natural EPA vs Puro EPA?",
+      "respuesta": "Natural EPA (ratio 2:1 EPA:DHA) es para soporte general cardiovascular, inmune e intestinal. Puro EPA (>80% EPA) es para situaciones específicas: déficit de EPA confirmado por test, trastornos del estado de ánimo (ansiedad, depresión), o cuando se necesita corregir el ratio AA:EPA."
+    },
+    {
+      "id": 42,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué es Natural Omega-3 Líquido?",
+      "respuesta": "Es nuestra fórmula líquida con ratio 3:2 EPA:DHA y el mayor contenido de EPA+DHA por dosis del mercado (1390mg por 5mL). Diseñada para niños de 2-12 años, adultos mayores y personas con dificultad para tragar cápsulas. Sabor natural a limón sin regusto a pescado."
+    },
+    {
+      "id": 43,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Para qué trastornos infantiles está indicado Natural Omega-3 Líquido?",
+      "respuesta": "Está indicado para TDAH (Trastorno por Déficit de Atención e Hiperactividad), TEA (Trastorno del Espectro Autista), TND (Trastorno Negativista Desafiante), TC (Trastorno de Conducta) y fobias. El EPA modula la neuroinflamación, factor relevante en estos trastornos."
+    },
+    {
+      "id": 44,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Qué evidencia hay para Natural Omega-3 Líquido en TDAH?",
+      "respuesta": "Chang (2019) demostró en niños con TDAH que la suplementación con EPA mejoró significativamente la atención focalizada y velocidad de reacción (HRT), especialmente en aquellos con niveles basales bajos de EPA. El efecto fue significativo (ES=0.89, p=0.015)."
+    },
+    {
+      "id": 45,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cómo dosificar Natural Omega-3 Líquido en niños?",
+      "respuesta": "La dosis se ajusta por edad: 2.5mL en niños de 2-5 años, 5mL de 5-12 años, y 10mL en mayores de 12 años. Se toma con alimentos, preferiblemente con la cena. Puede mezclarse con batidos u otros líquidos fríos."
+    },
+    {
+      "id": 46,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Natural Omega-3 Líquido previene alergias alimentarias?",
+      "respuesta": "Sí. El estudio Clausen (2018) demostró que reduce en 72% el riesgo de desarrollar alergias alimentarias confirmadas (0.8% vs 2.9% en placebo) y disminuye la gravedad de la alergia en niños que la desarrollan."
+    },
+    {
+      "id": 47,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué caracteriza a la Línea Complex?",
+      "respuesta": "La Línea Complex combina Omega-3 de alta concentración (+80%) con bioactivos naturales patentados, creando sinergias terapéuticas avanzadas. Incluye: Curcumin Complex, Ginkgo Complex, Schisandra Complex y Ubiquinol & PQQ Complex."
+    },
+    {
+      "id": 48,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Curcumin Complex?",
+      "respuesta": "Es nuestra fórmula sinérgica de Omega-3 (ratio 3:2 EPA:DHA) + Extracto de Cúrcuma (HydroCurc®) + Vitamina D3. Ofrece doble acción antiinflamatoria y antioxidante para recuperar la salud metabólica, intestinal y respiratoria."
+    },
+    {
+      "id": 49,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es la patente HydroCurc®?",
+      "respuesta": "HydroCurc® es un extracto de cúrcuma liposomado estandarizado al 80% en curcuminoides. Utiliza la tecnología LipiSperse® que aumenta la dispersión en entornos acuosos, logrando una absorción hasta 4 veces superior a la cúrcuma convencional."
+    },
+    {
+      "id": 50,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Para qué indicaciones sirve Curcumin Complex?",
+      "respuesta": "Indicado para Diabetes tipo II, síndrome metabólico, pérdida de apetito, condiciones gastrointestinales (dispepsia, disbiosis, intestino permeable, colon inflamado), y afecciones respiratorias/alergias. El meta-análisis Yuan (2022) mostró reducción de 0.55pp en HbA1c."
+    },
+    {
+      "id": 51,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Curcumin Complex ayuda en asma?",
+      "respuesta": "Sí. El estudio Manarin (2019) en niños con asma persistente demostró eliminación total del uso diario de medicamento de rescate (broncodilatadores) en el grupo tratado vs placebo. La cúrcuma bloquea la producción de leucotrienos broncoconstrictores."
+    },
+    {
+      "id": 52,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Ginkgo Complex?",
+      "respuesta": "Es nuestra fórmula triple para salud cerebrovascular: Omega-3 (ratio 4:1 DHA:EPA) + Extracto de Ginkgo biloba (50:1) + CoQ10 (Kaneka Q10®) + Vitamina E. Combina soporte estructural, mejora de microcirculación y protección mitocondrial."
+    },
+    {
+      "id": 53,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Cómo actúa el Ginkgo biloba en Ginkgo Complex?",
+      "respuesta": "El Ginkgo biloba ejerce efecto vasorregulador, mejorando la microcirculación cerebral y periférica. Aumenta la perfusión tisular, optimizando la entrega de oxígeno y nutrientes al tejido neuronal. Tiene propiedades antioxidantes probadas."
+    },
+    {
+      "id": 54,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Kaneka Q10®?",
+      "respuesta": "Kaneka Q10® es Coenzima Q10 de máxima biodisponibilidad. Es un pilar en la cadena de transporte de electrones, crucial para la alta demanda energética del cerebro. Optimiza la producción de ATP y protege las mitocondrias del estrés oxidativo."
+    },
+    {
+      "id": 55,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Para qué pacientes está indicado Ginkgo Complex?",
+      "respuesta": "Ideal para estudiantes (concentración y memoria) y adultos mayores (envejecimiento saludable). Indicado para: preservación cognitiva, mantenimiento de memoria, TDAH/TEA, trastornos del ánimo, DMAE, y enfermedades neurodegenerativas (demencia, Alzheimer, Parkinson)."
+    },
+    {
+      "id": 56,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué evidencia hay para Ginkgo Complex en demencia?",
+      "respuesta": "El meta-análisis Gauthier (2014) de 7 RCTs (2625 pacientes con demencia) mostró 2.5 veces mayor probabilidad de mejoría cognitiva (OR 2.48, p=0.02) y mejoría significativa en actividades de la vida diaria con Ginkgo biloba."
+    },
+    {
+      "id": 57,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Ginkgo Complex ayuda en depresión?",
+      "respuesta": "Sí. Lin (2024) mostró que Ginkgo como adyuvante a antidepresivos aumenta en 25% la tasa de respuesta clínica (RR 1.25, p<0.00001). Es un complemento efectivo al tratamiento farmacológico estándar."
+    },
+    {
+      "id": 58,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Schisandra Complex?",
+      "respuesta": "Es nuestra fórmula adaptogénica: Omega-3 (ratio 3:2 EPA:DHA) + Extracto de Schisandra chinensis + Vitamina D3 en formato líquido (200mL). Diseñada para modular el estrés (eje HPA) y optimizar la función hepática."
+    },
+    {
+      "id": 59,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es un adaptógeno y cómo funciona la Schisandra?",
+      "respuesta": "Un adaptógeno es una sustancia que ayuda al cuerpo a adaptarse al estrés. La Schisandra chinensis regula el eje hipotálamo-hipófisis-adrenal (HPA), modulando los niveles de cortisol. Reduce la sensación de estrés y ansiedad física y mental."
+    },
+    {
+      "id": 60,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Schisandra Complex ayuda al hígado?",
+      "respuesta": "Sí. La Schisandra es un potente hepatoprotector que optimiza las vías de detoxificación hepática. El meta-análisis Huang (2025) de 54 estudios demostró reducción significativa de enzimas hepáticas AST/ALT y aumento de antioxidantes (GSH, SOD) en 5 meses."
+    },
+    {
+      "id": 61,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Para qué indicaciones sirve Schisandra Complex?",
+      "respuesta": "Indicado para: control de estrés crónico, ansiedad y fatiga adrenal; hígado graso no alcohólico (esteatosis hepática); y detoxificación hepática en tratamientos farmacológicos intensivos, consumo de alcohol/drogas o malos hábitos alimenticios."
+    },
+    {
+      "id": 62,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué evidencia hay para Schisandra Complex en deportistas?",
+      "respuesta": "Belluzzi (2019) en jugadores de baloncesto élite demostró eliminación total de ansiedad alta, reducción del 20% en ansiedad cognitiva y somática, e incremento del 15% en autoconfianza en solo 3 meses de suplementación."
+    },
+    {
+      "id": 63,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Ubiquinol & PQQ Complex?",
+      "respuesta": "Es nuestra fórmula cardiovascular más avanzada: Omega-3 (ratio 3:2 EPA:DHA) + Ubiquinol (Kaneka Ubiquinol®) + PQQ (MGCPQQ®) + Vitaminas B2, D3 y E. Actúa sobre la inflamación vascular y la producción de energía mitocondrial."
+    },
+    {
+      "id": 64,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es Ubiquinol y en qué se diferencia de CoQ10?",
+      "respuesta": "El Ubiquinol es la forma activa y reducida de la CoQ10, con mayor actividad antioxidante. Es bioidéntico a la CoQ10 que produce el cuerpo. Kaneka Ubiquinol® garantiza máxima biodisponibilidad para producción de ATP en el miocardio."
+    },
+    {
+      "id": 65,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué es PQQ y para qué sirve?",
+      "respuesta": "PQQ (Pirroloquinolina Quinona) es una coenzima que activa la biogénesis mitocondrial - es decir, estimula la creación de nuevas mitocondrias. MGCPQQ® es la única forma autorizada. Mejora el rendimiento energético celular."
+    },
+    {
+      "id": 66,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Para qué pacientes está indicado Ubiquinol & PQQ Complex?",
+      "respuesta": "Indicado para: factores de riesgo cardiovascular (hipertrigliceridemia >150 mg/dL, hipertensión), insuficiencia cardíaca actual o previa, pacientes en tratamiento con estatinas (que agotan CoQ10), y condiciones de disfunción mitocondrial."
+    },
+    {
+      "id": 67,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Por qué los pacientes con estatinas necesitan Ubiquinol?",
+      "respuesta": "Las estatinas inhiben la síntesis de CoQ10 endógena como efecto secundario. El estudio Mortensen (2014) en insuficiencia cardíaca mostró que CoQ10 reduce 50% los eventos cardiovasculares mayores y 49% la mortalidad en pacientes tratados."
+    },
+    {
+      "id": 68,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Qué evidencia hay para Ubiquinol en función endotelial?",
+      "respuesta": "Sabbatinelli (2020) demostró que Ubiquinol 200mg/día mejora la función endotelial (FMD) en +36.8% en pacientes con dislipidemia en solo 8 semanas, comparado con deterioro del 10% en placebo."
+    },
+    {
+      "id": 69,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿El PQQ reduce el colesterol?",
+      "respuesta": "Sí. Nakano (2015) demostró que PQQ 20mg/día reduce significativamente el colesterol LDL en más del 10% (de 156 a 136 mg/dL) en adultos con LDL elevado, en solo 12 semanas."
+    },
+    {
+      "id": 70,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Qué caracteriza a la Línea Intense?",
+      "respuesta": "La Línea Intense representa la revolución terapéutica patentada en Omega-3 para inflamación crónica y dolor. Actualmente incluye Pro-Resolving Mediators con tecnología SPMs (Mediadores Pro-Resolutivos Especializados)."
+    },
+    {
+      "id": 71,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Qué es Pro-Resolving Mediators?",
+      "respuesta": "Es nuestra fórmula más innovadora: Omega-3 (ratio 2:1 DHA:EPA) + SPMs (Lipinova®) con 18-HEPE, 17-HDHA y 14-HDHA estandarizados. Va más allá de la antiinflamación tradicional, centrándose en la pro-resolución activa de la inflamación."
+    },
+    {
+      "id": 72,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Qué son los SPMs (Mediadores Pro-Resolutivos Especializados)?",
+      "respuesta": "Los SPMs son metabolitos activos derivados del EPA y DHA que activan la resolución de la inflamación. Incluyen resolvinas, protectinas y maresinas. Aumentan mediadores antiinflamatorios (IL-10) y disminuyen proinflamatorios (TNF-α, IL-6)."
+    },
+    {
+      "id": 73,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Qué es la patente Lipinova®?",
+      "respuesta": "Lipinova® es el único ingrediente disponible en el mercado con SPMs concentrados y estandarizados. Contiene 18-HEPE, 17-HDHA y 14-HDHA en forma activa, no solo precursores. Esto permite acción más rápida y potente."
+    },
+    {
+      "id": 74,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Cuál es la diferencia entre antiinflamación y pro-resolución?",
+      "respuesta": "La antiinflamación tradicional bloquea o suprime la respuesta inflamatoria. La pro-resolución es un proceso activo que guía la inflamación hacia su resolución natural: cesa la respuesta inflamatoria, promueve reparación tisular y restaura la homeostasis."
+    },
+    {
+      "id": 75,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Para qué indicaciones sirve Pro-Resolving Mediators?",
+      "respuesta": "Indicado para: dolor musculoesquelético y neuropático, osteoartritis, fibromialgia, alternativa a AINEs de larga duración, enfermedades autoinmunes (artritis reumatoide, esclerosis múltiple), coadyuvante oncológico, y otras condiciones inflamatorias crónicas."
+    },
+    {
+      "id": 76,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Qué evidencia hay para Pro-Resolving Mediators en osteoartritis?",
+      "respuesta": "Möller (2023) en 88 pacientes con dolor de rodilla por osteoartritis demostró: reducción del 55% en percepción de dolor (escala VAS) en 6 semanas, 67% de pacientes redujeron o eliminaron uso de analgésicos vs solo 13% con placebo."
+    },
+    {
+      "id": 77,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Pro-Resolving Mediators puede sustituir a los AINEs?",
+      "respuesta": "Puede ser una alternativa natural para pacientes que requieren tratamiento antiinflamatorio de larga duración, evitando los efectos secundarios gastrointestinales y cardiovasculares de los AINEs. El estudio mostró cero eventos adversos relacionados con SPMs."
+    },
+    {
+      "id": 78,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Cómo mejora la calidad de vida Pro-Resolving Mediators?",
+      "respuesta": "El estudio Möller mostró mejoría significativa en las 5 dimensiones del cuestionario EQ-5D: movilidad, actividades cotidianas, cuidado personal, dolor/malestar y ansiedad/depresión. Es una recuperación funcional integral."
+    },
+    {
+      "id": 79,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Cuál es la dosis de Pro-Resolving Mediators?",
+      "respuesta": "2 perlas al día con alimentos. A diferencia de otros productos Puro Omega que recomiendan mínimo 3 meses, Pro-Resolving Mediators puede mostrar resultados en solo 1 mes de suplementación gracias a los SPMs activos."
+    },
+    {
+      "id": 80,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué es el Omega-3 Index?",
+      "respuesta": "Es un biomarcador objetivo y validado que mide el porcentaje total de DHA y EPA en la membrana de los eritrocitos. Refleja los niveles tisulares y estatus nutricional a largo plazo (aprox. 120 días, vida media del eritrocito)."
+    },
+    {
+      "id": 81,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Cuál es el rango óptimo del Omega-3 Index?",
+      "respuesta": "El rango óptimo y saludable se sitúa entre 8% y 12%. La mayoría de la población mundial tiene niveles bajos y de riesgo, entre 4% y 6%, debido a baja ingesta de pescado azul, factores genéticos y estilo de vida."
+    },
+    {
+      "id": 82,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Por qué medir el Omega-3 Index en lugar de estimar por dieta?",
+      "respuesta": "Los cuestionarios dietéticos son subjetivos e imprecisos. El Omega-3 Index es un biomarcador objetivo que mide los niveles reales en tejidos. No existe una 'dosis única para todos' ya que la respuesta individual varía significativamente."
+    },
+    {
+      "id": 83,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué beneficios tiene un Omega-3 Index óptimo (>8%)?",
+      "respuesta": "Un índice >8% se asocia con: 30% menos riesgo de muerte súbita cardíaca, aproximadamente 2 años más de vida después de los 65 años, niveles bajos de marcadores proinflamatorios (PCR, IL-6), y mejor resolución de inflamación sistémica."
+    },
+    {
+      "id": 84,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué es el test Omega-3 Index Complete?",
+      "respuesta": "Es nuestro test de diagnóstico de precisión que ofrece un perfil lipídico completo con 24 ácidos grasos individuales. Incluye: Índice Omega-3, Ratio Omega-6/Omega-3, Ratio AA:EPA, Índice de grasas trans, y desglose completo de ácidos grasos."
+    },
+    {
+      "id": 85,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué es el ratio AA:EPA y por qué es importante?",
+      "respuesta": "El ratio AA:EPA (Ácido Araquidónico:EPA) es un indicador sensible de equilibrio inflamatorio, hemostasia arterial y riesgo cardiovascular. Un ratio elevado indica predominio de vías proinflamatorias. Puro EPA está diseñado para corregir este desequilibrio."
+    },
+    {
+      "id": 86,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Cómo se toma la muestra para el Omega-3 Index?",
+      "respuesta": "Se utiliza tecnología DBS (Dried Blood Spot) que requiere solo una gota de sangre capilar seca obtenida por punción en el dedo. Es sencillo, mínimamente invasivo, seguro, preciso y estable. No requiere extracción venosa tradicional."
+    },
+    {
+      "id": 87,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué es la metodología clínica '3M'?",
+      "respuesta": "Es nuestro algoritmo de decisión sistemático: 1) Medir - diagnóstico basal con Omega-3 Index, 2) Modificar - intervención personalizada con el producto Puro Omega ideal y ajuste de dosis, 3) Monitorizar - reevaluación tras mínimo 4 meses para confirmar éxito terapéutico."
+    },
+    {
+      "id": 88,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Cuánto Omega-3 se necesita para pasar de 4% a 8%?",
+      "respuesta": "Para pasar de un índice del 4% al 8% se requieren promedios diarios de 1450 a 2200 mg de DHA:EPA durante varios meses. Sin embargo, la respuesta individual varía significativamente, por eso es importante monitorizar con el test."
+    },
+    {
+      "id": 89,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Quién desarrolló el Omega-3 Index?",
+      "respuesta": "El test está desarrollado por OmegaQuant, fundada por el Dr. Bill Harris, coinventor del Índice de Omega-3. Está validado por CLIA (Clinical Laboratory Improvement Amendments) y respaldado por más de 200 estudios clínicos."
+    },
+    {
+      "id": 90,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Cómo solicitar el test Omega-3 Index Complete?",
+      "respuesta": "El test se puede solicitar en www.puroomega.com/omega-3-index/. Se recibe el kit, se registra en el portal de OmegaQuant con el código de barras, se toma la muestra siguiendo instrucciones, se envía en sobre prepagado, y los resultados llegan por email en aproximadamente 2 semanas."
+    },
+    {
+      "id": 91,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para función cognitiva en adultos?",
+      "respuesta": "Natural DHA (ratio 4:1 DHA:EPA) para mantenimiento general de función cognitiva. Si hay deterioro cognitivo, demencia o necesidad de soporte cerebrovascular, Ginkgo Complex añade la acción del Ginkgo biloba y CoQ10."
+    },
+    {
+      "id": 92,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para prevenir Alzheimer?",
+      "respuesta": "Ginkgo Complex es la opción más completa: DHA estructural para membranas neuronales + Ginkgo biloba para microcirculación cerebral + CoQ10 para energía mitocondrial. El meta-análisis mostró 2.5 veces mayor probabilidad de mejoría cognitiva."
+    },
+    {
+      "id": 93,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para un niño con TDAH?",
+      "respuesta": "Natural Omega-3 Líquido con su ratio 3:2 EPA:DHA. El formato líquido facilita la administración en niños y permite ajustar la dosis por edad. El EPA modula la neuroinflamación, factor relevante en TDAH, mejorando atención y comportamiento."
+    },
+    {
+      "id": 94,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para depresión o ansiedad?",
+      "respuesta": "Puro EPA (>80% EPA, 1600mg por 2 perlas). El meta-análisis Kelaiditis confirmó que solo fórmulas con alto contenido de EPA (>60%) muestran eficacia antidepresiva significativa. El EPA modula serotonina, dopamina y reduce inflamación neuronal."
+    },
+    {
+      "id": 95,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para embarazadas?",
+      "respuesta": "Natural DHA Embarazo y Lactancia es la opción específica con ratio 4:1 que imita la leche materna. Una sola perla cubre las recomendaciones de la EFSA. Si es vegana o alérgica al pescado, Natural DHA Vegan con 2 perlas/día."
+    },
+    {
+      "id": 96,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para problemas cardiovasculares?",
+      "respuesta": "Natural EPA para prevención primaria con factores de riesgo leves. Ubiquinol & PQQ Complex para pacientes con hipertrigliceridemia >150 mg/dL, hipertensión, insuficiencia cardíaca, o en tratamiento con estatinas."
+    },
+    {
+      "id": 97,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para deportistas?",
+      "respuesta": "Natural EPA con certificación Cologne List® garantiza uso seguro en competición. Reduce dolor muscular, mejora recuperación y flujo sanguíneo. Para estrés de competición, añadir Schisandra Complex por su efecto adaptogénico."
+    },
+    {
+      "id": 98,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para diabetes tipo 2?",
+      "respuesta": "Curcumin Complex con su sinergia Omega-3 + HydroCurc®. El meta-análisis Yuan mostró reducción de 0.55pp en HbA1c y mejora significativa en sensibilidad a la insulina (HOMA-IR -1.01). También ayuda a normalizar glucosa en ayunas."
+    },
+    {
+      "id": 99,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para problemas digestivos?",
+      "respuesta": "Curcumin Complex para condiciones como dispepsia, disbiosis, intestino permeable o colon inflamado. La cúrcuma HydroCurc® repara barrera intestinal y el Omega-3 reduce inflamación de la mucosa. Natural EPA también favorece la microbiota."
+    },
+    {
+      "id": 100,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para dolor crónico y artritis?",
+      "respuesta": "Pro-Resolving Mediators es la opción específica para inflamación crónica y dolor. Los SPMs de Lipinova® activan la resolución activa de la inflamación y pueden ser alternativa a AINEs. Reduce el dolor en +50% en 6 semanas."
+    },
+    {
+      "id": 101,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para estrés crónico?",
+      "respuesta": "Schisandra Complex es la fórmula adaptogénica específica. La Schisandra chinensis regula el eje HPA y modula los niveles de cortisol. Estudios muestran eliminación de ansiedad alta e incremento del 15% en autoconfianza."
+    },
+    {
+      "id": 102,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para hígado graso?",
+      "respuesta": "Schisandra Complex combina Omega-3 que corrige la esteatosis hepática regulando el metabolismo lipídico, con Schisandra que es un potente hepatoprotector. El meta-análisis Huang mostró normalización de enzimas hepáticas AST/ALT."
+    },
+    {
+      "id": 103,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para pacientes con estatinas?",
+      "respuesta": "Ubiquinol & PQQ Complex es imprescindible. Las estatinas agotan la CoQ10 endógena. El Ubiquinol restaura los niveles, el PQQ promueve biogénesis mitocondrial, y el Omega-3 complementa el control de triglicéridos y colesterol."
+    },
+    {
+      "id": 104,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para DMAE (degeneración macular)?",
+      "respuesta": "Natural DHA o Ginkgo Complex. El DHA es componente estructural de los fotorreceptores de la retina. El meta-análisis Merle mostró 50% menos riesgo de DMAE temprana con cada incremento de 1g/día de DHA."
+    },
+    {
+      "id": 105,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para alergias y asma?",
+      "respuesta": "Curcumin Complex para asma (elimina uso de broncodilatadores de rescate según estudio Manarin). Natural EPA o Natural Omega-3 Líquido para modulación del sistema inmune y prevención de reacciones alérgicas."
+    },
+    {
+      "id": 106,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para fertilidad femenina?",
+      "respuesta": "Natural DHA Embarazo y Lactancia. El DHA mejora la calidad ovocitaria y es soporte clave en protocolos de fecundación in-vitro. Se recomienda iniciar suplementación desde que se busca el embarazo."
+    },
+    {
+      "id": 107,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para adultos mayores con disfagia?",
+      "respuesta": "Natural Omega-3 Líquido es ideal para personas con dificultad para tragar cápsulas. Permite ajustar dosis fácilmente (10mL para mayores de 12 años) y puede mezclarse con batidos o líquidos fríos."
+    },
+    {
+      "id": 108,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Cuál es la dosis general recomendada de Puro Omega?",
+      "respuesta": "La dosis general es 2 perlas al día con alimentos (preferiblemente con la cena o comida). Excepciones: Natural DHA Embarazo (1 perla), Natural Omega-3 Líquido (5mL ajustable por edad), Schisandra Complex (10mL). Tiempo mínimo recomendado: 3 meses."
+    },
+    {
+      "id": 109,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Por qué tomar Omega-3 con las comidas?",
+      "respuesta": "La biodisponibilidad del Omega-3 y otros compuestos liposolubles se optimiza cuando se toman con alimentos que contienen grasas. Se recomienda con la cena o comida para favorecer la absorción."
+    },
+    {
+      "id": 110,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Se puede ajustar la dosis según criterio clínico?",
+      "respuesta": "Sí. La dosis puede ajustarse según las necesidades individuales del paciente, los objetivos terapéuticos o los resultados del test de Omega-3 Index. La metodología 3M permite personalizar la suplementación."
+    },
+    {
+      "id": 111,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Cuánto tiempo se debe mantener la suplementación?",
+      "respuesta": "El tiempo mínimo recomendado es de 3 meses para la mayoría de productos (Pro-Resolving Mediators puede mostrar resultados en 1 mes). La suplementación puede mantenerse a largo plazo según necesidades del paciente."
+    },
+    {
+      "id": 112,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Cómo conservar los productos Puro Omega?",
+      "respuesta": "Perlas: conservar en lugar fresco y seco (<25°C), no refrigerar para evitar humedad. Líquidos: conservar en lugar fresco y seco; una vez abierto, refrigerar (2-8°C) y consumir en máximo 2 meses."
+    },
+    {
+      "id": 113,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Cuál es el límite seguro de Omega-3 diario?",
+      "respuesta": "La EFSA (Autoridad Europea de Seguridad Alimentaria) ha establecido un margen de seguridad de hasta 5g/día de Omega-3 EPA y DHA combinados en adultos. Las dosis de Puro Omega están muy por debajo de este límite."
+    },
+    {
+      "id": 114,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Se pueden combinar varios productos Puro Omega?",
+      "respuesta": "Sí, los productos pueden combinarse según las necesidades del paciente, siempre respetando el límite de 5g/día de EPA+DHA. Por ejemplo, Natural DHA para función cognitiva + Natural EPA para salud cardiovascular."
+    },
+    {
+      "id": 115,
+      "categoria": "objeciones_precio",
+      "pregunta": "El médico dice que Puro Omega es más caro que otros Omega-3",
+      "respuesta": "El precio por cápsula no refleja el valor real. Hay que comparar coste por gramo de DHA+EPA activo. Con Puro Omega (>80% concentración, forma rTG), 2 perlas equivalen a 4-6 cápsulas de productos genéricos (30-50% concentración, forma EE). El coste efectivo es similar o menor, con mejor absorción."
+    },
+    {
+      "id": 116,
+      "categoria": "objeciones_precio",
+      "pregunta": "¿Por qué debería pagar más por Puro Omega?",
+      "respuesta": "Está pagando por: 1) Concentración real >80% vs 30-50% en genéricos, 2) Forma rTG con 3x mejor absorción vs EE, 3) Certificaciones IFOS/GOED que garantizan pureza, 4) Menor número de cápsulas diarias = mejor adherencia, 5) Ingredientes patentados de eficacia probada."
+    },
+    {
+      "id": 117,
+      "categoria": "objeciones_precio",
+      "pregunta": "El paciente no puede permitirse Puro Omega",
+      "respuesta": "Considere el coste de la enfermedad vs prevención. Además, calcule el coste real: si un genérico requiere 4 cápsulas para igualar 2 de Puro Omega, el ahorro aparente desaparece. Ofrecemos formatos de 60 y 180 perlas; el formato grande reduce el coste por perla."
+    },
+    {
+      "id": 118,
+      "categoria": "objeciones_precio",
+      "pregunta": "¿Por qué no recomendar un Omega-3 de farmacia?",
+      "respuesta": "Los Omega-3 de farmacia generalmente tienen: concentración baja (30-50%), forma etil-éster de peor absorción, sin certificaciones de pureza rigurosas, y requieren 4+ cápsulas diarias. Puro Omega ofrece calidad farmacéutica real con dosis efectivas en 1-2 perlas."
+    },
+    {
+      "id": 119,
+      "categoria": "objeciones_precio",
+      "pregunta": "El médico ya recomienda otra marca de Omega-3",
+      "respuesta": "Pregunte: ¿Qué concentración tiene? ¿Es forma rTG o EE? ¿Tiene certificación IFOS? ¿Cuántas cápsulas necesita el paciente? Compare manzanas con manzanas. Puro Omega ofrece la máxima transparencia con reportes IFOS disponibles para cada lote."
+    },
+    {
+      "id": 120,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "El médico dice que los suplementos de Omega-3 no funcionan",
+      "respuesta": "Los estudios negativos generalmente usaron dosis bajas o forma EE de baja absorción. Puro Omega usa forma rTG con 3x mejor biodisponibilidad. Además, ofrecemos el Omega-3 Index para medir niveles reales y confirmar eficacia. Sin medición, es difícil optimizar la dosis."
+    },
+    {
+      "id": 121,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿Cuánto tiempo tarda en hacer efecto el Omega-3?",
+      "respuesta": "Los cambios en el Índice Omega-3 se reflejan en aproximadamente 4 meses (vida media del eritrocito). Pro-Resolving Mediators puede mostrar resultados en dolor en 6 semanas. Los beneficios cognitivos y cardiovasculares son acumulativos con uso continuado."
+    },
+    {
+      "id": 122,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "El paciente dice que ya come pescado regularmente",
+      "respuesta": "La mayoría de la población tiene Índice Omega-3 entre 4-6% (rango de riesgo), incluso quienes comen pescado. La única forma de saber el nivel real es medirlo. Además, los peces cultivados tienen menos Omega-3 que los salvajes, y la cocción puede degradar parte del contenido."
+    },
+    {
+      "id": 123,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿Por qué necesito suplementos si tengo una dieta equilibrada?",
+      "respuesta": "Una dieta equilibrada aporta aproximadamente 100-200mg de EPA+DHA diarios. Las dosis terapéuticas son 1000-2000mg o más. Además, factores genéticos y metabólicos afectan la absorción. El Omega-3 Index permite verificar si la dieta es suficiente."
+    },
+    {
+      "id": 124,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "El médico prefiere recetar medicamentos en lugar de suplementos",
+      "respuesta": "Puro Omega complementa, no sustituye, el tratamiento farmacológico cuando es necesario. Por ejemplo, en pacientes con estatinas, Ubiquinol & PQQ repone la CoQ10 que las estatinas agotan. Pro-Resolving Mediators puede reducir la necesidad de AINEs a largo plazo."
+    },
+    {
+      "id": 125,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "El médico está preocupado por metales pesados en aceite de pescado",
+      "respuesta": "Puro Omega usa exclusivamente peces de ciclo de vida corto (sardina, anchoa) que acumulan mínimos contaminantes. Nuestra tecnología SFC/SFE garantiza pureza máxima. Tenemos certificación IFOS y ofrecemos reportes de cada lote que muestran niveles indetectables de mercurio, PCBs y dioxinas."
+    },
+    {
+      "id": 126,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿El Omega-3 puede causar sangrado excesivo?",
+      "respuesta": "A dosis de hasta 5g/día (establecido por EFSA como seguro), el Omega-3 no aumenta significativamente el riesgo de sangrado en personas sanas. En pacientes con anticoagulantes, se recomienda monitorización y ajuste bajo supervisión médica, como con cualquier suplemento."
+    },
+    {
+      "id": 127,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿Es seguro el Omega-3 durante el embarazo?",
+      "respuesta": "Sí, es seguro y recomendado. La EFSA recomienda 450mg de DHA+EPA durante el embarazo. Natural DHA Embarazo está específicamente formulado para esta etapa, con máxima pureza y seguridad. El uso de otros productos requiere supervisión médica."
+    },
+    {
+      "id": 128,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿El Omega-3 interactúa con medicamentos?",
+      "respuesta": "Se recomienda verificar posibles interacciones con cualquier tratamiento activo. Las principales precauciones son con anticoagulantes (puede potenciar efecto) y en cirugías programadas (suspender unos días antes). Nuestros productos tienen excelente perfil de seguridad en todos los estudios."
+    },
+    {
+      "id": 129,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "El paciente es alérgico al pescado",
+      "respuesta": "Para estos pacientes, Natural DHA Vegan es la alternativa ideal. Está extraído de microalgas (Schizochytrium sp.), 100% vegetal, con cápsula de gelatina vegetal y certificación V-Label. Ofrece bioequivalencia demostrada con el DHA de pescado."
+    },
+    {
+      "id": 130,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿Los suplementos Puro Omega causan mal aliento o eructos?",
+      "respuesta": "Nuestras cápsulas de alta calidad minimizan este efecto. Además, Pro-Resolving Mediators usa tecnología DELASOL® de liberación entérica que evita el contacto con el estómago. Tomar con comidas también reduce cualquier posible reflujo."
+    },
+    {
+      "id": 131,
+      "categoria": "argumentos_venta",
+      "pregunta": "Dame el argumento principal para convencer a un médico de prescribir Puro Omega",
+      "respuesta": "Puro Omega ofrece el 'triángulo de la potencia' que otros no tienen: Pureza total (certificación IFOS, peces de ciclo corto), Concentración máxima (+80% vs 30-50% de genéricos), y Biodisponibilidad superior (forma rTG con 3x mejor absorción). Resultado: dosis reales en 1-2 perlas con mejor adherencia del paciente."
+    },
+    {
+      "id": 132,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo diferenciar Puro Omega de la competencia en una frase?",
+      "respuesta": "Puro Omega es el portafolio de Omega-3 más completo y avanzado del mercado, con calidad farmacéutica certificada, fórmulas especializadas con bioactivos patentados, y el respaldo de 35 años de experiencia del Dr. Peter Lembke."
+    },
+    {
+      "id": 133,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para cardiólogos?",
+      "respuesta": "Ubiquinol & PQQ Complex es imprescindible para pacientes con estatinas (repone CoQ10 agotada) y ofrece 50% menos eventos cardiovasculares según el estudio Mortensen. Natural EPA proporciona prevención primaria con reducción significativa de presión arterial y triglicéridos."
+    },
+    {
+      "id": 134,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para ginecólogos?",
+      "respuesta": "Natural DHA Embarazo con ratio 4:1 que imita la leche materna cubre las recomendaciones EFSA con 1 sola perla. Reduce hasta 75% el riesgo de parto prematuro y 33% el riesgo de asma infantil. Para fertilidad, mejora calidad ovocitaria en FIV."
+    },
+    {
+      "id": 135,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para pediatras?",
+      "respuesta": "Natural Omega-3 Líquido con ratio 3:2 EPA:DHA es la fórmula específica para desarrollo infantil. Mejora atención y comportamiento en TDAH/TEA, reduce 72% el riesgo de alergias alimentarias. Formato líquido con sabor a limón facilita la adherencia en niños."
+    },
+    {
+      "id": 136,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para neurólogos?",
+      "respuesta": "Ginkgo Complex ofrece triple acción cerebrovascular: DHA estructural + Ginkgo para microcirculación + CoQ10 para energía neuronal. El meta-análisis muestra 2.5x mayor probabilidad de mejoría en demencia. Puro EPA es clave para trastornos del ánimo."
+    },
+    {
+      "id": 137,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para reumatólogos?",
+      "respuesta": "Pro-Resolving Mediators con SPMs Lipinova® representa un nuevo paradigma: pro-resolución activa de la inflamación. Reduce dolor 55% en osteoartritis, 67% de pacientes reducen analgésicos. Puede ser alternativa a AINEs de largo plazo sin efectos secundarios."
+    },
+    {
+      "id": 138,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para endocrinólogos?",
+      "respuesta": "Curcumin Complex con HydroCurc® patentado reduce HbA1c en 0.55pp y mejora HOMA-IR en diabetes tipo 2. Natural DHA mejora sensibilidad a insulina. Schisandra Complex aborda hígado graso no alcohólico desde dos frentes: metabólico y hepatoprotector."
+    },
+    {
+      "id": 139,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para médicos deportivos?",
+      "respuesta": "Natural EPA con certificación Cologne List® garantiza uso seguro en competición. Reduce 90% el estrés oxidativo post-ejercicio, mejora recuperación muscular y flujo sanguíneo. Schisandra Complex añade control de ansiedad competitiva y estrés."
+    },
+    {
+      "id": 140,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para psiquiatras?",
+      "respuesta": "Puro EPA (>80% EPA) es el único ratio que demuestra eficacia antidepresiva según meta-análisis Kelaiditis. Reduce 20% la ansiedad en situaciones de estrés. Para pacientes con depresión en tratamiento, Ginkgo Complex como adyuvante aumenta 25% la respuesta."
+    },
+    {
+      "id": 141,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el argumento para médicos generales?",
+      "respuesta": "Puro Omega ofrece soluciones para todas las necesidades: desde prevención general (Natural DHA/EPA) hasta indicaciones específicas (Complex/Intense). El Omega-3 Index permite personalizar y monitorizar. La metodología 3M garantiza éxito terapéutico medible."
+    },
+    {
+      "id": 142,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Qué programa de formación ofrece Puro Omega?",
+      "respuesta": "Omega-3 Academy es nuestro programa de Educación Médica Continua exclusivo para profesionales de la salud. Combina formación presencial con plataforma virtual, liderado por expertos en ácidos grasos. Registro en puroomega.com/omega3academy."
+    },
+    {
+      "id": 143,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Cómo se compara Puro Omega con Nordic Naturals?",
+      "respuesta": "Ambas son marcas premium. Puro Omega ofrece: fórmulas especializadas con bioactivos patentados (HydroCurc®, Lipinova®, Kaneka Ubiquinol®), el portafolio más completo con líneas Essential/Complex/Intense, y acceso al Omega-3 Index para personalización. Concentraciones y pureza son comparables."
+    },
+    {
+      "id": 144,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Cómo se compara Puro Omega con productos de farmacia genéricos?",
+      "respuesta": "Puro Omega: concentración >80%, forma rTG, certificación IFOS, 2 perlas/día. Genéricos: concentración 30-50%, forma EE, sin certificaciones rigurosas, 4+ cápsulas/día. El coste efectivo por gramo de Omega-3 activo es similar, pero la absorción y pureza de Puro Omega son superiores."
+    },
+    {
+      "id": 145,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Qué hace único a Pro-Resolving Mediators vs otros antiinflamatorios naturales?",
+      "respuesta": "Pro-Resolving Mediators es el único producto con SPMs concentrados y estandarizados (Lipinova®). Otros productos aportan solo precursores (EPA/DHA). Los SPMs son la forma activa que resuelve la inflamación, no solo la suprime. Esto permite resultados más rápidos y mecanismo de acción superior."
+    },
+    {
+      "id": 146,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Por qué elegir Natural DHA Vegan sobre otras alternativas veganas?",
+      "respuesta": "Natural DHA Vegan ofrece la mayor concentración de DHA de microalgas del mercado, con bioequivalencia demostrada al aceite de pescado (estudio Bailey 2025). Certificación V-Label, cápsula vegetal, y la misma calidad Puro Omega. Otras alternativas pueden tener menor concentración o usar ALA que requiere conversión."
+    },
+    {
+      "id": 147,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Cómo se comparan las fórmulas Complex con suplementos individuales?",
+      "respuesta": "Las fórmulas Complex ofrecen sinergias probadas en una sola cápsula: Omega-3 + bioactivo específico. Comprar Omega-3 + cúrcuma + etc. por separado resulta más costoso, menos conveniente, y sin la optimización de dosis y biodisponibilidad que logramos con ingredientes patentados."
+    },
+    {
+      "id": 148,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Natural DHA?",
+      "respuesta": "Hombres y mujeres mayores de 12 años que buscan soporte para: función cognitiva y visual, prevención de neurodegeneración, prevención de DMAE, normalización metabólica/prediabetes, o pérdida de peso. Es la fórmula versátil para cualquier etapa de vida."
+    },
+    {
+      "id": 149,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Natural DHA Embarazo?",
+      "respuesta": "Mujeres en edad fértil que buscan embarazo, están embarazadas o en lactancia. Indicado para desarrollo cerebral/visual del bebé, prevención de alergias infantiles, reducción de riesgo de parto prematuro/preeclampsia, prevención de depresión postparto, y protocolos de FIV."
+    },
+    {
+      "id": 150,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Natural DHA Vegan?",
+      "respuesta": "Personas con restricciones alimentarias (veganos, vegetarianos), alergia al pescado, o sensibilidad a la histamina. Cubre las mismas indicaciones que Natural DHA y Natural DHA Embarazo, con la ventaja de ser 100% vegetal."
+    },
+    {
+      "id": 151,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Natural EPA?",
+      "respuesta": "Deportistas de alto rendimiento (certificación Cologne List®). Personas que necesitan soporte cardiovascular, salud digestiva/microbiota, o modulación inmune. Es el pilar preventivo para el equilibrio sistémico en cualquier persona mayor de 12 años."
+    },
+    {
+      "id": 152,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Puro EPA?",
+      "respuesta": "Personas con niveles bajos de EPA confirmados por Omega-3 Index. Aquellos que necesitan soporte para bienestar emocional, prevención de ansiedad/depresión/trastorno bipolar, o corrección del ratio AA:EPA. Mayores de 12 años."
+    },
+    {
+      "id": 153,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Natural Omega-3 Líquido?",
+      "respuesta": "Niños de 2-12 años (TDAH, TEA, trastornos del comportamiento, sistema inmune). Adultos mayores o personas con disfagia que no pueden tragar cápsulas. Cualquiera que prefiera formato líquido con sabor agradable."
+    },
+    {
+      "id": 154,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Curcumin Complex?",
+      "respuesta": "Personas con: Diabetes tipo II, síndrome metabólico, pérdida de apetito, condiciones gastrointestinales (dispepsia, disbiosis, intestino permeable, colon inflamado), afecciones respiratorias o alergias. Mayores de 12 años."
+    },
+    {
+      "id": 155,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Ginkgo Complex?",
+      "respuesta": "Estudiantes que necesitan mejorar concentración y memoria. Adultos mayores para envejecimiento saludable. Personas con: TDAH/TEA, trastornos del ánimo, DMAE, o riesgo de enfermedades neurodegenerativas (demencia, Alzheimer, Parkinson). Mayores de 12 años."
+    },
+    {
+      "id": 156,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Schisandra Complex?",
+      "respuesta": "Personas con: estrés crónico, ansiedad, fatiga adrenal, hígado graso no alcohólico, o necesidad de detoxificación hepática (tratamientos farmacológicos prolongados, consumo de alcohol, malos hábitos alimenticios). Mayores de 12 años."
+    },
+    {
+      "id": 157,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Ubiquinol & PQQ Complex?",
+      "respuesta": "Personas con: factores de riesgo cardiovascular (triglicéridos >150 mg/dL, hipertensión), insuficiencia cardíaca actual o previa, tratamiento con estatinas, o condiciones de disfunción mitocondrial. Mayores de 12 años."
+    },
+    {
+      "id": 158,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién es el paciente ideal para Pro-Resolving Mediators?",
+      "respuesta": "Personas con inflamación crónica y dolor: lesiones musculoesqueléticas, dolor neuropático, osteoartritis, fibromialgia. Alternativa a AINEs de largo plazo. Enfermedades autoinmunes (artritis reumatoide, esclerosis múltiple). Coadyuvante oncológico. Mayores de 12 años."
+    },
+    {
+      "id": 159,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Quién debería hacerse el Omega-3 Index?",
+      "respuesta": "Cualquier persona que quiera personalizar su suplementación. Especialmente recomendado para: pacientes con factores de riesgo cardiovascular, embarazadas, personas con déficit sospechado, y para monitorizar la eficacia del tratamiento con Puro Omega."
+    },
+    {
+      "id": 160,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Dónde se fabrican los productos Puro Omega?",
+      "respuesta": "Los productos Puro Omega se fabrican bajo estrictos estándares de calidad farmacéutica con certificaciones GMP, IFS Food y FSSC 22000. Utilizamos tecnología de vanguardia como SFC/SFE para extracción y purificación."
+    },
+    {
+      "id": 161,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Qué compromiso medioambiental tiene Puro Omega?",
+      "respuesta": "Tenemos un Compromiso 360º: origen responsable con peces de ciclo de vida corto, certificación FOS (Friends of the Sea), envases de vidrio ámbar 100% reciclables, y eliminación de envases secundarios de cartón para reducir impacto ambiental."
+    },
+    {
+      "id": 162,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Los productos Puro Omega son de origen sostenible?",
+      "respuesta": "Sí. Contamos con certificación FOS (Friends of the Sea) que garantiza origen sostenible. Usamos peces de ciclo de vida corto con poblaciones controladas. Natural DHA Vegan utiliza microalgas cultivadas, 100% sostenible sin impacto en biodiversidad marina."
+    },
+    {
+      "id": 163,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué significa 'calidad farmacéutica'?",
+      "respuesta": "Calidad farmacéutica significa que nuestros productos cumplen estándares de producción de medicamentos: certificación GMP (Buenas Prácticas de Manufactura), trazabilidad completa desde origen hasta producto final, análisis de calidad independientes de cada lote, y certificaciones internacionales verificadas."
+    },
+    {
+      "id": 164,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Puedo ver los certificados de análisis de Puro Omega?",
+      "respuesta": "Sí. Ponemos a disposición de los profesionales de la salud los Reportes IFOS de cada lote de producto. Esto garantiza transparencia total sobre pureza, concentración y ausencia de contaminantes. Puede solicitarlos a través de su representante."
+    },
+    {
+      "id": 165,
+      "categoria": "tecnologia_calidad",
+      "pregunta": "¿Qué es el DPA y por qué aparece en las fórmulas?",
+      "respuesta": "DPA (Ácido Docosapentaenoico) es un Omega-3 intermedio entre EPA y DHA que también tiene beneficios para la salud. Aparece naturalmente en el aceite de pescado de alta calidad. En nuestras tablas nutricionales se incluye en 'Otros Omega-3'."
+    },
+    {
+      "id": 166,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para prevenir enfermedades crónicas?",
+      "respuesta": "Natural DHA o Natural EPA son excelentes para prevención general. Natural DHA para soporte cerebral, visual y metabólico. Natural EPA para cardiovascular, inmune e intestinal. Ambos ofrecen protección antiinflamatoria sistémica."
+    },
+    {
+      "id": 167,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para pérdida de peso?",
+      "respuesta": "Natural DHA está indicado para regímenes alimenticios de pérdida de peso. El DHA mejora la sensibilidad a la insulina y modula el metabolismo lipídico. Para síndrome metabólico asociado, considerar también Curcumin Complex."
+    },
+    {
+      "id": 168,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto recomendar para fortalecer el sistema inmune?",
+      "respuesta": "Natural EPA modula la respuesta del sistema inmune sin causar inmunosupresión. Natural Omega-3 Líquido es ideal para niños. La mayoría de fórmulas incluyen Vitamina D3 que contribuye al funcionamiento normal del sistema inmunitario."
+    },
+    {
+      "id": 169,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Se puede usar Puro Omega en pacientes oncológicos?",
+      "respuesta": "Pro-Resolving Mediators está indicado como coadyuvante en tratamiento oncológico. Los SPMs apoyan la resolución de la inflamación crónica asociada. Siempre debe usarse bajo supervisión del oncólogo tratante."
+    },
+    {
+      "id": 170,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto para un paciente con múltiples condiciones?",
+      "respuesta": "Evalúe la prioridad clínica. Las fórmulas Complex ofrecen sinergias para múltiples indicaciones. Ejemplo: Ubiquinol & PQQ para paciente cardiovascular con estatinas y fatiga. Se pueden combinar productos respetando el límite de 5g/día de EPA+DHA."
+    },
+    {
+      "id": 171,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Puedo tomar Omega-3 en ayunas?",
+      "respuesta": "Se recomienda tomar con alimentos para optimizar la absorción de los ácidos grasos liposolubles. Si se toma en ayunas, la biodisponibilidad puede ser menor. La cena o comida son los momentos ideales."
+    },
+    {
+      "id": 172,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Se puede partir o masticar las cápsulas?",
+      "respuesta": "No se recomienda partir las cápsulas ya que el aceite podría oxidarse. Para quienes no pueden tragar cápsulas, Natural Omega-3 Líquido o Schisandra Complex son las alternativas en formato líquido."
+    },
+    {
+      "id": 173,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Cuántas perlas trae cada envase?",
+      "respuesta": "Varía por producto: Natural DHA (60 o 180 perlas), Natural DHA Embarazo (60 o 180), Natural DHA Vegan (90), Natural EPA (60 o 120), Puro EPA (120), Curcumin/Ginkgo/Ubiquinol Complex (60), Pro-Resolving Mediators (60). Líquidos: 200mL."
+    },
+    {
+      "id": 174,
+      "categoria": "objeciones_precio",
+      "pregunta": "¿Hay descuentos por volumen?",
+      "respuesta": "Los formatos grandes (180 perlas en Natural DHA/Embarazo, 120 perlas en Natural EPA/Puro EPA) ofrecen mejor relación coste/perla. Consulte con su representante las condiciones comerciales para farmacias y clínicas."
+    },
+    {
+      "id": 175,
+      "categoria": "objeciones_precio",
+      "pregunta": "El médico dice que sus pacientes no pueden costear suplementos",
+      "respuesta": "Compare el coste de tratar enfermedades vs prevenirlas. Un mes de Puro Omega cuesta menos que una visita de urgencias. Además, la alta concentración significa menor número de cápsulas = menor coste real que productos diluidos."
+    },
+    {
+      "id": 176,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿Cómo sé que el Omega-3 está funcionando?",
+      "respuesta": "El Omega-3 Index Complete permite medir objetivamente los niveles de DHA+EPA en sangre. Con la metodología 3M, se mide al inicio y tras 4 meses de suplementación para confirmar que se alcanzó el rango óptimo (8-12%)."
+    },
+    {
+      "id": 177,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿El Omega-3 sirve para todas las edades?",
+      "respuesta": "Sí. Desde los 2 años (Natural Omega-3 Líquido con dosis ajustada) hasta adultos mayores. Las indicaciones varían por edad: desarrollo en niños, prevención en adultos, mantenimiento y protección en mayores. Natural DHA Embarazo para gestación."
+    },
+    {
+      "id": 178,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿Los niños pueden tomar Omega-3 de forma segura?",
+      "respuesta": "Sí. Natural Omega-3 Líquido está diseñado específicamente para niños desde los 2 años, con dosis ajustables por edad y sabor agradable a limón. Los estudios confirman seguridad y beneficios en desarrollo cognitivo, atención y sistema inmune."
+    },
+    {
+      "id": 179,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿Hay contraindicaciones absolutas para Omega-3?",
+      "respuesta": "La única contraindicación absoluta es alergia al pescado (usar Natural DHA Vegan como alternativa). Precauciones: pacientes con anticoagulantes requieren monitorización, y en cirugías programadas puede recomendarse suspender unos días antes."
+    },
+    {
+      "id": 180,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿El Omega-3 puede causar problemas gastrointestinales?",
+      "respuesta": "Los productos Puro Omega de alta calidad raramente causan molestias. Si ocurren, tomar con comidas ayuda. Pro-Resolving Mediators con tecnología DELASOL® tiene liberación entérica que evita contacto con el estómago."
+    },
+    {
+      "id": 181,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo abordar a un médico escéptico sobre suplementos?",
+      "respuesta": "Enfoque en evidencia: presente los estudios clínicos específicos de cada producto (meta-análisis, RCTs). Ofrezca los reportes IFOS que demuestran calidad verificable. Proponga el Omega-3 Index como herramienta objetiva de diagnóstico y seguimiento."
+    },
+    {
+      "id": 182,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Qué material de apoyo puedo dejar al médico?",
+      "respuesta": "Fichas de producto con estudios clínicos, el catálogo completo de Puro Omega, información sobre Omega-3 Academy para formación continua, y acceso a reportes IFOS por lote. Pregunte sobre las necesidades específicas de su consulta."
+    },
+    {
+      "id": 183,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo generar una segunda visita con el médico?",
+      "respuesta": "Ofrezca seguimiento: resultados del Omega-3 Index de sus pacientes, acceso a webinars de Omega-3 Academy, actualización sobre nuevos estudios clínicos. Pregunte qué tipo de pacientes ve más frecuentemente para personalizar la próxima visita."
+    },
+    {
+      "id": 184,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo presentar el Omega-3 Index al médico?",
+      "respuesta": "Es la herramienta de diagnóstico de precisión que permite pasar de la estimación a la certeza clínica. Permite personalizar la suplementación y medir el éxito terapéutico objetivamente. Desarrollado por OmegaQuant con +200 estudios, validado por CLIA."
+    },
+    {
+      "id": 185,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el mensaje clave para farmacias?",
+      "respuesta": "Puro Omega es la marca premium de Omega-3 con la que diferenciarse de la competencia genérica. Ofrece calidad farmacéutica verificable, formatos para toda la familia, y alta rotación gracias a la recomendación médica y resultados visibles en pacientes."
+    },
+    {
+      "id": 186,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Por qué forma rTG y no etil-éster como la mayoría?",
+      "respuesta": "El etil-éster es más barato de producir pero tiene peor absorción. La forma rTG es la estructura natural del Omega-3 que el cuerpo reconoce, con biodisponibilidad hasta 3 veces superior. Es la diferencia entre cantidad de cápsula y cantidad que realmente absorbe el paciente."
+    },
+    {
+      "id": 187,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Otros productos tienen bioactivos patentados como Puro Omega?",
+      "respuesta": "Puro Omega es único en ofrecer combinaciones sinérgicas con bioactivos patentados: HydroCurc® (cúrcuma 4x más biodisponible), Kaneka Q10®/Ubiquinol®, MGCPQQ®, y Lipinova® (único con SPMs concentrados). Estas patentes garantizan eficacia probada."
+    },
+    {
+      "id": 188,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Qué ventaja tiene Puro Omega sobre aceite de krill?",
+      "respuesta": "El aceite de krill tiene menor concentración de EPA+DHA (típicamente 15-25%) y requiere más cápsulas. Puro Omega ofrece >80% de concentración. Además, nuestro portafolio incluye fórmulas especializadas con bioactivos que el krill no puede ofrecer."
+    },
+    {
+      "id": 189,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuál es el ratio ideal de DHA:EPA?",
+      "respuesta": "Depende de la indicación: Ratio 4:1 DHA:EPA (Natural DHA, Embarazo, Ginkgo Complex) para soporte estructural cerebral/visual. Ratio 2:1 EPA:DHA (Natural EPA) para cardiovascular/inmune. Ratio >80% EPA (Puro EPA) para salud emocional. Ratio 3:2 (Líquido, Curcumin, Schisandra, Ubiquinol) para balance."
+    },
+    {
+      "id": 190,
+      "categoria": "productos_linea_essential",
+      "pregunta": "¿Cuál es la diferencia entre DHA y EPA?",
+      "respuesta": "DHA es componente estructural de membranas cerebrales y retina, clave para función cognitiva y visual. EPA es precursor de eicosanoides antiinflamatorios, clave para cardiovascular, inmune y estado de ánimo. Ambos son esenciales pero tienen roles diferentes."
+    },
+    {
+      "id": 191,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Cada cuánto repetir el Omega-3 Index?",
+      "respuesta": "Se recomienda repetir tras mínimo 4 meses de suplementación (vida media del eritrocito) para evaluar si se alcanzó el rango óptimo. Luego, anualmente para monitorizar mantenimiento, o antes si hay cambios significativos en dieta o tratamiento."
+    },
+    {
+      "id": 192,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué indica un ratio Omega-6/Omega-3 elevado?",
+      "respuesta": "Un ratio elevado indica predominio de vías proinflamatorias derivadas del Omega-6 (ácido araquidónico). La dieta occidental típica tiene ratio 15-20:1 cuando lo ideal es 4:1 o menor. La suplementación con Omega-3 ayuda a corregir este desequilibrio."
+    },
+    {
+      "id": 193,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿Qué indica el índice de grasas trans en el test?",
+      "respuesta": "El índice de grasas trans es un marcador de calidad dietética y estrés oxidativo sistémico. Un nivel elevado indica consumo de alimentos ultraprocesados y se asocia con mayor riesgo cardiovascular. Es útil para orientar cambios dietéticos."
+    },
+    {
+      "id": 194,
+      "categoria": "objeciones_precio",
+      "pregunta": "¿Por qué no hay versiones más económicas de Puro Omega?",
+      "respuesta": "Reducir el precio significaría comprometer la calidad: menor concentración, forma etil-éster, o ingredientes genéricos en lugar de patentados. Puro Omega mantiene el estándar de calidad farmacéutica que garantiza eficacia. El coste por gramo de Omega-3 activo absorbido es competitivo."
+    },
+    {
+      "id": 195,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿Por qué el Omega-3 no me ha funcionado antes?",
+      "respuesta": "Posibles razones: producto de baja concentración o forma EE con mala absorción, dosis insuficiente, tiempo insuficiente de tratamiento, o niveles no medidos para ajustar la dosis. Con Puro Omega y el Omega-3 Index, estos problemas se resuelven."
+    },
+    {
+      "id": 196,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿El Omega-3 puede aumentar el colesterol?",
+      "respuesta": "No. De hecho, el Omega-3 ayuda a reducir triglicéridos y puede aumentar el colesterol HDL ('bueno'). En algunos casos puede haber un ligero aumento de LDL, pero este suele ser de partículas grandes y menos aterogénicas. El perfil lipídico general mejora."
+    },
+    {
+      "id": 197,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Puro Omega es apto para vegetarianos (no veganos)?",
+      "respuesta": "Los vegetarianos que consumen productos de origen animal (huevos, lácteos) pero no pescado pueden elegir: Natural DHA Vegan (100% vegetal) o los productos de pescado si no tienen objeción ética al aceite de pescado derivado de peces de ciclo corto."
+    },
+    {
+      "id": 198,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Hay productos Puro Omega sin vitamina D?",
+      "respuesta": "La mayoría de fórmulas incluyen Vitamina D3 por su sinergia con Omega-3 y beneficios para el sistema inmune. Natural Omega-3 Líquido no contiene vitamina D. Si hay preocupación por exceso de vitamina D, consulte las dosis específicas de cada producto."
+    },
+    {
+      "id": 199,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Puro Omega es apto para celíacos?",
+      "respuesta": "Sí. Todas las fórmulas Puro Omega son hipoalergénicas y libres de gluten. No contienen trigo, cebada, centeno ni sus derivados. Son seguras para personas con enfermedad celíaca o sensibilidad al gluten."
+    },
+    {
+      "id": 200,
+      "categoria": "perfil_paciente",
+      "pregunta": "¿Puro Omega es apto para personas con intolerancia a la lactosa?",
+      "respuesta": "Sí. Ningún producto Puro Omega contiene lactosa ni derivados lácteos. Son completamente seguros para personas con intolerancia a la lactosa."
+    },
+    {
+      "id": 201,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo cerrar una venta con un médico indeciso?",
+      "respuesta": "Proponga una prueba: ofrezca muestras o un programa piloto con algunos pacientes. Sugiera usar el Omega-3 Index para demostrar resultados objetivos. Programe seguimiento para revisar resultados. La evidencia en sus propios pacientes es el mejor argumento."
+    },
+    {
+      "id": 202,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cuál es el producto más vendido de Puro Omega?",
+      "respuesta": "Natural DHA es el producto más versátil y prescrito por su amplio espectro de indicaciones (cognitivo, visual, metabólico) y aplicabilidad en cualquier etapa de vida. Natural EPA le sigue por su perfil cardiovascular e inmune."
+    },
+    {
+      "id": 203,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Puro Omega tiene presencia internacional?",
+      "respuesta": "Puro Omega es parte del ecosistema Beps Biopharm con presencia en múltiples mercados. El test Omega-3 Index se procesa en laboratorio certificado en Reino Unido (University of Stirling) a través de OmegaQuant."
+    },
+    {
+      "id": 204,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto para un paciente post-COVID con fatiga?",
+      "respuesta": "Ubiquinol & PQQ Complex para soporte mitocondrial y energía celular. Pro-Resolving Mediators si hay inflamación residual. Schisandra Complex si hay componente de fatiga adrenal/estrés. Se pueden combinar según el perfil del paciente."
+    },
+    {
+      "id": 205,
+      "categoria": "indicaciones_clinicas",
+      "pregunta": "¿Qué producto para prevenir deterioro en adultos mayores?",
+      "respuesta": "Ginkgo Complex es la fórmula más completa para envejecimiento saludable: DHA estructural + Ginkgo para circulación cerebral + CoQ10 para energía mitocondrial. Natural DHA como alternativa más simple para prevención general."
+    },
+    {
+      "id": 206,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Se puede tomar Omega-3 de noche?",
+      "respuesta": "Sí, de hecho se recomienda tomar con la cena. Algunos pacientes reportan mejor descanso, posiblemente por los efectos antiinflamatorios. No hay contraindicación para tomar en la noche."
+    },
+    {
+      "id": 207,
+      "categoria": "dosificacion_posologia",
+      "pregunta": "¿Hay que hacer pausas en la suplementación?",
+      "respuesta": "No es necesario hacer pausas. El Omega-3 puede tomarse de forma continua a largo plazo. El cuerpo no desarrolla tolerancia ni dependencia. La suplementación constante mantiene los niveles óptimos en tejidos."
+    },
+    {
+      "id": 208,
+      "categoria": "objeciones_eficacia",
+      "pregunta": "¿Cuándo veré resultados con Pro-Resolving Mediators?",
+      "respuesta": "El estudio Möller mostró reducción del 55% en dolor en solo 6 semanas. Algunos pacientes reportan mejoría antes. Es uno de los productos Puro Omega con resultados más rápidos gracias a los SPMs activos."
+    },
+    {
+      "id": 209,
+      "categoria": "objeciones_seguridad",
+      "pregunta": "¿El Omega-3 afecta la glucosa en sangre?",
+      "respuesta": "No negativamente. De hecho, Natural DHA y Curcumin Complex mejoran la sensibilidad a la insulina y pueden ayudar a normalizar la glucosa. El meta-análisis Yuan mostró reducción de glucosa en ayunas de 12 mg/dL con cúrcuma."
+    },
+    {
+      "id": 210,
+      "categoria": "comparativas_competencia",
+      "pregunta": "¿Puro Omega tiene mejor concentración que Omacor/Lovaza?",
+      "respuesta": "Omacor/Lovaza son medicamentos con ~84% de EPA+DHA en forma EE. Puro Omega ofrece concentraciones similares o superiores (>80-90%) pero en forma rTG con mejor absorción. Además, nuestro portafolio incluye fórmulas especializadas que los medicamentos no ofrecen."
+    },
+    {
+      "id": 211,
+      "categoria": "productos_linea_complex",
+      "pregunta": "¿Cuál es la diferencia entre CoQ10 en Ginkgo y Ubiquinol en Ubiquinol & PQQ?",
+      "respuesta": "Ginkgo Complex usa CoQ10 (Kaneka Q10®), la forma oxidada. Ubiquinol & PQQ usa Ubiquinol (Kaneka Ubiquinol®), la forma reducida y activa con mayor potencia antioxidante. Para pacientes cardíacos o con estatinas, el Ubiquinol es preferible."
+    },
+    {
+      "id": 212,
+      "categoria": "productos_linea_intense",
+      "pregunta": "¿Pro-Resolving Mediators es antiinflamatorio?",
+      "respuesta": "Va más allá: es pro-resolutivo. No solo reduce la inflamación sino que activa su resolución natural, promoviendo reparación tisular y restauración de la homeostasis. Es un nuevo paradigma terapéutico más allá de la antiinflamación tradicional."
+    },
+    {
+      "id": 213,
+      "categoria": "diagnostico_omega3_index",
+      "pregunta": "¿El test requiere ayuno?",
+      "respuesta": "No es estrictamente necesario el ayuno ya que mide niveles en membrana de eritrocitos, no en plasma. Sin embargo, algunos profesionales prefieren condiciones estandarizadas. Consulte las instrucciones específicas del kit."
+    },
+    {
+      "id": 214,
+      "categoria": "argumentos_venta",
+      "pregunta": "¿Cómo responder si el médico ya prescribe otro Omega-3?",
+      "respuesta": "No critique el producto actual. Pregunte: ¿Qué concentración tiene? ¿Forma rTG o EE? ¿Mide resultados con Omega-3 Index? Posiciónese como complemento: 'Cuando tenga pacientes que no respondan o necesiten fórmulas especializadas, considere Puro Omega'."
+    },
+    {
+      "id": 215,
+      "categoria": "empresa_marca",
+      "pregunta": "¿Cómo contactar a Puro Omega?",
+      "respuesta": "A través de www.puroomega.com. Para Omega-3 Academy: puroomega.com/omega3academy. Para el test Omega-3 Index: puroomega.com/omega-3-index. También puede contactar a su representante comercial para información directa."
+    }
+  ]
+}

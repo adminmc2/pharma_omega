@@ -1,0 +1,7 @@
+/* PURO OMEGA - Estilos Base */
+
+body {
+    background: linear-gradient(180deg, #FDF8F3 0%, #F5EDE4 50%, #EDE5DB 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh;
+}

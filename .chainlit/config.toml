@@ -1,0 +1,33 @@
+[project]
+enable_telemetry = false
+
+[features]
+prompt_playground = false
+multi_modal = false
+latex = false
+
+[features.spontaneous_file_upload]
+enabled = false
+
+[UI]
+name = "Puro Omega"
+description = "Asistente de ventas"
+default_theme = "light"
+show_readme_as_default = false
+hide_cot = true
+custom_css = "/public/style.css"
+
+[UI.theme]
+primary_color = "#31BEEF"
+background_color = "#FAF9F6"
+font_family = "Inter, sans-serif"
+
+[UI.theme.light]
+paper_bgcolor = "#FAF9F6"
+foreground = "#36454F"
+
+[UI.branding]
+show_powered_by = false
+
+[meta]
+generated_by = "chainlit"

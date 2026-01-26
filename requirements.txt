@@ -1,0 +1,14 @@
+# Puro Omega - Asistente de Ventas RAG
+# Dependencias principales
+
+# Framework de chat
+chainlit>=1.0.0
+
+# Cliente OpenAI (compatible con DeepSeek)
+openai>=1.0.0
+
+# Procesamiento numérico
+numpy>=1.24.0
+
+# Variables de entorno
+python-dotenv>=1.0.0
