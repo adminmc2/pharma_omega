@@ -1,11 +1,15 @@
-# Puro Omega - Asistente de Ventas RAG
+# Puro Omega - Asistente de Ventas RAG v3.0
 # Dependencias principales
 
-# Framework de chat
-chainlit>=1.0.0
+# Backend API
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.9
+websockets>=12.0
 
-# Cliente OpenAI (compatible con DeepSeek)
+# Cliente LLM (DeepSeek + Groq)
 openai>=1.0.0
+groq>=0.4.0
 
 # Procesamiento numérico
 numpy>=1.24.0

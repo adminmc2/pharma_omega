@@ -2,10 +2,25 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+
+# Environment
 .env
+.env.local
 
 # OS
 .DS_Store
+Thumbs.db
 
-# Chainlit
-.chainlit/translations/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docs (Word files - keep in separate docs repo)
+*.docx
