@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..200&display=swap">
     <!-- Estilos -->
     <link rel="stylesheet" href="/static/style.css">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2331BEEF'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%232D5BA0'/%3E%3C/svg%3E">
 </head>
 <body>
     <div class="app-container">
@@ -192,19 +192,27 @@
              PANTALLA DE PLAN
              ============================================ -->
         <main class="plan-screen hidden" id="plan-screen">
-            <!-- Header del plan -->
-            <div class="plan-header">
-                <button class="back-btn" id="plan-back-btn" title="Volver">
-                    <span class="material-symbols-rounded">arrow_back</span>
-                </button>
-                <div class="plan-header__title">
-                    <span class="plan-header__text">Tu plan, Armando</span>
-                    <span class="plan-header__subtitle">Organiza tu día a día</span>
-                </div>
-            </div>
-
             <!-- Contenido scrollable -->
             <div class="plan-body">
+                <!-- Header limpio (mismo estilo que welcome) -->
+                <div class="header-row">
+                    <button class="header-icon-btn" id="plan-back-btn" title="Volver">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                    </button>
+                    <div class="header-actions">
+                        <button class="header-icon-btn" id="plan-faq-btn" title="Preguntas frecuentes">
+                            <span class="material-symbols-rounded">help</span>
+                        </button>
+                        <button class="header-icon-btn" id="plan-catalog-btn" title="Catálogos">
+                            <span class="material-symbols-rounded">menu_book</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Título tipo greeting -->
+                <div class="greeting-section">
+                    <h1 class="greeting-title">Tu plan, Armando</h1>
+                </div>
                 <!-- Filtro Overview -->
                 <div class="plan-overview-filter">
                     <button class="plan-filter-chip active" data-filter="hoy">Hoy</button>

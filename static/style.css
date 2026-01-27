@@ -5,11 +5,11 @@
 
 :root {
     /* ===== M3 COLOR SYSTEM (Custom Puro Omega palette) ===== */
-    /* Primary — Tech Cyan */
-    --md-sys-color-primary: #31BEEF;
+    /* Primary — Deep Blue */
+    --md-sys-color-primary: #2D5BA0;
     --md-sys-color-on-primary: #FFFFFF;
-    --md-sys-color-primary-container: #C4E8F7;
-    --md-sys-color-on-primary-container: #00354A;
+    --md-sys-color-primary-container: #D6E2FF;
+    --md-sys-color-on-primary-container: #142D5E;
 
     /* Secondary — Visionary Violet */
     --md-sys-color-secondary: #994E95;
@@ -169,14 +169,14 @@ body {
     /* Aurora gradient — multi-point radial blobs usando colores corporativos en pastel */
     background-color: #FBF8FF;
     background-image:
-        /* Cyan blob — arriba izquierda */
-        radial-gradient(ellipse 80% 60% at 15% 10%, rgba(49, 190, 239, 0.18) 0%, transparent 70%),
+        /* Deep Blue blob — arriba izquierda */
+        radial-gradient(ellipse 80% 60% at 15% 10%, rgba(45, 91, 160, 0.14) 0%, transparent 70%),
         /* Violet blob — centro derecha */
         radial-gradient(ellipse 70% 70% at 85% 40%, rgba(153, 78, 149, 0.14) 0%, transparent 70%),
         /* Soft Blue blob — abajo izquierda */
         radial-gradient(ellipse 75% 55% at 20% 85%, rgba(91, 115, 167, 0.16) 0%, transparent 70%),
-        /* Cyan secundario — abajo derecha (sutil) */
-        radial-gradient(ellipse 60% 50% at 75% 90%, rgba(49, 190, 239, 0.10) 0%, transparent 65%),
+        /* Deep Blue secundario — abajo derecha (sutil) */
+        radial-gradient(ellipse 60% 50% at 75% 90%, rgba(45, 91, 160, 0.08) 0%, transparent 65%),
         /* Violet secundario — arriba centro (sutil) */
         radial-gradient(ellipse 50% 40% at 50% 5%, rgba(153, 78, 149, 0.08) 0%, transparent 60%);
     background-attachment: fixed;
@@ -466,7 +466,7 @@ body[data-mood-active] .bento-card--mood {
 .bento-card--voice.listening {
     box-shadow:
         var(--md-sys-elevation-2),
-        0 0 0 0px rgba(49, 190, 239, 0.3);
+        0 0 0 0px rgba(45, 91, 160, 0.3);
     animation: cardPulse 2s var(--md-sys-motion-easing-standard) infinite;
 }
 
@@ -474,12 +474,12 @@ body[data-mood-active] .bento-card--mood {
     0%, 100% {
         box-shadow:
             var(--md-sys-elevation-2),
-            0 0 0 0px rgba(49, 190, 239, 0.3);
+            0 0 0 0px rgba(45, 91, 160, 0.3);
     }
     50% {
         box-shadow:
             var(--md-sys-elevation-2),
-            0 0 0 6px rgba(49, 190, 239, 0);
+            0 0 0 6px rgba(45, 91, 160, 0);
     }
 }
 
@@ -1073,13 +1073,13 @@ body[data-mood-active] .orb-floating {
         transform: scale(1);
         box-shadow:
             var(--md-sys-elevation-3),
-            0 0 0 0px rgba(49, 190, 239, 0.3);
+            0 0 0 0px rgba(45, 91, 160, 0.3);
     }
     50% {
         transform: scale(1.06);
         box-shadow:
             var(--md-sys-elevation-3),
-            0 0 0 8px rgba(49, 190, 239, 0);
+            0 0 0 8px rgba(45, 91, 160, 0);
     }
 }
 
@@ -1364,44 +1364,13 @@ body[data-mood-active] .orb-floating {
     animation: screenEnter var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate);
 }
 
-/* Plan Header */
-.plan-header {
-    display: flex;
-    align-items: center;
-    padding: var(--space-8) var(--space-4);
-    padding-top: calc(var(--space-8) + var(--safe-top));
-    background: rgba(251, 248, 255, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    gap: var(--space-4);
-    min-height: 64px;
-    flex-shrink: 0;
-}
-
-.plan-header__title {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding-left: var(--space-4);
-}
-
-.plan-header__text {
-    font: var(--md-sys-typescale-title-large);
-    color: var(--md-sys-color-on-surface);
-}
-
-.plan-header__subtitle {
-    font: var(--md-sys-typescale-label-medium);
-    color: var(--md-sys-color-on-surface-variant);
-    letter-spacing: 0.5px;
-}
-
-/* Plan Body — scrollable */
+/* Plan Body — scrollable (header incluido dentro) */
 .plan-body {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: var(--space-16) var(--space-20);
+    padding: var(--space-20);
+    padding-top: calc(var(--space-20) + var(--safe-top));
     padding-bottom: var(--space-16);
 }
 
@@ -1510,7 +1479,7 @@ body[data-mood-active] .orb-floating {
 
 /* Stat card color variants */
 .plan-stat--in-progress {
-    background: linear-gradient(145deg, rgba(196, 232, 247, 0.6) 0%, rgba(245, 242, 252, 0.5) 100%);
+    background: linear-gradient(145deg, rgba(214, 226, 255, 0.6) 0%, rgba(245, 242, 252, 0.5) 100%);
 }
 .plan-stat--in-progress .plan-stat__sparkline {
     color: var(--md-sys-color-primary);
