@@ -60,9 +60,6 @@ const elements = {
     welcomeScreen: document.getElementById('welcome-screen'),
     profileBtn: document.getElementById('profile-btn'),
     messageInput: document.getElementById('message-input'),
-    micBtn: document.getElementById('mic-btn'),
-    voiceStatus: document.getElementById('voice-status'),
-
     // Bento cards
     orbCard: document.getElementById('orb-card'),
     moodCard: document.getElementById('mood-card'),
@@ -619,7 +616,6 @@ function stopSilenceDetection() {
 
 function updateRecordingUI(recording, processing = false) {
     // Welcome screen
-    elements.micBtn?.classList.toggle('recording', recording);
     elements.orbCard?.classList.toggle('listening', recording);
 
     // Chat screen
@@ -724,9 +720,6 @@ function init() {
             showChatScreen(chip.dataset.question);
         }
     });
-
-    // Micrófono en barra de búsqueda (welcome)
-    elements.micBtn?.addEventListener('click', toggleRecording);
 
     // Input en welcome
     elements.messageInput?.addEventListener('keydown', (e) => {

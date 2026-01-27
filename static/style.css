@@ -549,6 +549,12 @@ body[data-mood-active] .bento-card--mood {
 .faq-section__title {
     font: var(--md-sys-typescale-title-large);
     color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-4);
+}
+
+.faq-section__desc {
+    font: var(--md-sys-typescale-body-small);
+    color: var(--md-sys-color-on-surface-variant);
     margin-bottom: var(--space-16);
 }
 
@@ -605,13 +611,13 @@ body[data-mood-active] .bento-card--mood {
 }
 
 /* ============================================
-   M3 SEARCH BAR — Extra Large shape (28dp)
+   M3 SEARCH BAR
    ============================================ */
 .search-container {
     display: flex;
     align-items: center;
     background: var(--md-sys-color-surface-container-high);
-    border-radius: var(--md-sys-shape-extra-large);
+    border-radius: var(--md-sys-shape-large);
     padding: var(--space-4) var(--space-8);
     min-height: 56px;
     flex-shrink: 0;
@@ -659,77 +665,6 @@ body[data-mood-active] .bento-card--mood {
 
 .search-input:focus {
     outline: none;
-}
-
-/* M3 Tonal Icon Button (mic) */
-.mic-btn {
-    width: 48px;
-    height: 48px;
-    border: none;
-    border-radius: var(--md-sys-shape-full);
-    background: transparent;
-    color: var(--md-sys-color-on-surface-variant);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-    transition:
-        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-}
-
-.mic-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-    pointer-events: none;
-}
-
-.mic-btn:hover::before {
-    opacity: var(--md-sys-state-hover);
-}
-
-.mic-btn.recording {
-    background: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-    animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
-}
-
-.mic-btn.recording::before {
-    display: none;
-}
-
-@keyframes pulse-record {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-}
-
-.mic-btn .material-symbols-rounded {
-    font-size: 24px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Voice Status */
-.voice-status {
-    text-align: center;
-    font: var(--md-sys-typescale-body-small);
-    color: var(--md-sys-color-on-surface-variant);
-    margin-top: var(--space-8);
-    min-height: 16px;
-    flex-shrink: 0;
-    transition: color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-}
-
-.voice-status.active {
-    color: var(--md-sys-color-error);
 }
 
 /* ============================================
