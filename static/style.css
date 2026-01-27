@@ -1707,7 +1707,7 @@ body[data-mood-active] .chat-input-container {
     padding: var(--space-12) var(--space-12);
     margin: 0 var(--space-16);
     margin-bottom: calc(var(--space-12) + var(--safe-bottom));
-    border-radius: var(--md-sys-shape-extra-large);
+    border-radius: var(--md-sys-shape-large);
     box-shadow: var(--md-sys-elevation-2);
     flex-shrink: 0;
     position: relative;
