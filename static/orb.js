@@ -349,6 +349,15 @@
         if (miniOrb) orbInstances.push(miniOrb);
     };
 
+    // API pública: crear orb en el nav del plan
+    window.orbCreateNav = function() {
+        const existing = orbInstances.find(o => o && o.id === 'orb-container-nav');
+        if (existing) return;
+
+        const navOrb = createOrb('orb-container-nav', 56);
+        if (navOrb) orbInstances.push(navOrb);
+    };
+
     // API pública: tintar colores del orb con el mood (sutil)
     window.orbSetMoodTint = function(r, g, b) {
         moodTint = { r, g, b };

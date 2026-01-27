@@ -189,6 +189,129 @@
         </main>
 
         <!-- ============================================
+             PANTALLA DE PLAN
+             ============================================ -->
+        <main class="plan-screen hidden" id="plan-screen">
+            <!-- Header del plan -->
+            <div class="plan-header">
+                <button class="back-btn" id="plan-back-btn" title="Volver">
+                    <span class="material-symbols-rounded">arrow_back</span>
+                </button>
+                <div class="plan-header__title">
+                    <span class="plan-header__text">Tu plan, Armando</span>
+                    <span class="plan-header__subtitle">Organiza tu día a día</span>
+                </div>
+            </div>
+
+            <!-- Contenido scrollable -->
+            <div class="plan-body">
+                <!-- Filtro Overview -->
+                <div class="plan-overview-filter">
+                    <button class="plan-filter-chip active" data-filter="hoy">Hoy</button>
+                    <button class="plan-filter-chip" data-filter="semana">Esta semana</button>
+                    <button class="plan-filter-chip" data-filter="quincena">Esta quincena</button>
+                </div>
+
+                <!-- Grid de estadísticas -->
+                <div class="plan-stats-grid">
+                    <div class="plan-stat-card plan-stat--in-progress">
+                        <span class="plan-stat__number" id="stat-in-progress">3</span>
+                        <svg class="plan-stat__sparkline" viewBox="0 0 60 24" aria-hidden="true">
+                            <polyline points="0,18 10,12 20,16 30,8 40,14 50,6 60,10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="plan-stat__label">En proceso</span>
+                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                    </div>
+                    <div class="plan-stat-card plan-stat--todo">
+                        <span class="plan-stat__number" id="stat-todo">5</span>
+                        <svg class="plan-stat__sparkline" viewBox="0 0 60 24" aria-hidden="true">
+                            <polyline points="0,10 10,14 20,8 30,18 40,12 50,16 60,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="plan-stat__label">Por hacer</span>
+                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                    </div>
+                    <div class="plan-stat-card plan-stat--overdue">
+                        <span class="plan-stat__number" id="stat-overdue">2</span>
+                        <svg class="plan-stat__sparkline" viewBox="0 0 60 24" aria-hidden="true">
+                            <polyline points="0,6 10,10 20,14 30,12 40,18 50,16 60,20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="plan-stat__label">Retrasadas</span>
+                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                    </div>
+                    <div class="plan-stat-card plan-stat--projects">
+                        <span class="plan-stat__number" id="stat-projects">3</span>
+                        <svg class="plan-stat__sparkline" viewBox="0 0 60 24" aria-hidden="true">
+                            <polyline points="0,14 10,8 20,12 30,6 40,10 50,8 60,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="plan-stat__label">Proyectos</span>
+                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                    </div>
+                    <div class="plan-stat-card plan-stat--total">
+                        <span class="plan-stat__number" id="stat-total">13</span>
+                        <svg class="plan-stat__sparkline" viewBox="0 0 60 24" aria-hidden="true">
+                            <polyline points="0,16 10,10 20,14 30,8 40,6 50,12 60,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="plan-stat__label">Total tareas</span>
+                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                    </div>
+                </div>
+
+                <!-- Sección Tareas -->
+                <div class="plan-tasks-section">
+                    <h2 class="plan-tasks__title">Tareas</h2>
+
+                    <!-- Filtros de tareas -->
+                    <div class="plan-tasks-filters">
+                        <select class="plan-tasks-filter" id="filter-project">
+                            <option value="all">Todos los proyectos</option>
+                            <option value="visitas">Visitas médicas</option>
+                            <option value="formacion">Formación</option>
+                            <option value="admin">Administración</option>
+                        </select>
+                        <select class="plan-tasks-filter" id="filter-time">
+                            <option value="hoy">Hoy</option>
+                            <option value="semana">Esta semana</option>
+                            <option value="quincena">Esta quincena</option>
+                        </select>
+                        <select class="plan-tasks-filter" id="filter-status">
+                            <option value="all">Todos los estados</option>
+                            <option value="in_progress">En proceso</option>
+                            <option value="todo">Por hacer</option>
+                            <option value="overdue">Retrasadas</option>
+                            <option value="done">Completadas</option>
+                        </select>
+                    </div>
+
+                    <!-- Lista de tareas — se renderiza dinámicamente desde JS -->
+                    <div class="plan-tasks-list" id="plan-tasks-list"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation Bar -->
+            <nav class="plan-bottom-nav">
+                <button class="plan-nav-btn active" id="nav-home" title="Inicio">
+                    <span class="material-symbols-rounded">home</span>
+                    <span class="plan-nav-btn__label">Inicio</span>
+                </button>
+                <button class="plan-nav-btn" id="nav-chat" title="Chat" disabled>
+                    <span class="material-symbols-rounded">chat_bubble</span>
+                    <span class="plan-nav-btn__label">Chat</span>
+                </button>
+                <button class="plan-nav-btn plan-nav-btn--orb" id="nav-orb" title="Hablar">
+                    <div id="orb-container-nav" class="orb-container-nav"></div>
+                </button>
+                <button class="plan-nav-btn" id="nav-list" title="Lista" disabled>
+                    <span class="material-symbols-rounded">list_alt</span>
+                    <span class="plan-nav-btn__label">Lista</span>
+                </button>
+                <button class="plan-nav-btn" id="nav-calendar" title="Calendario" disabled>
+                    <span class="material-symbols-rounded">calendar_month</span>
+                    <span class="plan-nav-btn__label">Calendario</span>
+                </button>
+            </nav>
+        </main>
+
+        <!-- ============================================
              MOOD SELECTOR OVERLAY
              ============================================ -->
         <div class="mood-overlay hidden" id="mood-overlay" role="dialog" aria-modal="true" aria-labelledby="mood-question">

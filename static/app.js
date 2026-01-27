@@ -78,6 +78,13 @@ const elements = {
     // Orb flotante
     orbFloating: document.getElementById('orb-floating'),
 
+    // Plan screen
+    planScreen: document.getElementById('plan-screen'),
+    planBackBtn: document.getElementById('plan-back-btn'),
+    planOverviewChips: document.querySelectorAll('.plan-filter-chip'),
+    navHome: document.getElementById('nav-home'),
+    navOrb: document.getElementById('nav-orb'),
+
     // Mood overlay
     moodOverlay: document.getElementById('mood-overlay'),
     moodCloseBtn: document.getElementById('mood-close-btn'),
@@ -352,6 +359,233 @@ function loadMoodFromStorage() {
 }
 
 // ============================================
+// Sistema de Plan — Datos y renderizado
+// ============================================
+
+// Tareas mock con fechas reales relativas a hoy (27 enero 2026)
+const PLAN_TASKS = [
+    // --- En proceso (fecha de hoy) ---
+    { id: 1, title: 'Visita Dr. García — Cardiología', date: '2026-01-27', project: 'visitas', status: 'in_progress', tasks: 2, subtasks: 1 },
+    { id: 2, title: 'Estudiar ficha Natural DHA', date: '2026-01-27', project: 'formacion', status: 'in_progress', tasks: 1, subtasks: 0 },
+    { id: 3, title: 'Preparar argumentario Ginecología', date: '2026-01-27', project: 'visitas', status: 'in_progress', tasks: 3, subtasks: 2 },
+    // --- Por hacer (futuro cercano) ---
+    { id: 4, title: 'Visita Dra. López — Pediatría', date: '2026-01-28', project: 'visitas', status: 'todo', tasks: 2, subtasks: 0 },
+    { id: 5, title: 'Informe semanal de ventas', date: '2026-01-29', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 6, title: 'Llamada farmacia central', date: '2026-01-30', project: 'visitas', status: 'todo', tasks: 1, subtasks: 1 },
+    { id: 7, title: 'Revisar catálogo Puro EPA', date: '2026-01-31', project: 'formacion', status: 'todo', tasks: 2, subtasks: 0 },
+    { id: 8, title: 'Reunión equipo zona norte', date: '2026-02-02', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 9, title: 'Visita Dr. Fernández — Neurología', date: '2026-02-03', project: 'visitas', status: 'todo', tasks: 2, subtasks: 1 },
+    { id: 10, title: 'Actualizar CRM contactos', date: '2026-02-05', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 11, title: 'Preparar presentación PRM', date: '2026-02-07', project: 'formacion', status: 'todo', tasks: 3, subtasks: 2 },
+    // --- Retrasadas (antes de hoy) ---
+    { id: 12, title: 'Seguimiento Dr. Martínez', date: '2026-01-26', project: 'visitas', status: 'overdue', tasks: 1, subtasks: 1 },
+    { id: 13, title: 'Completar módulo Omega-3 Index', date: '2026-01-25', project: 'formacion', status: 'overdue', tasks: 2, subtasks: 0 },
+    { id: 14, title: 'Enviar muestras Hospital Clínic', date: '2026-01-24', project: 'visitas', status: 'overdue', tasks: 1, subtasks: 0 },
+    // --- Completadas ---
+    { id: 15, title: 'Visita Dr. Ruiz — Cardiología', date: '2026-01-23', project: 'visitas', status: 'done', tasks: 2, subtasks: 1 },
+    { id: 16, title: 'Curso online rTG vs Etil Éster', date: '2026-01-22', project: 'formacion', status: 'done', tasks: 1, subtasks: 0 },
+];
+
+// Proyectos con sus colores
+const PLAN_PROJECTS = {
+    visitas:   { label: 'Visitas médicas', color: 'var(--md-sys-color-primary)' },
+    formacion: { label: 'Formación',       color: 'var(--md-sys-color-secondary)' },
+    admin:     { label: 'Administración',  color: 'var(--md-sys-color-tertiary)' }
+};
+
+// Grupos de estado con config visual
+const STATUS_GROUPS = [
+    { key: 'in_progress', label: 'En proceso', dotClass: 'plan-task-group__dot--in-progress' },
+    { key: 'todo',        label: 'Por hacer',  dotClass: 'plan-task-group__dot--todo' },
+    { key: 'overdue',     label: 'Retrasadas', dotClass: 'plan-task-group__dot--overdue' },
+    { key: 'done',        label: 'Completadas', dotClass: 'plan-task-group__dot--done' }
+];
+
+// Estado actual del filtro overview
+let currentOverview = 'hoy';
+
+// Nombres de meses en español
+const MESES_CORTO = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+function formatTaskDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return `${d.getDate()} ${MESES_CORTO[d.getMonth()]}`;
+}
+
+// Calcular rango de fechas según overview
+function getOverviewRange(overview) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const end = new Date(today);
+
+    switch (overview) {
+        case 'hoy':
+            end.setHours(23, 59, 59, 999);
+            break;
+        case 'semana':
+            // Lunes a domingo de esta semana
+            const dayOfWeek = today.getDay(); // 0=dom, 1=lun...
+            const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+            end.setDate(today.getDate() + daysToSunday);
+            end.setHours(23, 59, 59, 999);
+            break;
+        case 'quincena':
+            end.setDate(today.getDate() + 14);
+            end.setHours(23, 59, 59, 999);
+            break;
+    }
+
+    return { today, end };
+}
+
+// Clasificar tareas según el overview seleccionado
+// SOLO incluye tareas cuya fecha cae dentro del rango (o retrasadas/completadas relevantes)
+function classifyTasks(overview) {
+    const { today, end } = getOverviewRange(overview);
+
+    const result = {
+        in_progress: [],
+        todo: [],
+        overdue: [],
+        done: []
+    };
+
+    for (const task of PLAN_TASKS) {
+        const taskDate = new Date(task.date + 'T00:00:00');
+
+        // Completadas: solo mostrar si su fecha cae dentro del rango
+        if (task.status === 'done') {
+            if (taskDate >= today && taskDate <= end) {
+                result.done.push(task);
+            }
+            continue;
+        }
+
+        // Retrasadas: fecha anterior a hoy — siempre se muestran (son pendientes atrasadas)
+        if (taskDate < today) {
+            result.overdue.push(task);
+            continue;
+        }
+
+        // Fuera del rango del overview: no mostrar
+        if (taskDate > end) {
+            continue;
+        }
+
+        // Dentro del rango: clasificar según su status original
+        if (task.status === 'in_progress') {
+            result.in_progress.push(task);
+        } else {
+            result.todo.push(task);
+        }
+    }
+
+    return result;
+}
+
+// Aplicar filtros de la sección de tareas
+function applyTaskFilters(classified) {
+    const projectFilter = document.getElementById('filter-project')?.value || 'all';
+    const statusFilter = document.getElementById('filter-status')?.value || 'all';
+
+    const filtered = {};
+    for (const [status, tasks] of Object.entries(classified)) {
+        filtered[status] = tasks.filter(t => {
+            if (projectFilter !== 'all' && t.project !== projectFilter) return false;
+            if (statusFilter !== 'all' && status !== statusFilter) return false;
+            return true;
+        });
+    }
+    return filtered;
+}
+
+// Actualizar contadores de stat cards (solo tareas visibles en el overview)
+function updatePlanStats(classified) {
+    const el = (id) => document.getElementById(id);
+
+    // Reunir todas las tareas visibles
+    const allVisible = [
+        ...classified.in_progress,
+        ...classified.todo,
+        ...classified.overdue,
+        ...classified.done
+    ];
+    const visibleProjects = new Set(allVisible.map(t => t.project));
+
+    if (el('stat-in-progress')) el('stat-in-progress').textContent = classified.in_progress.length;
+    if (el('stat-todo'))        el('stat-todo').textContent = classified.todo.length;
+    if (el('stat-overdue'))     el('stat-overdue').textContent = classified.overdue.length;
+    if (el('stat-projects'))    el('stat-projects').textContent = visibleProjects.size;
+    if (el('stat-total'))       el('stat-total').textContent = allVisible.length;
+}
+
+// Renderizar la lista de tareas agrupadas
+function renderPlanTasks() {
+    const container = document.getElementById('plan-tasks-list');
+    if (!container) return;
+
+    const classified = classifyTasks(currentOverview);
+
+    // Actualizar stats
+    updatePlanStats(classified);
+
+    // Aplicar filtros de sección
+    const filtered = applyTaskFilters(classified);
+
+    // Limpiar
+    container.innerHTML = '';
+
+    // Renderizar cada grupo que tenga tareas
+    for (const group of STATUS_GROUPS) {
+        const tasks = filtered[group.key];
+        if (!tasks || tasks.length === 0) continue;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'plan-task-group';
+
+        // Label del grupo
+        const label = document.createElement('h3');
+        label.className = 'plan-task-group__label';
+        label.innerHTML = `<span class="plan-task-group__dot ${group.dotClass}"></span> ${group.label}`;
+        groupDiv.appendChild(label);
+
+        // Task cards
+        for (const task of tasks) {
+            const card = document.createElement('div');
+            card.className = 'plan-task-card' + (group.key === 'overdue' ? ' plan-task-card--overdue' : '') + (group.key === 'done' ? ' plan-task-card--done' : '');
+            card.dataset.status = group.key;
+            card.dataset.project = task.project;
+
+            const metaParts = [];
+            if (task.tasks > 0) metaParts.push(`${task.tasks} tarea${task.tasks > 1 ? 's' : ''}`);
+            if (task.subtasks > 0) metaParts.push(`${task.subtasks} sub-tarea${task.subtasks > 1 ? 's' : ''}`);
+
+            card.innerHTML = `
+                <div class="plan-task-card__left">
+                    <span class="plan-task-card__date">${formatTaskDate(task.date)}</span>
+                    <span class="plan-task-card__title">${task.title}</span>
+                    <span class="plan-task-card__meta">
+                        <span class="material-symbols-rounded">task_alt</span> ${metaParts.join(' · ')}
+                    </span>
+                </div>
+                <button class="plan-task-card__menu" title="Opciones">
+                    <span class="material-symbols-rounded">more_vert</span>
+                </button>
+            `;
+            groupDiv.appendChild(card);
+        }
+
+        container.appendChild(groupDiv);
+    }
+
+    // Si no hay tareas
+    if (container.children.length === 0) {
+        container.innerHTML = '<p class="plan-tasks-empty">No hay tareas para este filtro</p>';
+    }
+}
+
+// ============================================
 // Navegación entre pantallas
 // ============================================
 function showChatScreen(initialMessage) {
@@ -383,6 +617,7 @@ function showChatScreen(initialMessage) {
 
 function showWelcomeScreen() {
     elements.chatScreen.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
     elements.orbFloating.classList.add('hidden');
 
@@ -394,6 +629,28 @@ function showWelcomeScreen() {
         state.websocket.close();
         state.websocket = null;
     }
+}
+
+function showPlanScreen() {
+    // Fade out welcome
+    elements.welcomeScreen.classList.add('fade-out');
+
+    setTimeout(() => {
+        elements.welcomeScreen.classList.add('hidden');
+        elements.welcomeScreen.classList.remove('fade-out');
+        elements.planScreen.classList.remove('hidden');
+
+        // Renderizar tareas con el overview actual
+        renderPlanTasks();
+
+        // Crear orb en el nav si existe la API
+        if (window.orbCreateNav) window.orbCreateNav();
+    }, 300);
+}
+
+function showWelcomeFromPlan() {
+    elements.planScreen.classList.add('hidden');
+    elements.welcomeScreen.classList.remove('hidden');
 }
 
 // ============================================
@@ -622,6 +879,9 @@ function updateRecordingUI(recording, processing = false) {
     elements.chatMicBtn?.classList.toggle('recording', recording);
     elements.orbFloating?.classList.toggle('listening', recording);
 
+    // Plan screen nav orb
+    elements.navOrb?.classList.toggle('listening', recording);
+
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
 
@@ -645,13 +905,14 @@ async function transcribeAudio(audioBlob) {
         const data = await response.json();
 
         if (data.success && data.text) {
-            // Si estamos en welcome screen, ir al chat
-            if (!elements.welcomeScreen.classList.contains('hidden')) {
-                showChatScreen(data.text);
-            } else {
+            if (!elements.chatScreen.classList.contains('hidden')) {
                 // Ya estamos en chat, enviar mensaje
                 addMessage(data.text, 'user');
                 sendToWebSocket(data.text);
+            } else {
+                // Desde welcome o plan screen, ocultar ambas e ir al chat
+                elements.planScreen?.classList.add('hidden');
+                showChatScreen(data.text);
             }
         } else {
             console.error('Error transcripción:', data.error);
@@ -709,9 +970,7 @@ function init() {
 
     elements.moodCard?.addEventListener('click', openMoodOverlay);
 
-    elements.planCard?.addEventListener('click', () => {
-        alert('Plan diario y semanal - próximamente');
-    });
+    elements.planCard?.addEventListener('click', showPlanScreen);
 
     // FAQ chips (event delegation)
     elements.faqSection?.addEventListener('click', (e) => {
@@ -745,6 +1004,37 @@ function init() {
 
     // Orb flotante (chat)
     elements.orbFloating?.addEventListener('click', toggleRecording);
+
+    // Plan screen
+    elements.planBackBtn?.addEventListener('click', showWelcomeFromPlan);
+    elements.navHome?.addEventListener('click', showWelcomeFromPlan);
+    elements.navOrb?.addEventListener('click', toggleRecording);
+
+    // Overview filter chips
+    elements.planOverviewChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            elements.planOverviewChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentOverview = chip.dataset.filter;
+            renderPlanTasks();
+        });
+    });
+
+    // Task section filters (project, time, status)
+    document.getElementById('filter-project')?.addEventListener('change', renderPlanTasks);
+    document.getElementById('filter-time')?.addEventListener('change', () => {
+        // Sync time filter with overview
+        const timeFilter = document.getElementById('filter-time');
+        if (timeFilter) {
+            currentOverview = timeFilter.value;
+            // Sync overview chips
+            elements.planOverviewChips.forEach(c => {
+                c.classList.toggle('active', c.dataset.filter === currentOverview);
+            });
+            renderPlanTasks();
+        }
+    });
+    document.getElementById('filter-status')?.addEventListener('change', renderPlanTasks);
 
     // Mood overlay
     elements.moodCloseBtn?.addEventListener('click', closeMoodOverlay);
