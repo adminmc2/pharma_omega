@@ -27,9 +27,11 @@ deepseek_client = OpenAI(
     base_url="https://api.deepseek.com"
 )
 
-groq_client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
-)
+# Cliente Groq (opcional - solo para transcripción de voz)
+groq_api_key = os.getenv("GROQ_API_KEY")
+groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
+if not groq_client:
+    print("⚠️  GROQ_API_KEY no configurada - Transcripción de voz deshabilitada")
 
 # Orquestador de agentes
 orchestrator: Optional[Orchestrator] = None
@@ -40,7 +42,9 @@ async def lifespan(app: FastAPI):
     global orchestrator
     print("Inicializando sistema multi-agente...")
     orchestrator = Orchestrator()
-    print(f"Sistema listo. Base de conocimiento: {len(orchestrator.rag_engine.knowledge_base)} documentos")
+    # Acceder al RAG a través de cualquier agente (comparten la misma instancia singleton)
+    rag = orchestrator.agents['productos'].rag
+    print(f"Sistema listo. Base de conocimiento: {len(rag.qa_pairs)} documentos")
     yield
     print("Cerrando aplicación...")
 
@@ -67,7 +71,7 @@ async def health_check():
         "status": "ok",
         "version": "3.0.0",
         "agents": ["productos", "objeciones", "argumentos"],
-        "knowledge_base_size": len(orchestrator.rag_engine.knowledge_base) if orchestrator else 0
+        "knowledge_base_size": len(orchestrator.agents['productos'].rag.qa_pairs) if orchestrator else 0
     }
 
 
@@ -77,6 +81,10 @@ async def transcribe_voice(audio: UploadFile = File(...)):
     Transcribir audio a texto usando Whisper (Groq)
     Soporta: webm, mp3, wav, m4a, ogg
     """
+    # Verificar si Groq está configurado
+    if not groq_client:
+        return {"text": "", "success": False, "error": "GROQ_API_KEY no configurada"}
+
     try:
         # Leer el archivo de audio
         audio_bytes = await audio.read()
@@ -122,26 +130,31 @@ async def websocket_chat(websocket: WebSocket):
                 continue
 
             try:
-                # Procesar con el orquestador
-                agent_type, context = orchestrator.route_query(user_message)
+                # Clasificar intención con reglas (rápido y sin API call)
+                intent = orchestrator.classify_intent_rules(user_message)
+
+                # Obtener agente correspondiente
+                agent = orchestrator.get_agent(intent)
+
+                # Buscar contexto relevante en RAG
+                results = agent.search_knowledge(user_message, top_k=5)
+                context = agent.format_context(results, min_score=0.1)
 
                 # Enviar info del agente seleccionado
                 await websocket.send_json({
                     "type": "agent_info",
-                    "agent": agent_type.value,
-                    "context_docs": len(context) if context else 0
+                    "agent": intent,
+                    "context_docs": len([r for r in results if r[1] >= 0.1])
                 })
 
-                # Preparar prompt con contexto RAG
-                system_prompt = orchestrator.get_agent_prompt(agent_type)
+                # Preparar prompt completo con contexto RAG
+                full_prompt = f"""{agent.system_prompt}
 
-                context_text = ""
-                if context:
-                    context_text = "\n\n**Contexto relevante de la base de conocimiento:**\n"
-                    for i, doc in enumerate(context[:3], 1):
-                        context_text += f"{i}. {doc['question']}\n   R: {doc['answer']}\n\n"
+INFORMACIÓN DE CONTEXTO (Base de conocimiento):
+{context}
 
-                full_prompt = f"{system_prompt}\n{context_text}"
+---
+Responde basándote en el contexto anterior. Si no tienes información específica, indícalo."""
 
                 # Stream de respuesta con DeepSeek
                 stream = deepseek_client.chat.completions.create(
