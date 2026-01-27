@@ -3,6 +3,34 @@
  * Chat con voz y transiciones
  */
 
+// Configuración del mood
+const MOOD_CONFIG = {
+    labels: [
+        { min: 0,  max: 30,  label: 'MAL',         category: 'sad' },
+        { min: 31, max: 65,  label: 'NO MUY BIEN',  category: 'neutral' },
+        { min: 66, max: 100, label: 'BIEN',          category: 'happy' }
+    ],
+    reactions: {
+        sad:     'Lamento que no te encuentres bien. Estoy aquí para ayudarte en lo que necesites.',
+        neutral: 'Gracias por compartirlo. Vamos a hacer que tu día mejore.',
+        happy:   'Me alegra saber que estás bien. Sigamos con energía.'
+    },
+    orbPresets: {
+        sad: 'a',
+        neutral: 'b',
+        happy: 'c'
+    },
+    // Colores dinámicos del overlay — bg (fondo) y fg (textos/iconos)
+    // Tres stops: 0 = sad, 50 = neutral, 100 = happy
+    colors: {
+        stops: [
+            { at: 0,   bg: [235, 168, 157], fg: [120, 40, 30]  },   // Salmón / coral
+            { at: 50,  bg: [245, 215, 140], fg: [100, 75, 20]  },   // Dorado / ámbar
+            { at: 100, bg: [220, 200, 240], fg: [60, 10, 55]   }    // Lavanda cálido
+        ]
+    }
+};
+
 // Estado global
 const state = {
     isRecording: false,
@@ -15,7 +43,15 @@ const state = {
     audioContext: null,
     analyser: null,
     silenceTimer: null,
-    audioStream: null
+    audioStream: null,
+    // Mood
+    mood: {
+        value: 100,
+        label: 'BIEN',
+        category: 'happy',
+        submitted: false,
+        timestamp: null
+    }
 };
 
 // Elementos
@@ -25,9 +61,13 @@ const elements = {
     profileBtn: document.getElementById('profile-btn'),
     messageInput: document.getElementById('message-input'),
     micBtn: document.getElementById('mic-btn'),
-    orbBtn: document.getElementById('orb-btn'),
-    orbHint: document.getElementById('orb-hint'),
     voiceStatus: document.getElementById('voice-status'),
+
+    // Bento cards
+    orbCard: document.getElementById('orb-card'),
+    moodCard: document.getElementById('mood-card'),
+    planCard: document.getElementById('plan-card'),
+    faqSection: document.getElementById('faq-section'),
 
     // Chat screen
     chatScreen: document.getElementById('chat-screen'),
@@ -39,8 +79,280 @@ const elements = {
     chatStatus: document.getElementById('chat-status'),
 
     // Orb flotante
-    orbFloating: document.getElementById('orb-floating')
+    orbFloating: document.getElementById('orb-floating'),
+
+    // Mood overlay
+    moodOverlay: document.getElementById('mood-overlay'),
+    moodCloseBtn: document.getElementById('mood-close-btn'),
+    moodInfoBtn: document.getElementById('mood-info-btn'),
+    moodSlider: document.getElementById('mood-slider'),
+    moodLabel: document.getElementById('mood-label'),
+    moodSubmitBtn: document.getElementById('mood-submit-btn'),
+    moodReaction: document.getElementById('mood-reaction'),
+    moodEyeLeft: document.getElementById('mood-eye-left'),
+    moodEyeRight: document.getElementById('mood-eye-right'),
+    moodMouth: document.getElementById('mood-mouth')
 };
+
+// ============================================
+// Sistema de Mood
+// ============================================
+function lerpChannel(a, b, t) {
+    return Math.round(a + (b - a) * t);
+}
+
+function getMoodColors(value) {
+    const stops = MOOD_CONFIG.colors.stops;
+    // Encontrar entre qué dos stops estamos
+    let lower = stops[0], upper = stops[stops.length - 1];
+    for (let i = 0; i < stops.length - 1; i++) {
+        if (value >= stops[i].at && value <= stops[i + 1].at) {
+            lower = stops[i];
+            upper = stops[i + 1];
+            break;
+        }
+    }
+    const range = upper.at - lower.at || 1;
+    const t = (value - lower.at) / range;
+    const bg = [
+        lerpChannel(lower.bg[0], upper.bg[0], t),
+        lerpChannel(lower.bg[1], upper.bg[1], t),
+        lerpChannel(lower.bg[2], upper.bg[2], t)
+    ];
+    const fg = [
+        lerpChannel(lower.fg[0], upper.fg[0], t),
+        lerpChannel(lower.fg[1], upper.fg[1], t),
+        lerpChannel(lower.fg[2], upper.fg[2], t)
+    ];
+    return {
+        bg: `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`,
+        fg: `rgb(${fg[0]}, ${fg[1]}, ${fg[2]})`
+    };
+}
+
+function applyMoodColors(value) {
+    if (!elements.moodOverlay) return;
+    const colors = getMoodColors(value);
+    elements.moodOverlay.style.setProperty('--mood-bg', colors.bg);
+    elements.moodOverlay.style.setProperty('--mood-fg', colors.fg);
+}
+
+// Tintado sutil global — aplica una capa muy tenue del mood a toda la app
+function applyGlobalMoodTint(value) {
+    const stops = MOOD_CONFIG.colors.stops;
+    let lower = stops[0], upper = stops[stops.length - 1];
+    for (let i = 0; i < stops.length - 1; i++) {
+        if (value >= stops[i].at && value <= stops[i + 1].at) {
+            lower = stops[i];
+            upper = stops[i + 1];
+            break;
+        }
+    }
+    const range = upper.at - lower.at || 1;
+    const t = (value - lower.at) / range;
+    const r = lerpChannel(lower.bg[0], upper.bg[0], t);
+    const g = lerpChannel(lower.bg[1], upper.bg[1], t);
+    const b = lerpChannel(lower.bg[2], upper.bg[2], t);
+
+    document.body.style.setProperty('--mood-tint', `${r}, ${g}, ${b}`);
+    document.body.style.setProperty('--mood-tint-strength', '0.07'); // 7% — apenas perceptible
+    document.body.setAttribute('data-mood-active', '');
+
+    // Propagar al orb si la API existe
+    if (window.orbSetMoodTint) {
+        window.orbSetMoodTint(r, g, b);
+    }
+}
+
+function getMoodCategory(value) {
+    for (const cfg of MOOD_CONFIG.labels) {
+        if (value >= cfg.min && value <= cfg.max) {
+            return { label: cfg.label, category: cfg.category };
+        }
+    }
+    return { label: 'BIEN', category: 'happy' };
+}
+
+function updateMoodFace(value) {
+    const t = value / 100; // 0 = sad, 1 = happy
+
+    // Ojos redondos: rx=12 siempre, ry varía poco (14 sad → 11 happy squint suave)
+    const eyeRx = 12;
+    const eyeRy = 14 - 3 * t;    // 14 → 11 (sutil, siempre redondos)
+    const eyeCy = 40 + 2 * t;    // 40 → 42 (movimiento mínimo)
+
+    if (elements.moodEyeLeft) {
+        elements.moodEyeLeft.setAttribute('rx', eyeRx);
+        elements.moodEyeLeft.setAttribute('ry', eyeRy);
+        elements.moodEyeLeft.setAttribute('cy', eyeCy);
+    }
+    if (elements.moodEyeRight) {
+        elements.moodEyeRight.setAttribute('rx', eyeRx);
+        elements.moodEyeRight.setAttribute('ry', eyeRy);
+        elements.moodEyeRight.setAttribute('cy', eyeCy);
+    }
+
+    // Boca: controlY de 58 (frown suave) a 78 (smile)
+    const controlY = 58 + 20 * t;
+    if (elements.moodMouth) {
+        elements.moodMouth.setAttribute('d', `M42 68 Q50 ${controlY} 58 68`);
+    }
+}
+
+function updateCardFace(value) {
+    const t = value / 100;
+    const eyeRx = 12;
+    const eyeRy = 14 - 3 * t;
+    const eyeCy = 40 + 2 * t;
+    const controlY = 58 + 20 * t;
+
+    // Actualizar la cara en la tarjeta del bento grid
+    const card = elements.moodCard;
+    if (!card) return;
+
+    const eyeL = card.querySelector('ellipse:first-of-type');
+    const eyeR = card.querySelector('ellipse:last-of-type');
+    const mouth = card.querySelector('path');
+
+    if (eyeL) { eyeL.setAttribute('rx', eyeRx); eyeL.setAttribute('ry', eyeRy); eyeL.setAttribute('cy', eyeCy); }
+    if (eyeR) { eyeR.setAttribute('rx', eyeRx); eyeR.setAttribute('ry', eyeRy); eyeR.setAttribute('cy', eyeCy); }
+    if (mouth) { mouth.setAttribute('d', `M42 68 Q50 ${controlY} 58 68`); }
+}
+
+function updateMoodLabel(value) {
+    const { label } = getMoodCategory(value);
+    if (elements.moodLabel) {
+        elements.moodLabel.textContent = label;
+    }
+}
+
+function openMoodOverlay() {
+    if (!elements.moodOverlay) return;
+
+    // Resetear estado visual
+    elements.moodReaction.textContent = '';
+    elements.moodReaction.classList.remove('visible');
+    elements.moodSubmitBtn.disabled = false;
+    elements.moodSubmitBtn.textContent = state.mood.submitted ? 'Actualizar' : 'Enviar';
+
+    // Poner slider en el valor actual
+    elements.moodSlider.value = state.mood.value;
+    updateMoodFace(state.mood.value);
+    updateMoodLabel(state.mood.value);
+    applyMoodColors(state.mood.value);
+
+    // Mostrar overlay con animación
+    elements.moodOverlay.classList.remove('hidden');
+    elements.moodOverlay.style.animation = 'moodOverlayEnter 0.4s var(--md-sys-motion-easing-emphasized-decelerate) forwards';
+}
+
+function closeMoodOverlay() {
+    if (!elements.moodOverlay) return;
+
+    elements.moodOverlay.style.animation = 'moodOverlayExit 0.3s var(--md-sys-motion-easing-emphasized-accelerate) forwards';
+    elements.moodOverlay.addEventListener('animationend', function handler() {
+        elements.moodOverlay.classList.add('hidden');
+        elements.moodOverlay.style.animation = '';
+        elements.moodOverlay.removeEventListener('animationend', handler);
+    });
+}
+
+function onMoodSliderInput(e) {
+    const value = parseInt(e.target.value, 10);
+    updateMoodFace(value);
+    updateMoodLabel(value);
+    applyMoodColors(value);
+}
+
+function submitMood() {
+    const value = parseInt(elements.moodSlider.value, 10);
+    const { label, category } = getMoodCategory(value);
+    const wasAlreadySubmitted = state.mood.submitted;
+
+    // Actualizar estado
+    state.mood.value = value;
+    state.mood.label = label;
+    state.mood.category = category;
+    state.mood.submitted = true;
+    state.mood.timestamp = Date.now();
+
+    // Propagar a la tarjeta
+    updateCardFace(value);
+    const cardTitle = elements.moodCard?.querySelector('.bento-card__title');
+    if (cardTitle) {
+        cardTitle.textContent = `Hoy: ${label}`;
+    }
+
+    // Propagar al orb
+    const orbPreset = MOOD_CONFIG.orbPresets[category];
+    if (window.orbSetMoodPreset) window.orbSetMoodPreset(orbPreset);
+
+    // Aplicar tintado global sutil
+    applyGlobalMoodTint(value);
+
+    // Guardar en localStorage
+    saveMoodToStorage();
+
+    // Mostrar reacción AI
+    const reaction = wasAlreadySubmitted
+        ? 'Actualizado. ' + MOOD_CONFIG.reactions[category]
+        : MOOD_CONFIG.reactions[category];
+    elements.moodReaction.textContent = reaction;
+    elements.moodReaction.classList.add('visible');
+    elements.moodSubmitBtn.disabled = true;
+
+    // Cerrar overlay tras 2 segundos
+    setTimeout(() => {
+        closeMoodOverlay();
+    }, 2000);
+}
+
+// Fecha local YYYY-MM-DD (sin depender de UTC)
+function getLocalDateStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function saveMoodToStorage() {
+    const data = {
+        value: state.mood.value,
+        label: state.mood.label,
+        category: state.mood.category,
+        date: getLocalDateStr(),
+        timestamp: state.mood.timestamp
+    };
+    localStorage.setItem('puro_omega_mood', JSON.stringify(data));
+}
+
+function loadMoodFromStorage() {
+    try {
+        const raw = localStorage.getItem('puro_omega_mood');
+        if (!raw) return;
+
+        const data = JSON.parse(raw);
+        const today = getLocalDateStr();
+
+        // Reset diario: si es otro día, borrar y empezar de cero
+        if (data.date !== today) {
+            const utcToday = new Date().toISOString().slice(0, 10);
+            if (data.date !== utcToday) {
+                localStorage.removeItem('puro_omega_mood');
+                return;
+            }
+        }
+
+        // Solo restaurar estado interno (para enviar mood en WebSocket)
+        // La UI siempre arranca limpia con la pregunta "¿Cómo te encuentras hoy?"
+        state.mood.value = data.value;
+        state.mood.label = data.label;
+        state.mood.category = data.category;
+        state.mood.submitted = true;
+        state.mood.timestamp = data.timestamp;
+
+    } catch (e) {
+        console.error('Error cargando mood:', e);
+    }
+}
 
 // ============================================
 // Navegación entre pantallas
@@ -133,7 +445,15 @@ function sendToWebSocket(message) {
     let assistantMessage = null;
 
     state.websocket.onopen = () => {
-        state.websocket.send(JSON.stringify({ message }));
+        const payload = { message };
+        if (state.mood.submitted) {
+            payload.mood = {
+                value: state.mood.value,
+                label: state.mood.label,
+                category: state.mood.category
+            };
+        }
+        state.websocket.send(JSON.stringify(payload));
     };
 
     state.websocket.onmessage = (event) => {
@@ -300,7 +620,7 @@ function stopSilenceDetection() {
 function updateRecordingUI(recording, processing = false) {
     // Welcome screen
     elements.micBtn?.classList.toggle('recording', recording);
-    elements.orbBtn?.classList.toggle('listening', recording);
+    elements.orbCard?.classList.toggle('listening', recording);
 
     // Chat screen
     elements.chatMicBtn?.classList.toggle('recording', recording);
@@ -310,9 +630,6 @@ function updateRecordingUI(recording, processing = false) {
     if (window.orbSetListening) window.orbSetListening(recording);
 
     // Textos
-    if (elements.orbHint) {
-        elements.orbHint.textContent = recording ? 'Escuchando...' : (processing ? 'Procesando...' : 'Toca para hablar');
-    }
     if (elements.voiceStatus) {
         elements.voiceStatus.textContent = recording ? 'Grabando...' : (processing ? 'Procesando...' : '');
         elements.voiceStatus.classList.toggle('active', recording);
@@ -391,8 +708,22 @@ function init() {
         alert('Pantalla de cuenta - próximamente');
     });
 
-    // Orb principal (welcome)
-    elements.orbBtn?.addEventListener('click', toggleRecording);
+    // Bento cards
+    elements.orbCard?.addEventListener('click', toggleRecording);
+
+    elements.moodCard?.addEventListener('click', openMoodOverlay);
+
+    elements.planCard?.addEventListener('click', () => {
+        alert('Plan diario y semanal - próximamente');
+    });
+
+    // FAQ chips (event delegation)
+    elements.faqSection?.addEventListener('click', (e) => {
+        const chip = e.target.closest('.faq-chip');
+        if (chip && chip.dataset.question) {
+            showChatScreen(chip.dataset.question);
+        }
+    });
 
     // Micrófono en barra de búsqueda (welcome)
     elements.micBtn?.addEventListener('click', toggleRecording);
@@ -421,6 +752,17 @@ function init() {
 
     // Orb flotante (chat)
     elements.orbFloating?.addEventListener('click', toggleRecording);
+
+    // Mood overlay
+    elements.moodCloseBtn?.addEventListener('click', closeMoodOverlay);
+    elements.moodSlider?.addEventListener('input', onMoodSliderInput);
+    elements.moodSubmitBtn?.addEventListener('click', submitMood);
+    elements.moodInfoBtn?.addEventListener('click', () => {
+        alert('Selecciona cómo te encuentras hoy moviendo el control deslizante. Tu estado de ánimo personaliza la experiencia de la app.');
+    });
+
+    // Cargar mood del día desde localStorage
+    loadMoodFromStorage();
 
     console.log('Puro Omega inicializado');
 }

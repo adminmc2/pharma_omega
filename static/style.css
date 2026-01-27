@@ -155,12 +155,30 @@ html {
 }
 
 body {
+    /* Mood tint — JS sets these via data-mood-active */
+    --mood-tint: 220, 200, 240;    /* default: lavanda (happy) */
+    --mood-tint-strength: 0;       /* 0 = sin mood, se activa tras submit */
+
     font: var(--md-sys-typescale-body-large);
     background: var(--md-sys-color-surface);
     color: var(--md-sys-color-on-surface);
     min-height: 100vh;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
+    position: relative;
+}
+
+/* Capa de tintado sutil global — apenas perceptible */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgb(var(--mood-tint));
+    opacity: var(--mood-tint-strength);
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 1.2s var(--md-sys-motion-easing-standard),
+                background 1.2s var(--md-sys-motion-easing-standard);
 }
 
 /* ============================================
@@ -173,6 +191,8 @@ body {
     flex-direction: column;
     max-width: 480px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 /* ============================================
@@ -185,6 +205,8 @@ body {
     padding: var(--space-20);
     padding-top: calc(var(--space-20) + var(--safe-top));
     padding-bottom: calc(var(--space-20) + var(--safe-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ============================================
@@ -281,13 +303,13 @@ body {
    ============================================ */
 .greeting-section {
     margin-top: var(--space-24);
+    margin-bottom: var(--space-16);
     flex-shrink: 0;
 }
 
 .greeting-title {
     font: var(--md-sys-typescale-headline-medium);
     color: var(--md-sys-color-on-surface);
-    margin-bottom: var(--space-4);
     letter-spacing: 0;
 }
 
@@ -306,68 +328,280 @@ body {
     60% { transform: rotate(0deg); }
 }
 
-.greeting-question {
-    font: var(--md-sys-typescale-headline-medium);
-    font-weight: 700;
+/* ============================================
+   BENTO CARD GRID
+   ============================================ */
+.bento-grid {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    grid-template-rows: 1fr 1fr;
+    gap: var(--space-12);
+    margin-bottom: var(--space-16);
+    height: 280px;
+    flex-shrink: 0;
+}
+
+/* Base card — M3 Surface Container */
+.bento-card {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: none;
+    cursor: pointer;
+    padding: var(--space-20);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    box-shadow: var(--md-sys-elevation-1);
+    transition:
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.bento-card:hover {
+    transform: scale(1.02);
+    box-shadow: var(--md-sys-elevation-2);
+}
+
+.bento-card:active {
+    transform: scale(0.98);
+    box-shadow: var(--md-sys-elevation-1);
+}
+
+/* State layer overlay (M3) */
+.bento-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--md-sys-color-primary);
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
+}
+
+.bento-card:hover::after {
+    opacity: var(--md-sys-state-hover);
+}
+
+.bento-card:active::after {
+    opacity: var(--md-sys-state-pressed);
+}
+
+/* Card 1: Mood — tall, left, spans 2 rows */
+.bento-card--mood {
+    grid-row: 1 / 3;
+    background: linear-gradient(
+        160deg,
+        var(--md-sys-color-secondary-container) 0%,
+        var(--md-sys-color-surface-container) 100%
+    );
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition:
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        background 1s var(--md-sys-motion-easing-standard);
+}
+
+/* Cuando el mood está activo, la tarjeta refleja el color del mood */
+body[data-mood-active] .bento-card--mood {
+    background: linear-gradient(
+        160deg,
+        rgba(var(--mood-tint), 0.35) 0%,
+        var(--md-sys-color-surface-container) 100%
+    );
+}
+
+.bento-card--mood::after {
+    background: var(--md-sys-color-secondary);
+}
+
+/* Card 2: Orb Voice — right top */
+.bento-card--voice {
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    background: var(--md-sys-color-surface-container-low);
+}
+
+.bento-card--voice .orb-container {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bento-card--voice .orb-container canvas {
+    display: block;
+    overflow: visible;
+    margin: auto;
+}
+
+.bento-card--voice::after {
+    background: var(--md-sys-color-primary);
+}
+
+.bento-card--voice.listening {
+    box-shadow:
+        var(--md-sys-elevation-2),
+        0 0 0 0px rgba(49, 190, 239, 0.3);
+    animation: cardPulse 2s var(--md-sys-motion-easing-standard) infinite;
+}
+
+@keyframes cardPulse {
+    0%, 100% {
+        box-shadow:
+            var(--md-sys-elevation-2),
+            0 0 0 0px rgba(49, 190, 239, 0.3);
+    }
+    50% {
+        box-shadow:
+            var(--md-sys-elevation-2),
+            0 0 0 6px rgba(49, 190, 239, 0);
+    }
+}
+
+/* Card 3: Plan — right bottom */
+.bento-card--plan {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(
+        160deg,
+        var(--md-sys-color-tertiary-container) 0%,
+        var(--md-sys-color-surface-container) 100%
+    );
+}
+
+.bento-card--plan::after {
+    background: var(--md-sys-color-tertiary);
+}
+
+/* Card typography */
+
+/* Mood face SVG icon (kawaii style — large centered) */
+.mood-face {
+    width: 80%;
+    max-width: 120px;
+    flex: 1;
+    min-height: 0;
+    max-height: 55%;
+    color: var(--md-sys-color-on-secondary-container);
+    opacity: 0.65;
+    margin-bottom: var(--space-8);
+    position: relative;
+    z-index: 1;
+}
+
+/* Plan clipboard SVG icon */
+.plan-icon {
+    width: 80%;
+    max-width: 64px;
+    flex: 1;
+    min-height: 0;
+    max-height: 55%;
+    color: var(--md-sys-color-on-tertiary-container);
+    opacity: 0.6;
+    margin-bottom: var(--space-8);
+    position: relative;
+    z-index: 1;
+}
+
+.bento-card__title {
+    font: var(--md-sys-typescale-title-medium);
     color: var(--md-sys-color-on-surface);
-    letter-spacing: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.bento-card__subtitle {
+    font: var(--md-sys-typescale-body-small);
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: var(--space-4);
+    position: relative;
+    z-index: 1;
+}
+
+.bento-card__label {
+    font: var(--md-sys-typescale-label-large);
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: var(--space-4);
+    position: relative;
+    z-index: 1;
+    text-align: center;
 }
 
 /* ============================================
-   ORB SECTION
+   FAQ SECTION
    ============================================ */
-.orb-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    min-height: 0;
-    /* Espacio para el glow/partículas que se extienden fuera del canvas */
-    padding: var(--space-32) 0;
-}
-
-.orb-btn {
-    width: min(220px, 50vw);
-    height: min(220px, 50vw);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    overflow: visible;
+.faq-section {
+    margin-top: var(--space-24);
+    padding-bottom: var(--space-32);
     flex-shrink: 0;
-    transition: transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
 }
 
-.orb-btn:hover {
-    transform: scale(1.02);
+.faq-section__title {
+    font: var(--md-sys-typescale-title-large);
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-16);
 }
 
-.orb-btn:active {
-    transform: scale(0.97);
+.faq-category {
+    margin-bottom: var(--space-20);
 }
 
-.orb-container {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-.orb-container canvas {
-    display: block;
-    overflow: visible;
-}
-
-.orb-hint {
+.faq-category__label {
     font: var(--md-sys-typescale-label-large);
     color: var(--md-sys-color-on-surface-variant);
-    margin-top: var(--space-24);
-    letter-spacing: 0.1px;
-    transition: color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.orb-btn.listening + .orb-hint {
+.faq-category__label .material-symbols-rounded {
+    font-size: 18px;
     color: var(--md-sys-color-primary);
+}
+
+/* M3 Suggestion Chips */
+.faq-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+}
+
+.faq-chip {
+    font: var(--md-sys-typescale-label-large);
+    color: var(--md-sys-color-on-surface);
+    background: var(--md-sys-color-surface-container-lowest);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-shape-small);
+    padding: var(--space-8) var(--space-16);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.faq-chip:hover {
+    background: var(--md-sys-color-surface-container-high);
+    border-color: var(--md-sys-color-outline);
+}
+
+.faq-chip:active {
+    transform: scale(0.97);
 }
 
 /* ============================================
@@ -547,7 +781,11 @@ body {
     background: var(--md-sys-color-surface);
     gap: var(--space-4);
     min-height: 64px;
-    transition: background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    transition: background-color 1s var(--md-sys-motion-easing-standard);
+}
+
+body[data-mood-active] .chat-header {
+    background: color-mix(in srgb, rgb(var(--mood-tint)) 6%, var(--md-sys-color-surface));
 }
 
 /* M3 Navigation Icon Button */
@@ -621,6 +859,11 @@ body {
     flex-direction: column;
     gap: var(--space-8);
     background: var(--md-sys-color-surface);
+    transition: background-color 1s var(--md-sys-motion-easing-standard);
+}
+
+body[data-mood-active] .chat-messages {
+    background: color-mix(in srgb, rgb(var(--mood-tint)) 4%, var(--md-sys-color-surface));
 }
 
 .message {
@@ -655,6 +898,11 @@ body {
     color: var(--md-sys-color-on-surface);
     align-self: flex-start;
     border-radius: var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small);
+    transition: background-color 1s var(--md-sys-motion-easing-standard);
+}
+
+body[data-mood-active] .message.assistant {
+    background: color-mix(in srgb, rgb(var(--mood-tint)) 10%, var(--md-sys-color-surface-container));
 }
 
 .message.assistant.typing {
@@ -699,6 +947,11 @@ body {
     padding-bottom: calc(var(--space-12) + var(--safe-bottom));
     background: var(--md-sys-color-surface-container-low);
     gap: var(--space-8);
+    transition: background-color 1s var(--md-sys-motion-easing-standard);
+}
+
+body[data-mood-active] .chat-input-container {
+    background: color-mix(in srgb, rgb(var(--mood-tint)) 5%, var(--md-sys-color-surface-container-low));
 }
 
 .chat-input {
@@ -828,7 +1081,12 @@ body {
     transition:
         transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
         box-shadow var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
-        border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
+        border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
+        background-color 1s var(--md-sys-motion-easing-standard);
+}
+
+body[data-mood-active] .orb-floating {
+    background: color-mix(in srgb, rgb(var(--mood-tint)) 20%, var(--md-sys-color-primary-container));
 }
 
 .orb-floating:hover {
@@ -868,6 +1126,268 @@ body {
 }
 
 /* ============================================
+   MOOD OVERLAY — Full-screen selector
+   Fondo dinámico controlado por --mood-bg y --mood-fg via JS
+   ============================================ */
+.mood-overlay {
+    --mood-bg: #F3D8F0;  /* default: happy = secondary-container */
+    --mood-fg: #3B0838;  /* default: on-secondary-container */
+
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--mood-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-20);
+    padding-top: calc(var(--space-16) + var(--safe-top));
+    padding-bottom: calc(var(--space-32) + var(--safe-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transition: background 0.5s var(--md-sys-motion-easing-standard);
+}
+
+.mood-overlay.hidden {
+    display: none !important;
+}
+
+@keyframes moodOverlayEnter {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes moodOverlayExit {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+}
+
+/* Top bar: close + info */
+.mood-overlay__topbar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    top: calc(var(--space-12) + var(--safe-top));
+    left: 0;
+    padding: 0 var(--space-16);
+}
+
+.mood-overlay__close,
+.mood-overlay__info {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--md-sys-shape-full);
+    border: none;
+    background: transparent;
+    color: var(--mood-fg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.7;
+    transition:
+        opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+.mood-overlay__close:active,
+.mood-overlay__info:active {
+    opacity: 1;
+}
+
+/* Question */
+.mood-overlay__question {
+    font: var(--md-sys-typescale-headline-small);
+    color: var(--mood-fg);
+    text-align: center;
+    margin-bottom: var(--space-24);
+    flex-shrink: 0;
+    transition: color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+/* Animated face — grande y dominante */
+.mood-overlay__face-container {
+    width: 60vw;
+    max-width: 280px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: var(--space-8);
+}
+
+.mood-overlay__face {
+    width: 100%;
+    height: 100%;
+    color: var(--mood-fg);
+    opacity: 0.7;
+    transition: color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+/* Mood label — grande y bold */
+.mood-overlay__label {
+    font: var(--md-sys-typescale-headline-medium);
+    color: var(--mood-fg);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--space-24);
+    min-height: 36px;
+    text-align: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    transition: color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+/* Slider — minimalista, track fino oscuro */
+.mood-overlay__slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: var(--space-24);
+    flex-shrink: 0;
+    gap: var(--space-8);
+}
+
+.mood-overlay__slider-track {
+    width: 100%;
+}
+
+.mood-overlay__slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: var(--md-sys-shape-full);
+    background: var(--mood-fg);
+    opacity: 0.25;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.5s var(--md-sys-motion-easing-standard);
+}
+
+.mood-overlay__slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--md-sys-shape-full);
+    background: var(--mood-fg);
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition:
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        background 0.5s var(--md-sys-motion-easing-standard);
+}
+
+.mood-overlay__slider::-webkit-slider-thumb:active {
+    transform: scale(1.25);
+}
+
+.mood-overlay__slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--md-sys-shape-full);
+    background: var(--mood-fg);
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.mood-overlay__slider::-moz-range-track {
+    height: 4px;
+    border-radius: var(--md-sys-shape-full);
+    background: var(--mood-fg);
+    opacity: 0.25;
+}
+
+/* Endpoint labels debajo del slider */
+.mood-overlay__slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.mood-overlay__slider-endpoint {
+    font: var(--md-sys-typescale-label-medium);
+    color: var(--mood-fg);
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+/* Submit button — monocromático con el tono del mood */
+.mood-overlay__submit {
+    font: var(--md-sys-typescale-label-large);
+    color: var(--mood-bg);
+    background: var(--mood-fg);
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    padding: var(--space-16) var(--space-48);
+    cursor: pointer;
+    min-height: 48px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.8;
+    transition:
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        background 0.5s var(--md-sys-motion-easing-standard),
+        color 0.5s var(--md-sys-motion-easing-standard);
+    flex-shrink: 0;
+    margin-bottom: var(--space-16);
+}
+
+.mood-overlay__submit:active {
+    transform: scale(0.96);
+    opacity: 1;
+}
+
+.mood-overlay__submit:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* AI reaction */
+.mood-overlay__reaction {
+    font: var(--md-sys-typescale-body-medium);
+    color: var(--mood-fg);
+    text-align: center;
+    max-width: 300px;
+    min-height: 20px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+        color 0.5s var(--md-sys-motion-easing-standard);
+}
+
+.mood-overlay__reaction.visible {
+    opacity: 0.7;
+    transform: translateY(0);
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (min-width: 600px) {
@@ -875,13 +1395,12 @@ body {
         max-width: 520px;
     }
 
-    .greeting-title,
-    .greeting-question {
+    .greeting-title {
         font: var(--md-sys-typescale-headline-large);
     }
 
-    .greeting-question {
-        font-weight: 700;
+    .bento-grid {
+        height: 320px;
     }
 
     .orb-floating {

@@ -11,8 +11,42 @@
         { r: 161, g: 184, b: 242 },   // Soft Blue #A1B8F2
     ];
 
+    // Presets de movimiento según estado de ánimo
+    const MOOD_PRESETS = {
+        // a) Brisa suave — calma (mood triste)
+        a: {
+            idlePhiAmp: 0.08, idlePhiSpeed: 0.6,
+            idleThetaAmp: 0.06, idleThetaSpeed: 0.4,
+            idleRotSpeed: 0.15, idleDropAmp: 0.05,
+            listenPhiAmp: 0.2, listenPhiSpeed: 1.8,
+            listenThetaSpeed: 1.0, listenThetaAmp: 0.15,
+            listenRotSpeed: 0.7, listenDropAmp: 0.1,
+        },
+        // b) Oleaje vivo — moderado (mood neutral)
+        b: {
+            idlePhiAmp: 0.15, idlePhiSpeed: 0.9,
+            idleThetaAmp: 0.12, idleThetaSpeed: 0.6,
+            idleRotSpeed: 0.25, idleDropAmp: 0.08,
+            listenPhiAmp: 0.3, listenPhiSpeed: 2.2,
+            listenThetaSpeed: 1.4, listenThetaAmp: 0.2,
+            listenRotSpeed: 1.0, listenDropAmp: 0.15,
+        },
+        // c) Tormenta líquida — vibrante (mood feliz, default)
+        c: {
+            idlePhiAmp: 0.25, idlePhiSpeed: 1.3,
+            idleThetaAmp: 0.2, idleThetaSpeed: 0.9,
+            idleRotSpeed: 0.4, idleDropAmp: 0.12,
+            listenPhiAmp: 0.45, listenPhiSpeed: 2.8,
+            listenThetaSpeed: 2.0, listenThetaAmp: 0.3,
+            listenRotSpeed: 1.5, listenDropAmp: 0.2,
+        }
+    };
+
     // Estado global
     let isListening = false;
+    let currentPreset = MOOD_PRESETS.c;
+    let moodTint = null;          // { r, g, b } — color del mood actual
+    const MOOD_TINT_MIX = 0.18;  // 18% de mezcla — sutil pero visible
     const orbInstances = [];
 
     // Interpolar entre dos colores
@@ -24,7 +58,7 @@
         };
     }
 
-    // Obtener color cíclico basado en tiempo
+    // Obtener color cíclico basado en tiempo, con tintado sutil del mood
     function getCyclicColor(time, offset) {
         const speed = 0.3;
         const t = ((time * speed + offset) % 3 + 3) % 3;
@@ -32,7 +66,12 @@
         const frac = t - idx;
         const c1 = COLORS[idx % 3];
         const c2 = COLORS[(idx + 1) % 3];
-        return lerpColor(c1, c2, frac);
+        const base = lerpColor(c1, c2, frac);
+        // Mezclar sutilmente con el tint del mood
+        if (moodTint) {
+            return lerpColor(base, moodTint, MOOD_TINT_MIX);
+        }
+        return base;
     }
 
     // Clase Partícula (punto en superficie de esfera)
@@ -66,14 +105,13 @@
         }
 
         update(time, listening) {
+            const p = currentPreset;
             if (listening) {
-                // Listening: movimiento intenso y expresivo
-                this.phi = this.basePhi + Math.sin(time * 2.8 + this.radiusOffset) * 0.45;
-                this.theta = this.baseTheta + time * 2.0 + Math.cos(time * 2.5 + this.radiusOffset) * 0.3;
+                this.phi = this.basePhi + Math.sin(time * p.listenPhiSpeed + this.radiusOffset) * p.listenPhiAmp;
+                this.theta = this.baseTheta + time * p.listenThetaSpeed + Math.cos(time * 2.5 + this.radiusOffset) * p.listenThetaAmp;
             } else {
-                // Idle: tormenta líquida - flujo constante y expresivo
-                this.phi = this.basePhi + Math.sin(time * 1.3 + this.radiusOffset) * 0.25;
-                this.theta = this.baseTheta + Math.sin(time * 0.9 + this.colorOffset) * 0.2;
+                this.phi = this.basePhi + Math.sin(time * p.idlePhiSpeed + this.radiusOffset) * p.idlePhiAmp;
+                this.theta = this.baseTheta + Math.sin(time * p.idleThetaSpeed + this.colorOffset) * p.idleThetaAmp;
             }
         }
 
@@ -140,11 +178,12 @@
             this.lastTime = now;
             this.time += dt;
 
-            // Rotación de la esfera
+            // Rotación de la esfera (según preset de mood)
+            const p = currentPreset;
             if (isListening) {
-                this.rotationY += dt * 1.5;
+                this.rotationY += dt * p.listenRotSpeed;
             } else {
-                this.rotationY += dt * 0.4;
+                this.rotationY += dt * p.idleRotSpeed;
             }
 
             this.draw();
@@ -190,8 +229,8 @@
                 const rz = pos.x * sinR + pos.z * cosR;
                 const ry = pos.y;
 
-                // Efecto "gota": radio varía con intensidad
-                const dropEffect = 1 + Math.sin(this.time * p.radiusSpeed + p.radiusOffset) * (isListening ? 0.2 : 0.12);
+                // Efecto "gota": radio varía según preset de mood
+                const dropEffect = 1 + Math.sin(this.time * p.radiusSpeed + p.radiusOffset) * (isListening ? currentPreset.listenDropAmp : currentPreset.idleDropAmp);
 
                 const screenX = centerX + rx * dropEffect;
                 const screenY = centerY + ry * dropEffect;
@@ -280,7 +319,7 @@
     function initMainOrb() {
         const container = document.getElementById('orb-container');
         if (container && container.offsetWidth > 0) {
-            const mainOrb = createOrb('orb-container', 220);
+            const mainOrb = createOrb('orb-container', 140);
             if (mainOrb) orbInstances.push(mainOrb);
         } else {
             // Layout aún no listo, reintentar
@@ -294,6 +333,13 @@
         isListening = listening;
     };
 
+    // API pública: cambiar preset según mood
+    window.orbSetMoodPreset = function(presetKey) {
+        if (MOOD_PRESETS[presetKey]) {
+            currentPreset = MOOD_PRESETS[presetKey];
+        }
+    };
+
     // API pública: crear mini orb
     window.orbCreateMini = function() {
         const existing = orbInstances.find(o => o && o.id === 'orb-container-mini');
@@ -301,5 +347,10 @@
 
         const miniOrb = createOrb('orb-container-mini', 56);
         if (miniOrb) orbInstances.push(miniOrb);
+    };
+
+    // API pública: tintar colores del orb con el mood (sutil)
+    window.orbSetMoodTint = function(r, g, b) {
+        moodTint = { r, g, b };
     };
 })();
