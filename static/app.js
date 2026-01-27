@@ -71,12 +71,10 @@ const elements = {
     backBtn: document.getElementById('back-btn'),
     chatMessages: document.getElementById('chat-messages'),
     chatInput: document.getElementById('chat-input'),
+    chatPhotoBtn: document.getElementById('chat-photo-btn'),
     chatMicBtn: document.getElementById('chat-mic-btn'),
     chatSendBtn: document.getElementById('chat-send-btn'),
     chatStatus: document.getElementById('chat-status'),
-
-    // Orb flotante
-    orbFloating: document.getElementById('orb-floating'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -359,6 +357,132 @@ function loadMoodFromStorage() {
 }
 
 // ============================================
+// Búsquedas Recientes
+// ============================================
+const RECENT_SEARCHES_KEY = 'puro_omega_recent_searches';
+const MAX_RECENT_SEARCHES = 10;
+
+// Iconos según tipo de búsqueda
+const SEARCH_ICONS = {
+    product:   'package',
+    objection: 'shield',
+    argument:  'trend-up',
+    voice:     'microphone',
+    default:   'clock'
+};
+
+function classifySearchIcon(query) {
+    const q = query.toLowerCase();
+    if (/producto|omega|dha|epa|dosis|ficha|cápsul/i.test(q)) return 'product';
+    if (/objeción|objecion|caro|no funciona|metales|otra marca/i.test(q)) return 'objection';
+    if (/argumento|venta|presentar|cardiólogo|ginecólogo|perfil|ventaja/i.test(q)) return 'argument';
+    return 'default';
+}
+
+function getSearchDescription(query) {
+    const type = classifySearchIcon(query);
+    switch (type) {
+        case 'product':   return 'Consulta sobre productos Omega-3';
+        case 'objection': return 'Manejo de objeciones médicas';
+        case 'argument':  return 'Estrategia de argumentación comercial';
+        default:          return 'Conversación con el asistente';
+    }
+}
+
+function loadRecentSearches() {
+    try {
+        const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveRecentSearch(query, isVoice = false) {
+    const searches = loadRecentSearches();
+
+    // No duplicar la misma consulta (case-insensitive)
+    const idx = searches.findIndex(s => s.query.toLowerCase() === query.toLowerCase());
+    if (idx !== -1) {
+        searches.splice(idx, 1);
+    }
+
+    const icon = isVoice ? 'voice' : classifySearchIcon(query);
+    const desc = getSearchDescription(query);
+
+    searches.unshift({
+        query,
+        icon,
+        desc,
+        timestamp: Date.now()
+    });
+
+    // Limitar a MAX
+    if (searches.length > MAX_RECENT_SEARCHES) {
+        searches.length = MAX_RECENT_SEARCHES;
+    }
+
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+    renderRecentSearches();
+}
+
+function renderRecentSearches() {
+    const container = document.getElementById('recent-searches-list');
+    const section = document.getElementById('recent-searches');
+    const emptyMsg = document.getElementById('recent-searches-empty');
+    if (!container || !section) return;
+
+    const searches = loadRecentSearches();
+
+    if (searches.length === 0) {
+        section.classList.add('recent-searches--empty');
+        if (emptyMsg) emptyMsg.style.display = '';
+        container.innerHTML = '';
+        return;
+    }
+
+    section.classList.remove('recent-searches--empty');
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    container.innerHTML = '';
+
+    // Mostrar hasta 5 en la pantalla principal
+    const visible = searches.slice(0, 5);
+
+    for (const item of visible) {
+        const iconName = SEARCH_ICONS[item.icon] || SEARCH_ICONS.default;
+
+        const el = document.createElement('button');
+        el.className = 'recent-search-item';
+        el.innerHTML = `
+            <div class="recent-search-item__icon">
+                <i class="ph ph-${iconName}"></i>
+            </div>
+            <div class="recent-search-item__text">
+                <span class="recent-search-item__query">${escapeHtml(item.query)}</span>
+                <span class="recent-search-item__desc">${escapeHtml(item.desc)}</span>
+            </div>
+            <div class="recent-search-item__arrow">
+                <i class="ph ph-arrow-right"></i>
+            </div>
+        `;
+        el.addEventListener('click', () => {
+            if (item.answer) {
+                showChatScreenWithAnswer(item.query, item.answer);
+            } else {
+                showChatScreen(item.query);
+            }
+        });
+        container.appendChild(el);
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ============================================
 // Sistema de Plan — Datos y renderizado
 // ============================================
 
@@ -566,11 +690,11 @@ function renderPlanTasks() {
                     <span class="plan-task-card__date">${formatTaskDate(task.date)}</span>
                     <span class="plan-task-card__title">${task.title}</span>
                     <span class="plan-task-card__meta">
-                        <span class="material-symbols-rounded">task_alt</span> ${metaParts.join(' · ')}
+                        <i class="ph ph-check-circle"></i> ${metaParts.join(' · ')}
                     </span>
                 </div>
                 <button class="plan-task-card__menu" title="Opciones">
-                    <span class="material-symbols-rounded">more_vert</span>
+                    <i class="ph ph-dots-three-vertical"></i>
                 </button>
             `;
             groupDiv.appendChild(card);
@@ -597,12 +721,8 @@ function showChatScreen(initialMessage) {
         elements.welcomeScreen.classList.remove('fade-out');
         elements.chatScreen.classList.remove('hidden');
 
-        // Mostrar orb según modo
-        if (state.orbMode === 'minimize') {
-            elements.orbFloating.classList.remove('hidden');
-            // Crear mini orb si no existe
-            if (window.orbCreateMini) window.orbCreateMini();
-        }
+        // Crear orb en el header del chat
+        if (window.orbCreateChatHeader) window.orbCreateChatHeader();
 
         // Añadir mensaje del usuario
         if (initialMessage) {
@@ -615,11 +735,29 @@ function showChatScreen(initialMessage) {
     }, 300);
 }
 
+function showChatScreenWithAnswer(question, answer) {
+    elements.welcomeScreen.classList.add('fade-out');
+
+    setTimeout(() => {
+        elements.welcomeScreen.classList.add('hidden');
+        elements.welcomeScreen.classList.remove('fade-out');
+        elements.chatScreen.classList.remove('hidden');
+
+        // Crear orb en el header del chat
+        if (window.orbCreateChatHeader) window.orbCreateChatHeader();
+
+        // Mostrar pregunta y respuesta hardcodeadas
+        addMessage(question, 'user');
+        addMessage(answer, 'assistant');
+
+        elements.chatInput.focus();
+    }, 300);
+}
+
 function showWelcomeScreen() {
     elements.chatScreen.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
-    elements.orbFloating.classList.add('hidden');
 
     // Limpiar chat
     elements.chatMessages.innerHTML = '';
@@ -629,6 +767,9 @@ function showWelcomeScreen() {
         state.websocket.close();
         state.websocket = null;
     }
+
+    // Actualizar búsquedas recientes
+    renderRecentSearches();
 }
 
 function showPlanScreen() {
@@ -651,15 +792,14 @@ function showPlanScreen() {
 function showWelcomeFromPlan() {
     elements.planScreen.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
+    renderRecentSearches();
 }
 
 function showChatFromPlan() {
     elements.planScreen.classList.add('hidden');
     elements.chatScreen.classList.remove('hidden');
-    if (state.orbMode === 'minimize') {
-        elements.orbFloating.classList.remove('hidden');
-        if (window.orbCreateMini) window.orbCreateMini();
-    }
+    // Crear orb en el header del chat
+    if (window.orbCreateChatHeader) window.orbCreateChatHeader();
 }
 
 // ============================================
@@ -669,7 +809,23 @@ function addMessage(text, role) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
     messageDiv.textContent = text;
-    elements.chatMessages.appendChild(messageDiv);
+
+    if (role === 'assistant') {
+        // Wrapper: orb arriba + burbuja abajo
+        const row = document.createElement('div');
+        row.className = 'message-row assistant';
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        // Crear orb animado real dentro del avatar
+        if (window.orbCreateInElement) {
+            window.orbCreateInElement(avatar, 28);
+        }
+        row.appendChild(avatar);
+        row.appendChild(messageDiv);
+        elements.chatMessages.appendChild(row);
+    } else {
+        elements.chatMessages.appendChild(messageDiv);
+    }
 
     // Scroll al final
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
@@ -678,11 +834,20 @@ function addMessage(text, role) {
 }
 
 function addTypingIndicator() {
+    const row = document.createElement('div');
+    row.className = 'message-row assistant';
+    row.id = 'typing-indicator';
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    if (window.orbCreateInElement) {
+        window.orbCreateInElement(avatar, 28);
+    }
     const indicator = document.createElement('div');
     indicator.className = 'message assistant typing';
-    indicator.id = 'typing-indicator';
     indicator.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    elements.chatMessages.appendChild(indicator);
+    row.appendChild(avatar);
+    row.appendChild(indicator);
+    elements.chatMessages.appendChild(row);
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     return indicator;
 }
@@ -886,7 +1051,6 @@ function updateRecordingUI(recording, processing = false) {
 
     // Chat screen
     elements.chatMicBtn?.classList.toggle('recording', recording);
-    elements.orbFloating?.classList.toggle('listening', recording);
 
     // Plan screen add button (sin estado listening)
 
@@ -913,6 +1077,9 @@ async function transcribeAudio(audioBlob) {
         const data = await response.json();
 
         if (data.success && data.text) {
+            // Guardar en búsquedas recientes (como voz)
+            saveRecentSearch(data.text, true);
+
             if (!elements.chatScreen.classList.contains('hidden')) {
                 // Ya estamos en chat, enviar mensaje
                 addMessage(data.text, 'user');
@@ -955,6 +1122,9 @@ function sendMessage() {
 
     input.value = '';
 
+    // Guardar en búsquedas recientes
+    saveRecentSearch(message);
+
     // Si estamos en welcome, ir al chat
     if (!elements.welcomeScreen.classList.contains('hidden')) {
         showChatScreen(message);
@@ -984,6 +1154,7 @@ function init() {
     elements.faqSection?.addEventListener('click', (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip && chip.dataset.question) {
+            saveRecentSearch(chip.dataset.question);
             showChatScreen(chip.dataset.question);
         }
     });
@@ -1009,9 +1180,6 @@ function init() {
             sendMessage();
         }
     });
-
-    // Orb flotante (chat)
-    elements.orbFloating?.addEventListener('click', toggleRecording);
 
     // Plan screen
     elements.planBackBtn?.addEventListener('click', showWelcomeFromPlan);
@@ -1054,6 +1222,33 @@ function init() {
 
     // Cargar mood del día desde localStorage
     loadMoodFromStorage();
+
+    // Seed: insertar búsquedas de ejemplo con respuesta hardcodeada
+    // Si no hay búsquedas, o si las existentes no tienen 'answer' (versión vieja), reemplazar
+    const SEED_DATA = [
+        {
+            query: '¿Qué diferencia hay entre Natural DHA y Puro Omega 3?',
+            icon: 'product',
+            desc: 'Consulta sobre productos Omega-3',
+            timestamp: Date.now() - 3600000,
+            answer: 'Natural DHA está formulado con DHA de alta concentración (700 mg por cápsula) orientado a neurodesarrollo, embarazo y función cognitiva. Puro Omega 3, en cambio, ofrece un balance EPA+DHA (1000 mg totales) pensado para salud cardiovascular general. Ambos utilizan aceite de pescado de origen sostenible con certificación IFOS 5 estrellas, pero la indicación principal y el perfil de ácidos grasos los diferencia.'
+        },
+        {
+            query: '¿Cómo manejar la objeción de que el precio es alto?',
+            icon: 'objection',
+            desc: 'Manejo de objeciones médicas',
+            timestamp: Date.now() - 7200000,
+            answer: 'Cuando un médico menciona el precio, es clave reencuadrar el valor:\n\n1) Comparar el coste diario (menos de 1 € al día) frente al beneficio clínico demostrado.\n2) Destacar la concentración real de EPA/DHA — muchos productos baratos requieren 3-4 cápsulas para igualar una sola de Puro Omega.\n3) Mencionar la certificación IFOS y la pureza libre de metales pesados, que evita riesgos al paciente.\n4) Ofrecer el cálculo: "Doctor, si comparamos coste por gramo de omega-3 activo, Puro Omega resulta más económico que la mayoría de alternativas".'
+        },
+    ];
+    const existing = loadRecentSearches();
+    const needsSeed = existing.length === 0 || (existing.length <= 2 && !existing[0].answer);
+    if (needsSeed) {
+        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(SEED_DATA));
+    }
+
+    // Renderizar búsquedas recientes
+    renderRecentSearches();
 
     console.log('Puro Omega inicializado');
 }

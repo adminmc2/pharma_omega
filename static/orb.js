@@ -315,6 +315,17 @@
         };
     }
 
+    // Crear mini orb directamente en un elemento DOM (para avatares de mensajes)
+    function createOrbInElement(container, size) {
+        container.innerHTML = '';
+        const canvas = document.createElement('canvas');
+        canvas.style.display = 'block';
+        container.appendChild(canvas);
+        const orb = new Orb(canvas, size);
+        orb.start();
+        return orb;
+    }
+
     // Crear orb principal — esperar a que el layout esté listo
     function initMainOrb() {
         const container = document.getElementById('orb-container');
@@ -349,6 +360,15 @@
         if (miniOrb) orbInstances.push(miniOrb);
     };
 
+    // API pública: crear orb en el header del chat
+    window.orbCreateChatHeader = function() {
+        const existing = orbInstances.find(o => o && o.id === 'orb-container-chat-header');
+        if (existing) return;
+
+        const chatOrb = createOrb('orb-container-chat-header', 40);
+        if (chatOrb) orbInstances.push(chatOrb);
+    };
+
     // API pública: crear orb en el nav del plan
     window.orbCreateNav = function() {
         const existing = orbInstances.find(o => o && o.id === 'orb-container-nav');
@@ -361,5 +381,10 @@
     // API pública: tintar colores del orb con el mood (sutil)
     window.orbSetMoodTint = function(r, g, b) {
         moodTint = { r, g, b };
+    };
+
+    // API pública: crear mini orb en un elemento DOM (para avatares de chat)
+    window.orbCreateInElement = function(container, size) {
+        return createOrbInElement(container, size || 28);
     };
 })();

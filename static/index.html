@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Material Symbols (M3) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..200&display=swap">
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
     <!-- Estilos -->
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%232D5BA0'/%3E%3C/svg%3E">
@@ -28,17 +30,17 @@
                 </button>
                 <div class="header-actions">
                     <button class="header-icon-btn" id="faq-btn" title="Preguntas frecuentes">
-                        <span class="material-symbols-rounded">help</span>
+                        <i class="ph ph-question"></i>
                     </button>
                     <button class="header-icon-btn" id="catalog-btn" title="Catálogos">
-                        <span class="material-symbols-rounded">menu_book</span>
+                        <i class="ph ph-book-open"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Saludo -->
             <div class="greeting-section">
-                <h1 class="greeting-title">Hola, Armando <span class="material-symbols-rounded wave">waving_hand</span></h1>
+                <h1 class="greeting-title">Hola, Armando <i class="ph ph-hand-waving wave"></i></h1>
             </div>
 
             <!-- Bento Card Grid -->
@@ -80,7 +82,7 @@
             <!-- Barra de búsqueda -->
             <div class="search-container">
                 <button class="search-icon-btn" title="Buscar">
-                    <span class="material-symbols-rounded">search</span>
+                    <i class="ph ph-magnifying-glass"></i>
                 </button>
                 <input
                     type="text"
@@ -91,6 +93,15 @@
                 >
             </div>
 
+            <!-- Búsquedas recientes -->
+            <section class="recent-searches" id="recent-searches">
+                <h2 class="recent-searches__title">Búsquedas recientes</h2>
+                <p class="recent-searches__empty-msg" id="recent-searches-empty">Aquí aparecerán tus búsquedas recientes</p>
+                <div class="recent-searches__list" id="recent-searches-list">
+                    <!-- Se renderiza dinámicamente desde JS -->
+                </div>
+            </section>
+
             <!-- Preguntas Frecuentes por Agente -->
             <section class="faq-section" id="faq-section">
                 <h2 class="faq-section__title">Preguntas frecuentes</h2>
@@ -99,7 +110,7 @@
                 <!-- Productos -->
                 <div class="faq-category">
                     <h3 class="faq-category__label">
-                        <span class="material-symbols-rounded">inventory_2</span>
+                        <i class="ph ph-package"></i>
                         Productos
                     </h3>
                     <div class="faq-chips">
@@ -113,7 +124,7 @@
                 <!-- Objeciones -->
                 <div class="faq-category">
                     <h3 class="faq-category__label">
-                        <span class="material-symbols-rounded">shield</span>
+                        <i class="ph ph-shield"></i>
                         Objeciones
                     </h3>
                     <div class="faq-chips">
@@ -127,7 +138,7 @@
                 <!-- Argumentos de venta -->
                 <div class="faq-category">
                     <h3 class="faq-category__label">
-                        <span class="material-symbols-rounded">trending_up</span>
+                        <i class="ph ph-trend-up"></i>
                         Argumentos de venta
                     </h3>
                     <div class="faq-chips">
@@ -147,15 +158,16 @@
             <!-- Header del chat -->
             <div class="chat-header">
                 <button class="back-btn" id="back-btn" title="Volver">
-                    <span class="material-symbols-rounded">arrow_back</span>
+                    <i class="ph ph-arrow-left"></i>
                 </button>
+                <div id="orb-container-chat-header" class="orb-container-chat-header"></div>
                 <div class="chat-title">
                     <span class="chat-title-text">Puro Omega</span>
                     <span class="chat-status" id="chat-status">En línea</span>
                 </div>
                 <div class="header-actions">
                     <button class="header-icon-btn" id="chat-faq-btn" title="Preguntas frecuentes">
-                        <span class="material-symbols-rounded">help</span>
+                        <i class="ph ph-question"></i>
                     </button>
                 </div>
             </div>
@@ -165,27 +177,27 @@
                 <!-- Los mensajes se añaden dinámicamente -->
             </div>
 
-            <!-- Orb flotante mini -->
-            <button class="orb-floating hidden" id="orb-floating" title="Toca para hablar">
-                <div id="orb-container-mini" class="orb-container-mini"></div>
-            </button>
-
-            <!-- Input del chat -->
-            <div class="chat-input-container">
-                <input
-                    type="text"
-                    id="chat-input"
-                    class="chat-input"
-                    placeholder="Escribe un mensaje..."
-                    autocomplete="off"
-                >
-                <button class="chat-mic-btn" id="chat-mic-btn" title="Micrófono">
-                    <span class="material-symbols-rounded">mic</span>
+            <!-- Input del chat — estilo nav bar -->
+            <nav class="chat-bottom-bar">
+                <button class="chat-nav-btn" id="chat-photo-btn" title="Subir foto">
+                    <i class="ph ph-camera"></i>
                 </button>
-                <button class="chat-send-btn" id="chat-send-btn" title="Enviar">
-                    <span class="material-symbols-rounded">send</span>
+                <button class="chat-nav-btn" id="chat-mic-btn" title="Micrófono">
+                    <i class="ph ph-microphone"></i>
                 </button>
-            </div>
+                <div class="chat-nav-input-wrapper">
+                    <input
+                        type="text"
+                        id="chat-input"
+                        class="chat-input"
+                        placeholder="Escribe un mensaje..."
+                        autocomplete="off"
+                    >
+                </div>
+                <button class="chat-nav-btn chat-nav-btn--send" id="chat-send-btn" title="Enviar">
+                    <i class="ph ph-paper-plane-tilt"></i>
+                </button>
+            </nav>
         </main>
 
         <!-- ============================================
@@ -197,14 +209,14 @@
                 <!-- Header limpio (mismo estilo que welcome) -->
                 <div class="header-row">
                     <button class="header-icon-btn" id="plan-back-btn" title="Volver">
-                        <span class="material-symbols-rounded">arrow_back</span>
+                        <i class="ph ph-arrow-left"></i>
                     </button>
                     <div class="header-actions">
                         <button class="header-icon-btn" id="plan-faq-btn" title="Preguntas frecuentes">
-                            <span class="material-symbols-rounded">help</span>
+                            <i class="ph ph-question"></i>
                         </button>
                         <button class="header-icon-btn" id="plan-catalog-btn" title="Catálogos">
-                            <span class="material-symbols-rounded">menu_book</span>
+                            <i class="ph ph-book-open"></i>
                         </button>
                     </div>
                 </div>
@@ -228,7 +240,7 @@
                             <polyline points="0,18 10,12 20,16 30,8 40,14 50,6 60,10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span class="plan-stat__label">En proceso</span>
-                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                        <i class="ph ph-caret-right plan-stat__arrow"></i>
                     </div>
                     <div class="plan-stat-card plan-stat--todo">
                         <span class="plan-stat__number" id="stat-todo">5</span>
@@ -236,7 +248,7 @@
                             <polyline points="0,10 10,14 20,8 30,18 40,12 50,16 60,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span class="plan-stat__label">Por hacer</span>
-                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                        <i class="ph ph-caret-right plan-stat__arrow"></i>
                     </div>
                     <div class="plan-stat-card plan-stat--overdue">
                         <span class="plan-stat__number" id="stat-overdue">2</span>
@@ -244,7 +256,7 @@
                             <polyline points="0,6 10,10 20,14 30,12 40,18 50,16 60,20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span class="plan-stat__label">Retrasadas</span>
-                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                        <i class="ph ph-caret-right plan-stat__arrow"></i>
                     </div>
                     <div class="plan-stat-card plan-stat--projects">
                         <span class="plan-stat__number" id="stat-projects">3</span>
@@ -252,7 +264,7 @@
                             <polyline points="0,14 10,8 20,12 30,6 40,10 50,8 60,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span class="plan-stat__label">Proyectos</span>
-                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                        <i class="ph ph-caret-right plan-stat__arrow"></i>
                     </div>
                     <div class="plan-stat-card plan-stat--total">
                         <span class="plan-stat__number" id="stat-total">13</span>
@@ -260,7 +272,7 @@
                             <polyline points="0,16 10,10 20,14 30,8 40,6 50,12 60,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span class="plan-stat__label">Total tareas</span>
-                        <span class="material-symbols-rounded plan-stat__arrow">chevron_right</span>
+                        <i class="ph ph-caret-right plan-stat__arrow"></i>
                     </div>
                 </div>
 
@@ -298,19 +310,19 @@
             <!-- Bottom Navigation Bar -->
             <nav class="plan-bottom-nav">
                 <button class="plan-nav-btn" id="nav-chat-btn" title="Chat">
-                    <span class="material-symbols-rounded">chat_bubble</span>
+                    <i class="ph ph-chat-circle"></i>
                 </button>
                 <button class="plan-nav-btn" id="nav-add-task" title="Nueva tarea" disabled>
-                    <span class="material-symbols-rounded">add</span>
+                    <i class="ph ph-plus"></i>
                 </button>
                 <button class="plan-nav-btn plan-nav-btn--orb" id="nav-orb" title="Habla conmigo">
                     <div id="orb-container-nav" class="orb-container-nav"></div>
                 </button>
                 <button class="plan-nav-btn" id="nav-list" title="Lista" disabled>
-                    <span class="material-symbols-rounded">list_alt</span>
+                    <i class="ph ph-list-checks"></i>
                 </button>
                 <button class="plan-nav-btn" id="nav-calendar" title="Calendario" disabled>
-                    <span class="material-symbols-rounded">calendar_month</span>
+                    <i class="ph ph-calendar"></i>
                 </button>
             </nav>
         </main>
@@ -322,17 +334,10 @@
             <!-- Top bar -->
             <div class="mood-overlay__topbar">
                 <button class="mood-overlay__close" id="mood-close-btn" title="Cerrar" aria-label="Cerrar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                    </svg>
+                    <i class="ph ph-x"></i>
                 </button>
                 <button class="mood-overlay__info" id="mood-info-btn" title="Información" aria-label="Información">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                    </svg>
+                    <i class="ph ph-info"></i>
                 </button>
             </div>
 
