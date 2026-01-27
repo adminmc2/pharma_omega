@@ -102,7 +102,7 @@
 
             this.centerX = size / 2;
             this.centerY = size / 2;
-            this.radius = size * 0.4;
+            this.radius = size * 0.36;
 
             // Crear partículas
             const numParticles = size > 100 ? 200 : 80;
@@ -255,7 +255,10 @@
         // Limpiar
         container.innerHTML = '';
 
-        const size = container.offsetWidth || defaultSize;
+        // Usar el tamaño real del contenedor (ancho o alto, el menor)
+        const w = container.offsetWidth;
+        const h = container.offsetHeight;
+        const size = Math.min(w, h) || w || h || defaultSize;
 
         // Crear canvas
         const canvas = document.createElement('canvas');
@@ -273,9 +276,18 @@
         };
     }
 
-    // Crear orb principal
-    const mainOrb = createOrb('orb-container', 180);
-    if (mainOrb) orbInstances.push(mainOrb);
+    // Crear orb principal — esperar a que el layout esté listo
+    function initMainOrb() {
+        const container = document.getElementById('orb-container');
+        if (container && container.offsetWidth > 0) {
+            const mainOrb = createOrb('orb-container', 220);
+            if (mainOrb) orbInstances.push(mainOrb);
+        } else {
+            // Layout aún no listo, reintentar
+            requestAnimationFrame(initMainOrb);
+        }
+    }
+    initMainOrb();
 
     // API pública: controlar estado listening
     window.orbSetListening = function(listening) {
@@ -287,7 +299,7 @@
         const existing = orbInstances.find(o => o && o.id === 'orb-container-mini');
         if (existing) return;
 
-        const miniOrb = createOrb('orb-container-mini', 58);
+        const miniOrb = createOrb('orb-container-mini', 56);
         if (miniOrb) orbInstances.push(miniOrb);
     };
 })();

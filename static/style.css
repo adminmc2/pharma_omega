@@ -1,48 +1,147 @@
 /* ============================================
-   Puro Omega - Welcome Screen
+   Puro Omega — Material Design 3
+   Tokens + Componentes
    ============================================ */
 
 :root {
-    /* Colores corporativos Puro Omega */
-    --prisma-navy: #101B2C;
-    --prisma-carbon: #36454F;
-    --clinical-white: #FAF9F6;
-    --tech-cyan: #31BEEF;
-    --visionary-violet: #994E95;
-    --soft-blue: #A1B8F2;
+    /* ===== M3 COLOR SYSTEM (Custom Puro Omega palette) ===== */
+    /* Primary — Tech Cyan */
+    --md-sys-color-primary: #31BEEF;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #C4E8F7;
+    --md-sys-color-on-primary-container: #00354A;
 
-    /* Fondo lila muy claro */
-    --bg-warm: #F5F3FA;
+    /* Secondary — Visionary Violet */
+    --md-sys-color-secondary: #994E95;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #F3D8F0;
+    --md-sys-color-on-secondary-container: #3B0838;
 
-    /* Texto */
-    --text-dark: #1a1a1a;
-    --text-muted: #6b6b6b;
-    --text-light: #9a9a9a;
+    /* Tertiary — Soft Blue */
+    --md-sys-color-tertiary: #5B73A7;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #D6E2FF;
+    --md-sys-color-on-tertiary-container: #142D5E;
 
-    /* Tipografías corporativas */
-    --font-heading: 'Quicksand', sans-serif;
-    --font-body: 'Source Sans 3', sans-serif;
+    /* Error */
+    --md-sys-color-error: #BA1A1A;
+    --md-sys-color-on-error: #FFFFFF;
+    --md-sys-color-error-container: #FFDAD6;
+    --md-sys-color-on-error-container: #410002;
 
-    /* Espaciado */
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-8: 32px;
+    /* Surface & Background */
+    --md-sys-color-surface: #FBF8FF;
+    --md-sys-color-on-surface: #1B1B21;
+    --md-sys-color-on-surface-variant: #45464F;
+    --md-sys-color-surface-variant: #E2E1EC;
+    --md-sys-color-surface-dim: #DBD9E3;
+    --md-sys-color-surface-bright: #FBF8FF;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+    --md-sys-color-surface-container-low: #F5F2FC;
+    --md-sys-color-surface-container: #EFEDF7;
+    --md-sys-color-surface-container-high: #EAE7F1;
+    --md-sys-color-surface-container-highest: #E4E1EB;
+    --md-sys-color-inverse-surface: #303036;
+    --md-sys-color-inverse-on-surface: #F2F0F9;
+    --md-sys-color-outline: #76767F;
+    --md-sys-color-outline-variant: #C6C5D0;
 
-    /* Bordes */
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-full: 9999px;
+    /* ===== M3 TYPOGRAPHY ===== */
+    --md-sys-typescale-font-brand: 'Quicksand', sans-serif;
+    --md-sys-typescale-font-plain: 'Source Sans 3', sans-serif;
+
+    /* Display */
+    --md-sys-typescale-display-large: 500 57px/64px var(--md-sys-typescale-font-brand);
+    --md-sys-typescale-display-medium: 500 45px/52px var(--md-sys-typescale-font-brand);
+    --md-sys-typescale-display-small: 500 36px/44px var(--md-sys-typescale-font-brand);
+
+    /* Headline */
+    --md-sys-typescale-headline-large: 600 32px/40px var(--md-sys-typescale-font-brand);
+    --md-sys-typescale-headline-medium: 600 28px/36px var(--md-sys-typescale-font-brand);
+    --md-sys-typescale-headline-small: 600 24px/32px var(--md-sys-typescale-font-brand);
+
+    /* Title */
+    --md-sys-typescale-title-large: 600 22px/28px var(--md-sys-typescale-font-brand);
+    --md-sys-typescale-title-medium: 500 16px/24px var(--md-sys-typescale-font-plain);
+    --md-sys-typescale-title-small: 500 14px/20px var(--md-sys-typescale-font-plain);
+
+    /* Body */
+    --md-sys-typescale-body-large: 400 16px/24px var(--md-sys-typescale-font-plain);
+    --md-sys-typescale-body-medium: 400 14px/20px var(--md-sys-typescale-font-plain);
+    --md-sys-typescale-body-small: 400 12px/16px var(--md-sys-typescale-font-plain);
+
+    /* Label */
+    --md-sys-typescale-label-large: 500 14px/20px var(--md-sys-typescale-font-plain);
+    --md-sys-typescale-label-medium: 500 12px/16px var(--md-sys-typescale-font-plain);
+    --md-sys-typescale-label-small: 500 11px/16px var(--md-sys-typescale-font-plain);
+
+    /* ===== M3 SHAPE ===== */
+    --md-sys-shape-none: 0px;
+    --md-sys-shape-extra-small: 4px;
+    --md-sys-shape-small: 8px;
+    --md-sys-shape-medium: 12px;
+    --md-sys-shape-large: 16px;
+    --md-sys-shape-extra-large: 28px;
+    --md-sys-shape-full: 9999px;
+
+    /* ===== M3 ELEVATION (shadow) ===== */
+    --md-sys-elevation-0: none;
+    --md-sys-elevation-1: 0px 1px 2px 0px rgba(0,0,0,0.30), 0px 1px 3px 1px rgba(0,0,0,0.15);
+    --md-sys-elevation-2: 0px 1px 2px 0px rgba(0,0,0,0.30), 0px 2px 6px 2px rgba(0,0,0,0.15);
+    --md-sys-elevation-3: 0px 1px 3px 0px rgba(0,0,0,0.30), 0px 4px 8px 3px rgba(0,0,0,0.15);
+
+    /* ===== M3 MOTION ===== */
+    --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+    --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+    --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+    --md-sys-motion-duration-short1: 50ms;
+    --md-sys-motion-duration-short2: 100ms;
+    --md-sys-motion-duration-short3: 150ms;
+    --md-sys-motion-duration-short4: 200ms;
+    --md-sys-motion-duration-medium1: 250ms;
+    --md-sys-motion-duration-medium2: 300ms;
+    --md-sys-motion-duration-medium3: 350ms;
+    --md-sys-motion-duration-medium4: 400ms;
+    --md-sys-motion-duration-long1: 450ms;
+    --md-sys-motion-duration-long2: 500ms;
+
+    /* ===== M3 STATE LAYERS ===== */
+    --md-sys-state-hover: 0.08;
+    --md-sys-state-focus: 0.10;
+    --md-sys-state-pressed: 0.10;
+
+    /* ===== SPACING (4dp grid) ===== */
+    --space-4: 4px;
+    --space-8: 8px;
+    --space-12: 12px;
+    --space-16: 16px;
+    --space-20: 20px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --space-48: 48px;
 
     /* Safe areas */
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Reset */
+/* ============================================
+   MATERIAL SYMBOLS BASE
+   ============================================ */
+.material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-size: 24px;
+    line-height: 1;
+    vertical-align: middle;
+    user-select: none;
+}
+
+/* ============================================
+   RESET
+   ============================================ */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -56,16 +155,17 @@ html {
 }
 
 body {
-    font-family: var(--font-body);
-    background: var(--bg-warm);
-    color: var(--text-dark);
-    line-height: 1.5;
+    font: var(--md-sys-typescale-body-large);
+    background: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
     min-height: 100vh;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
 }
 
-/* App Container */
+/* ============================================
+   APP CONTAINER
+   ============================================ */
 .app-container {
     min-height: 100vh;
     min-height: 100dvh;
@@ -76,73 +176,98 @@ body {
 }
 
 /* ============================================
-   MAIN CONTENT
+   MAIN CONTENT (Welcome)
    ============================================ */
-
 .main-content {
     flex: 1;
-    padding: var(--space-5);
-    padding-top: calc(var(--space-8) + var(--safe-top));
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-20);
+    padding-top: calc(var(--space-20) + var(--safe-top));
+    padding-bottom: calc(var(--space-20) + var(--safe-bottom));
 }
 
-/* Header row con perfil e iconos */
+/* ============================================
+   TOP APP BAR (Header)
+   ============================================ */
 .header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-6);
+    min-height: 48px;
+    flex-shrink: 0;
 }
 
 .header-actions {
     display: flex;
-    gap: var(--space-3);
+    gap: var(--space-4);
 }
 
+/* M3 Icon Button — Standard */
 .header-icon-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(0,0,0,0.06);
+    width: 48px;
+    height: 48px;
+    border-radius: var(--md-sys-shape-full);
+    border: none;
     padding: 0;
     cursor: pointer;
-    background: white;
-    color: #9ca3af;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    transition: all 0.2s;
+    background: transparent;
+    color: var(--md-sys-color-on-surface-variant);
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-.header-icon-btn:hover {
-    background: #fafafa;
-    color: #6b7280;
-    border-color: rgba(0,0,0,0.08);
+.header-icon-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
 }
 
-.header-icon-btn i {
-    font-size: 22px;
-    font-weight: 300;
+.header-icon-btn:hover::before {
+    opacity: var(--md-sys-state-hover);
 }
 
-/* Foto de perfil */
+.header-icon-btn:active::before {
+    opacity: var(--md-sys-state-pressed);
+}
+
+.header-icon-btn .material-symbols-rounded {
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+/* M3 Profile Avatar */
 .profile-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-full);
-    border: 2px solid white;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--md-sys-shape-full);
+    border: none;
     padding: 0;
     cursor: pointer;
     overflow: hidden;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--md-sys-color-primary-container);
     flex-shrink: 0;
+    transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
 .profile-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.04);
+}
+
+.profile-btn:active {
+    transform: scale(0.96);
 }
 
 .profile-img {
@@ -152,64 +277,66 @@ body {
 }
 
 /* ============================================
-   SALUDO - Tipografía Quicksand
+   GREETING — Headline typography
    ============================================ */
-
 .greeting-section {
-    margin-bottom: var(--space-8);
+    margin-top: var(--space-24);
+    flex-shrink: 0;
 }
 
 .greeting-title {
-    font-family: var(--font-heading);
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: var(--space-2);
-    letter-spacing: -0.01em;
+    font: var(--md-sys-typescale-headline-medium);
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-4);
+    letter-spacing: 0;
 }
 
 .wave {
     display: inline-block;
-    animation: wave 2s ease-in-out infinite;
+    animation: wave 2.5s ease-in-out 1;
     transform-origin: 70% 70%;
+    font-size: 28px;
 }
 
 @keyframes wave {
     0%, 100% { transform: rotate(0deg); }
-    10%, 30% { transform: rotate(14deg); }
-    20% { transform: rotate(-8deg); }
-    40% { transform: rotate(14deg); }
-    50%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(10deg); }
+    30% { transform: rotate(-4deg); }
+    45% { transform: rotate(8deg); }
+    60% { transform: rotate(0deg); }
 }
 
 .greeting-question {
-    font-family: var(--font-heading);
-    font-size: 1.75rem;
+    font: var(--md-sys-typescale-headline-medium);
     font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 0;
-    letter-spacing: -0.01em;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: 0;
 }
 
 /* ============================================
-   ORB INTERACTIVO
+   ORB SECTION
    ============================================ */
-
 .orb-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: var(--space-8) 0;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+    /* Espacio para el glow/partículas que se extienden fuera del canvas */
+    padding: var(--space-32) 0;
 }
 
 .orb-btn {
-    width: 180px;
-    height: 180px;
+    width: min(220px, 50vw);
+    height: min(220px, 50vw);
     border: none;
     background: transparent;
     cursor: pointer;
     padding: 0;
-    transition: transform 0.3s ease;
+    overflow: visible;
+    flex-shrink: 0;
+    transition: transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
 }
 
 .orb-btn:hover {
@@ -217,49 +344,60 @@ body {
 }
 
 .orb-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 .orb-container {
     width: 100%;
     height: 100%;
+    overflow: visible;
+}
+
+.orb-container canvas {
+    display: block;
+    overflow: visible;
 }
 
 .orb-hint {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--text-light);
-    margin-top: var(--space-3);
-    letter-spacing: 0.02em;
-    transition: color 0.3s;
+    font: var(--md-sys-typescale-label-large);
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: var(--space-24);
+    letter-spacing: 0.1px;
+    transition: color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
 }
 
-.orb-btn.listening .orb-hint,
 .orb-btn.listening + .orb-hint {
-    color: var(--tech-cyan);
+    color: var(--md-sys-color-primary);
 }
 
 /* ============================================
-   BARRA DE BÚSQUEDA
+   M3 SEARCH BAR — Extra Large shape (28dp)
    ============================================ */
-
 .search-container {
     display: flex;
     align-items: center;
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: var(--space-2);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: 1px solid rgba(0,0,0,0.04);
+    background: var(--md-sys-color-surface-container-high);
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-4) var(--space-8);
+    min-height: 56px;
+    flex-shrink: 0;
+    transition:
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.search-container:focus-within {
+    background: var(--md-sys-color-surface-container-highest);
+    box-shadow: var(--md-sys-elevation-2);
 }
 
 .search-icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     border: none;
-    border-radius: var(--radius-full);
+    border-radius: var(--md-sys-shape-full);
     background: transparent;
-    color: var(--text-light);
+    color: var(--md-sys-color-on-surface);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -267,93 +405,115 @@ body {
     flex-shrink: 0;
 }
 
-.search-icon-btn i {
-    font-size: 18px;
+.search-icon-btn .material-symbols-rounded {
+    font-size: 24px;
 }
 
 .search-input {
     flex: 1;
     border: none;
     background: transparent;
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    padding: var(--space-2) var(--space-3);
-    color: var(--text-dark);
+    font: var(--md-sys-typescale-body-large);
+    padding: var(--space-8) var(--space-4);
+    color: var(--md-sys-color-on-surface);
     min-width: 0;
 }
 
 .search-input::placeholder {
-    color: var(--text-light);
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .search-input:focus {
     outline: none;
 }
 
+/* M3 Tonal Icon Button (mic) */
 .mic-btn {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border: none;
-    border-radius: var(--radius-full);
-    background: var(--bg-warm);
-    color: var(--text-muted);
+    border-radius: var(--md-sys-shape-full);
+    background: transparent;
+    color: var(--md-sys-color-on-surface-variant);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-.mic-btn:hover {
-    background: #ebe5db;
-    color: var(--text-dark);
+.mic-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
+}
+
+.mic-btn:hover::before {
+    opacity: var(--md-sys-state-hover);
 }
 
 .mic-btn.recording {
-    background: #ef4444;
-    color: white;
-    animation: pulse 1.5s infinite;
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
 }
 
-@keyframes pulse {
+.mic-btn.recording::before {
+    display: none;
+}
+
+@keyframes pulse-record {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.08); }
 }
 
-.mic-btn i {
-    font-size: 18px;
+.mic-btn .material-symbols-rounded {
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
 }
 
 /* Voice Status */
 .voice-status {
     text-align: center;
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    color: var(--text-muted);
-    margin-top: var(--space-4);
-    min-height: 20px;
+    font: var(--md-sys-typescale-body-small);
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: var(--space-8);
+    min-height: 16px;
+    flex-shrink: 0;
+    transition: color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
 .voice-status.active {
-    color: #ef4444;
+    color: var(--md-sys-color-error);
 }
 
 /* ============================================
-   TRANSICIONES ENTRE PANTALLAS
+   M3 SCREEN TRANSITIONS
    ============================================ */
-
 .hidden {
     display: none !important;
 }
 
 .welcome-screen {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
 }
 
 .welcome-screen.fade-out {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-12px) scale(0.98);
 }
 
 .chat-screen {
@@ -362,292 +522,366 @@ body {
     height: 100vh;
     height: 100dvh;
     padding: 0;
-    animation: slideUp 0.3s ease;
+    animation: screenEnter var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate);
 }
 
-@keyframes slideUp {
+@keyframes screenEnter {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(16px) scale(0.98);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 /* ============================================
-   PANTALLA DE CHAT
+   M3 CHAT — Top App Bar
    ============================================ */
-
 .chat-header {
     display: flex;
     align-items: center;
-    padding: var(--space-4) var(--space-5);
-    padding-top: calc(var(--space-4) + var(--safe-top));
-    background: white;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    gap: var(--space-3);
+    padding: var(--space-8) var(--space-4);
+    padding-top: calc(var(--space-8) + var(--safe-top));
+    background: var(--md-sys-color-surface);
+    gap: var(--space-4);
+    min-height: 64px;
+    transition: background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
+/* M3 Navigation Icon Button */
 .back-btn {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border: none;
-    border-radius: var(--radius-full);
+    border-radius: var(--md-sys-shape-full);
     background: transparent;
-    color: var(--text-dark);
+    color: var(--md-sys-color-on-surface);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+    transition: background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-.back-btn:hover {
-    background: var(--bg-warm);
+.back-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
 }
 
-.back-btn i {
-    font-size: 22px;
+.back-btn:hover::before {
+    opacity: var(--md-sys-state-hover);
+}
+
+.back-btn:active::before {
+    opacity: var(--md-sys-state-pressed);
+}
+
+.back-btn .material-symbols-rounded {
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
 }
 
 .chat-title {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding-left: var(--space-4);
 }
 
 .chat-title-text {
-    font-family: var(--font-heading);
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-dark);
+    font: var(--md-sys-typescale-title-large);
+    color: var(--md-sys-color-on-surface);
 }
 
 .chat-status {
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    color: var(--tech-cyan);
+    font: var(--md-sys-typescale-label-medium);
+    color: var(--md-sys-color-primary);
+    letter-spacing: 0.5px;
 }
 
-/* Mensajes */
+/* ============================================
+   M3 CHAT MESSAGES
+   ============================================ */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: var(--space-5);
+    padding: var(--space-16);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-8);
+    background: var(--md-sys-color-surface);
 }
 
 .message {
     max-width: 85%;
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-md);
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    animation: messageIn 0.2s ease;
+    padding: var(--space-12) var(--space-16);
+    font: var(--md-sys-typescale-body-large);
+    animation: messageEnter var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate);
 }
 
-@keyframes messageIn {
+@keyframes messageEnter {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px) scale(0.97);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
+/* User message — Primary container */
 .message.user {
-    background: var(--tech-cyan);
-    color: white;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     align-self: flex-end;
-    border-bottom-right-radius: 4px;
+    border-radius: var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small) var(--md-sys-shape-large);
 }
 
+/* Assistant message — Surface Container */
 .message.assistant {
-    background: white;
-    color: var(--text-dark);
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
     align-self: flex-start;
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-radius: var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small);
 }
 
 .message.assistant.typing {
-    color: var(--text-muted);
+    color: var(--md-sys-color-on-surface-variant);
 }
 
+/* Typing indicator */
 .typing-indicator {
     display: flex;
-    gap: 4px;
-    padding: var(--space-2) 0;
+    gap: 6px;
+    padding: var(--space-8) 0;
 }
 
 .typing-indicator span {
     width: 8px;
     height: 8px;
-    background: var(--text-light);
-    border-radius: 50%;
-    animation: typing 1.4s infinite;
+    background: var(--md-sys-color-on-surface-variant);
+    border-radius: var(--md-sys-shape-full);
+    animation: typingBounce 1.4s var(--md-sys-motion-easing-standard) infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-    animation-delay: 0.2s;
+    animation-delay: 0.15s;
 }
 
 .typing-indicator span:nth-child(3) {
-    animation-delay: 0.4s;
+    animation-delay: 0.3s;
 }
 
-@keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-4px); }
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
 }
 
-/* Input del chat */
+/* ============================================
+   M3 CHAT INPUT BAR
+   ============================================ */
 .chat-input-container {
     display: flex;
     align-items: center;
-    padding: var(--space-3) var(--space-5);
-    padding-bottom: calc(var(--space-3) + var(--safe-bottom));
-    background: white;
-    border-top: 1px solid rgba(0,0,0,0.06);
-    gap: var(--space-2);
+    padding: var(--space-8) var(--space-12);
+    padding-bottom: calc(var(--space-12) + var(--safe-bottom));
+    background: var(--md-sys-color-surface-container-low);
+    gap: var(--space-8);
 }
 
 .chat-input {
     flex: 1;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: var(--radius-lg);
-    background: var(--bg-warm);
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    padding: var(--space-3) var(--space-4);
-    color: var(--text-dark);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-shape-extra-large);
+    background: var(--md-sys-color-surface-container-lowest);
+    font: var(--md-sys-typescale-body-large);
+    padding: var(--space-12) var(--space-16);
+    color: var(--md-sys-color-on-surface);
     min-width: 0;
+    transition:
+        border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
 .chat-input::placeholder {
-    color: var(--text-light);
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .chat-input:focus {
     outline: none;
-    border-color: var(--tech-cyan);
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 1px var(--md-sys-color-primary);
 }
 
+/* M3 Icon Buttons in chat */
 .chat-mic-btn,
 .chat-send-btn {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border: none;
-    border-radius: var(--radius-full);
+    border-radius: var(--md-sys-shape-full);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
+/* Mic — Standard Icon Button */
 .chat-mic-btn {
-    background: var(--bg-warm);
-    color: var(--text-muted);
+    background: transparent;
+    color: var(--md-sys-color-on-surface-variant);
 }
 
-.chat-mic-btn:hover {
-    background: #e8e4ef;
-    color: var(--text-dark);
+.chat-mic-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
+}
+
+.chat-mic-btn:hover::before {
+    opacity: var(--md-sys-state-hover);
 }
 
 .chat-mic-btn.recording {
-    background: #ef4444;
-    color: white;
-    animation: pulse 1.5s infinite;
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
 }
 
+.chat-mic-btn.recording::before {
+    display: none;
+}
+
+/* Send — M3 Filled Tonal Icon Button */
 .chat-send-btn {
-    background: var(--tech-cyan);
-    color: white;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
 }
 
-.chat-send-btn:hover {
-    background: #2aa8d8;
+.chat-send-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--md-sys-color-on-primary);
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
 }
 
-.chat-mic-btn i,
-.chat-send-btn i {
-    font-size: 20px;
+.chat-send-btn:hover::before {
+    opacity: var(--md-sys-state-hover);
+}
+
+.chat-send-btn:active {
+    transform: scale(0.92);
+}
+
+.chat-mic-btn .material-symbols-rounded,
+.chat-send-btn .material-symbols-rounded {
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
 }
 
 /* ============================================
-   ORB FLOTANTE (Opción B)
+   M3 FAB — Floating Orb
    ============================================ */
-
 .orb-floating {
     position: fixed;
     bottom: 100px;
     right: 20px;
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
     border: none;
-    border-radius: var(--radius-full);
-    background: white;
+    border-radius: var(--md-sys-shape-large);
+    background: var(--md-sys-color-primary-container);
     cursor: pointer;
-    padding: 6px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    transition: transform 0.3s, box-shadow 0.3s;
+    padding: 0;
+    box-shadow: var(--md-sys-elevation-3);
     z-index: 100;
-    overflow: visible;
+    overflow: hidden;
+    transition:
+        transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
+        box-shadow var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
+        border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 }
 
 .orb-floating:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    transform: scale(1.04);
+    box-shadow: var(--md-sys-elevation-3);
+}
+
+.orb-floating:active {
+    transform: scale(0.95);
 }
 
 .orb-floating.listening {
-    animation: orbPulse 1.5s infinite;
+    border-radius: var(--md-sys-shape-medium);
+    animation: fabPulse 2s var(--md-sys-motion-easing-standard) infinite;
 }
 
-@keyframes orbPulse {
+@keyframes fabPulse {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 4px 20px rgba(49, 190, 239, 0.3);
+        box-shadow:
+            var(--md-sys-elevation-3),
+            0 0 0 0px rgba(49, 190, 239, 0.3);
     }
     50% {
-        transform: scale(1.08);
-        box-shadow: 0 6px 30px rgba(49, 190, 239, 0.5);
+        transform: scale(1.06);
+        box-shadow:
+            var(--md-sys-elevation-3),
+            0 0 0 8px rgba(49, 190, 239, 0);
     }
 }
 
 .orb-container-mini {
     width: 100%;
     height: 100%;
-    overflow: visible;
+    overflow: hidden;
+    border-radius: inherit;
 }
 
 /* ============================================
    RESPONSIVE
    ============================================ */
-
-@media (min-width: 768px) {
+@media (min-width: 600px) {
     .app-container {
         max-width: 520px;
     }
 
     .greeting-title,
     .greeting-question {
-        font-size: 2rem;
+        font: var(--md-sys-typescale-headline-large);
     }
 
-    .profile-btn {
-        width: 56px;
-        height: 56px;
+    .greeting-question {
+        font-weight: 700;
     }
 
     .orb-floating {
