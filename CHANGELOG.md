@@ -38,6 +38,17 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | UI cleanup | ✅ | Mic redundante eliminado, border-radius coherente, FAQ desc |
 | 27-ene-26 | Test flujo chat | ✅ | WebSocket streaming funcional |
 | 27-ene-26 | Mensajes error | ✅ | Manejo de errores en WebSocket y voz |
+| 27-ene-26 | Aurora gradient + glassmorphism | ✅ | Fondo multi-blob radial con frosted glass en tarjetas |
+| 27-ene-26 | Deep Blue palette | ✅ | Reemplazar cyan #31BEEF por Deep Blue #2D5BA0 en botones |
+| 27-ene-26 | Pantalla Plan | ✅ | Stats grid, tareas dinámicas, filtros, bottom nav con orb |
+| 27-ene-26 | Bottom nav rediseñado | ✅ | Orb central, chat navega al chat, botones disabled |
+| 27-ene-26 | Perfil avatar 52px | ✅ | Aumentado de 40px a 52px |
+| 27-ene-26 | Tarjeta plan renombrada | ✅ | "Mi plan" → "Mis tareas", border-radius unificado |
+| 27-ene-26 | Phosphor Icons | ✅ | Migración completa de Material Symbols a Phosphor |
+| 27-ene-26 | Chat bottom bar | ✅ | Estilo nav-bar (rounded, elevation, blur), 72px |
+| 27-ene-26 | Chat header con orb | ✅ | Back + orb + título + help icon |
+| 27-ene-26 | Burbujas chat rediseñadas | ✅ | Avatar orb encima, assistant full-width |
+| 27-ene-26 | Búsquedas recientes | ✅ | localStorage, iconos por tipo, respuestas hardcodeadas |
 | - | Logo Puro Omega | ⏳ | Añadir al header |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
@@ -48,6 +59,49 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.2.0] - 2026-01-27
+
+### Añadido
+- **Phosphor Icons** - Migración completa de Material Symbols Rounded a Phosphor Icons
+  - 3 pesos cargados via CDN: regular, bold, fill
+  - 20+ iconos mapeados: help→question, menu_book→book-open, send→paper-plane-tilt, etc.
+- **Chat bottom bar estilo nav** - Barra inferior del chat rediseñada
+  - Estilo floating con rounded corners, elevation shadow, backdrop blur
+  - Layout: [camera] [mic] [input] [send] con botones 48px
+  - Min-height 72px, mismo estilo visual que `plan-bottom-nav`
+- **Chat header con orb** - Top bar del chat con back, orb animado, título y help
+- **Burbujas de chat rediseñadas** - Avatar orb encima de mensajes del asistente, full-width
+- **Pantalla de Plan** - Dashboard con estadísticas y tareas
+  - Stats grid: en proceso, pendientes, atrasadas, proyectos, total
+  - Sparklines SVG en cada stat card
+  - Filtros por overview (Semana/Mes/Todo) y por estado/proyecto
+  - Tareas agrupadas por estado con fechas relativas (Hoy, Mañana, etc.)
+  - Bottom nav con orb central, chat y add buttons
+- **Aurora gradient background** - Fondo multi-blob con gradientes radiales corporativos
+  - Glassmorphism (frosted glass) en tarjetas bento y búsquedas recientes
+- **Búsquedas recientes** - Sistema de historial con localStorage
+  - Clasificación automática por tipo (producto, objeción, argumento, voz)
+  - Iconos contextuales según tipo de consulta
+  - Seed data con 2 respuestas hardcodeadas de ejemplo
+  - Click en búsqueda reabre el chat con pregunta y respuesta
+
+### Cambiado
+- **Paleta de color**: cyan agresivo #31BEEF → Deep Blue #2D5BA0 en botones, iconos y acentos
+- Foto de perfil aumentada de 40px a 52px
+- Tarjeta plan renombrada: "Mi plan" → "Mis tareas"
+- Border-radius unificado en bottom nav del plan
+- Iconos de toda la app migrados a sintaxis Phosphor (`<i class="ph ph-icon">`)
+- CSS: selectores `.material-symbols-rounded` → `.ph` en todos los componentes
+- JS: templates de búsquedas recientes y tareas del plan usan Phosphor
+
+### Eliminado
+- Dependencia de Google Material Symbols Rounded (CSS CDN)
+- Estilos CSS de `.chat-input-container`, `.chat-action-btn`, `.chat-send-btn` (reemplazados por nav-bar)
+- Orb flotante (mini orb) — eliminado del CSS y JS
+- Referencias a `font-variation-settings` para iconos activos
 
 ---
 
