@@ -293,7 +293,7 @@ body::before {
     padding: 0;
     cursor: pointer;
     overflow: hidden;
-    background: rgba(196, 232, 247, 0.6);
+    background: rgba(214, 226, 255, 0.6);
     flex-shrink: 0;
     transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
@@ -1033,30 +1033,22 @@ body[data-mood-active] .chat-input-container {
     right: 20px;
     width: 56px;
     height: 56px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: none;
     border-radius: var(--md-sys-shape-large);
-    background: rgba(196, 232, 247, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: transparent;
     cursor: pointer;
     padding: 0;
-    box-shadow: var(--md-sys-elevation-3);
+    box-shadow: none;
     z-index: 100;
     overflow: hidden;
     transition:
         transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
         box-shadow var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
-        border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized),
-        background-color 1s var(--md-sys-motion-easing-standard);
-}
-
-body[data-mood-active] .orb-floating {
-    background: color-mix(in srgb, rgb(var(--mood-tint)) 20%, rgba(196, 232, 247, 0.7));
+        border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 }
 
 .orb-floating:hover {
-    transform: scale(1.04);
-    box-shadow: var(--md-sys-elevation-3);
+    transform: scale(1.08);
 }
 
 .orb-floating:active {
@@ -1709,42 +1701,39 @@ body[data-mood-active] .orb-floating {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background: rgba(239, 237, 247, 0.7);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: var(--space-4) 0;
-    padding-bottom: calc(var(--space-4) + var(--safe-bottom));
-    min-height: 64px;
+    padding: var(--space-12) var(--space-12);
+    margin: 0 var(--space-16);
+    margin-bottom: calc(var(--space-12) + var(--safe-bottom));
+    border-radius: var(--md-sys-shape-extra-large);
+    box-shadow: var(--md-sys-elevation-2);
     flex-shrink: 0;
-    border-top: 1px solid rgba(198, 197, 208, 0.5);
+    position: relative;
+    min-height: 72px;
 }
 
 .plan-nav-btn {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
     border: none;
     background: transparent;
     color: var(--md-sys-color-on-surface-variant);
     cursor: pointer;
-    padding: var(--space-4) var(--space-12);
-    border-radius: var(--md-sys-shape-large);
+    padding: var(--space-8);
+    border-radius: var(--md-sys-shape-full);
     position: relative;
     transition:
         color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-    min-width: 48px;
+    width: 44px;
+    height: 44px;
 }
 
 .plan-nav-btn .material-symbols-rounded {
     font-size: 24px;
-}
-
-.plan-nav-btn__label {
-    font: var(--md-sys-typescale-label-small);
-    color: inherit;
 }
 
 .plan-nav-btn.active {
@@ -1761,49 +1750,44 @@ body[data-mood-active] .orb-floating {
 }
 
 .plan-nav-btn:not(:disabled):hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(234, 231, 241, 0.5);
 }
 
 .plan-nav-btn:not(:disabled):active {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(234, 231, 241, 0.7);
 }
 
-/* Orb in bottom nav */
+/* Center orb button in nav */
 .plan-nav-btn--orb {
     width: 56px;
     height: 56px;
-    border-radius: var(--md-sys-shape-large);
-    background: rgba(196, 232, 247, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--md-sys-shape-full);
+    background: transparent;
+    border: none;
+    box-shadow: none;
     padding: 0;
-    margin-top: -12px;
-    box-shadow: var(--md-sys-elevation-2);
     overflow: hidden;
-    transition:
-        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-.plan-nav-btn--orb:hover {
-    transform: scale(1.06);
-    box-shadow: var(--md-sys-elevation-3);
+.plan-nav-btn--orb:not(:disabled):hover {
+    background: transparent;
 }
 
-.plan-nav-btn--orb:active {
-    transform: scale(0.95);
-}
-
-.plan-nav-btn--orb.listening {
-    animation: fabPulse 2s var(--md-sys-motion-easing-standard) infinite;
+.plan-nav-btn--orb:not(:disabled):active {
+    background: transparent;
 }
 
 .orb-container-nav {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: inherit;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.orb-container-nav canvas {
+    display: block;
 }
 
 /* ============================================

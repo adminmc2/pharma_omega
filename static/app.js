@@ -82,7 +82,7 @@ const elements = {
     planScreen: document.getElementById('plan-screen'),
     planBackBtn: document.getElementById('plan-back-btn'),
     planOverviewChips: document.querySelectorAll('.plan-filter-chip'),
-    navHome: document.getElementById('nav-home'),
+    navChatBtn: document.getElementById('nav-chat-btn'),
     navOrb: document.getElementById('nav-orb'),
 
     // Mood overlay
@@ -643,7 +643,7 @@ function showPlanScreen() {
         // Renderizar tareas con el overview actual
         renderPlanTasks();
 
-        // Crear orb en el nav si existe la API
+        // Crear orb en el nav
         if (window.orbCreateNav) window.orbCreateNav();
     }, 300);
 }
@@ -651,6 +651,15 @@ function showPlanScreen() {
 function showWelcomeFromPlan() {
     elements.planScreen.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
+}
+
+function showChatFromPlan() {
+    elements.planScreen.classList.add('hidden');
+    elements.chatScreen.classList.remove('hidden');
+    if (state.orbMode === 'minimize') {
+        elements.orbFloating.classList.remove('hidden');
+        if (window.orbCreateMini) window.orbCreateMini();
+    }
 }
 
 // ============================================
@@ -879,8 +888,7 @@ function updateRecordingUI(recording, processing = false) {
     elements.chatMicBtn?.classList.toggle('recording', recording);
     elements.orbFloating?.classList.toggle('listening', recording);
 
-    // Plan screen nav orb
-    elements.navOrb?.classList.toggle('listening', recording);
+    // Plan screen add button (sin estado listening)
 
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
@@ -1007,7 +1015,7 @@ function init() {
 
     // Plan screen
     elements.planBackBtn?.addEventListener('click', showWelcomeFromPlan);
-    elements.navHome?.addEventListener('click', showWelcomeFromPlan);
+    elements.navChatBtn?.addEventListener('click', showChatFromPlan);
     elements.navOrb?.addEventListener('click', toggleRecording);
 
     // Overview filter chips
