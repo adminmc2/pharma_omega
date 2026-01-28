@@ -48,6 +48,11 @@ const state = {
     wakeWordEnabled: false,
     wakeWordRecognition: null,
     wakeWordActive: false, // true while SpeechRecognition is running
+    // Voice interaction flow
+    voiceTriggered: false,      // true when interaction was initiated by voice
+    awaitingVoiceMode: null,    // pending message waiting for mode selection by voice
+    voiceModeTimeout: null,     // timeout for auto-sending if no voice response
+    voiceModeRecording: false,  // true when recording mode answer (longer silence detection)
     // Mood
     mood: {
         value: 100,
@@ -729,7 +734,7 @@ function renderPlanTasks() {
 // ============================================
 // Navegación entre pantallas
 // ============================================
-function showChatScreen(initialMessage, showSelector = false) {
+function showChatScreen(initialMessage, showSelector = false, skipSend = false) {
     // Fade out welcome
     elements.welcomeScreen.classList.add('fade-out');
 
@@ -744,7 +749,10 @@ function showChatScreen(initialMessage, showSelector = false) {
         // Añadir mensaje del usuario
         if (initialMessage) {
             addMessage(initialMessage, 'user');
-            if (showSelector) {
+            if (skipSend) {
+                // Voice mode: ask mode by TTS after transition
+                askResponseModeByVoice(initialMessage);
+            } else if (showSelector) {
                 showResponseModeSelector(initialMessage);
             } else {
                 sendToWebSocket(initialMessage);
@@ -1345,6 +1353,12 @@ function sendToWebSocket(message, responseMode = 'full') {
 // Grabación de voz
 // ============================================
 async function startRecording() {
+    // Prevent starting a new recording if one is already in progress
+    if (state.isRecording) {
+        console.log('[Recording] Already recording, ignoring startRecording()');
+        return;
+    }
+
     try {
         // Stop TTS if playing (don't talk while listening)
         stopTTS();
@@ -1418,8 +1432,10 @@ function startSilenceDetection(stream) {
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
     const SILENCE_THRESHOLD = 15;
-    const SILENCE_DURATION = 5000;  // 5s de silencio — pausa prudencial
-    const MIN_RECORDING = 2000;     // No evaluar hasta 2s de grabación
+    // Voice mode answer is a single word — use faster silence detection
+    const isVoiceMode = state.voiceModeRecording;
+    const SILENCE_DURATION = isVoiceMode ? 500 : 5000;   // 0.5s for mode, 5s normal
+    const MIN_RECORDING = isVoiceMode ? 500 : 2000;      // 0.5s for mode, 2s normal
     const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
 
     let silenceStart = null;
@@ -1535,23 +1551,39 @@ async function transcribeAudio(audioBlob) {
                 return;
             }
 
-            // Check if there's an active response mode selector — user is choosing "resumida" or "extendida" by voice
-            const activeSelector = document.querySelector('.response-mode-selector');
-            if (activeSelector) {
+            // Check if we're awaiting voice mode selection (user answering "resumida" or "extendida")
+            if (state.awaitingVoiceMode) {
+                if (state.voiceModeTimeout) {
+                    clearTimeout(state.voiceModeTimeout);
+                    state.voiceModeTimeout = null;
+                }
+                state.voiceModeRecording = false;
+                const pendingMessage = state.awaitingVoiceMode;
+                state.awaitingVoiceMode = null;
+
                 const lower = cleanText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
                 const isShort = /\b(resumida|corta|breve|resumen|resumido)\b/.test(lower);
-                const isFull = /\b(extendida|completa|larga|extendido|completo|detallada)\b/.test(lower);
-                if (isShort || isFull) {
-                    const mode = isShort ? 'short' : 'full';
-                    const btn = activeSelector.querySelector(`[data-mode="${mode}"]`);
-                    if (btn) {
-                        console.log(`[Voice] Mode selector: chose "${mode}" by voice`);
-                        btn.click();
-                        updateRecordingUI(false);
-                        resumeWakeWordAfterRecording();
-                        return;
-                    }
-                }
+                const mode = isShort ? 'short' : 'full';
+
+                // Remove visual indicator
+                const asking = document.querySelector('.voice-mode-asking');
+                if (asking) asking.remove();
+
+                // Show what was transcribed and chosen mode
+                console.log(`[Voice Mode] Transcribed answer: "${cleanText}" → mode: ${mode}`);
+
+                // Show chosen mode badge
+                const chosen = document.createElement('div');
+                chosen.className = 'response-mode-chosen';
+                chosen.innerHTML = mode === 'short'
+                    ? '<i class="ph ph-list-bullets"></i> Resumida'
+                    : '<i class="ph ph-article"></i> Extendida';
+                elements.chatMessages.appendChild(chosen);
+
+                sendToWebSocket(pendingMessage, mode);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
             }
 
             // Guardar en búsquedas recientes (como voz)
@@ -1560,14 +1592,24 @@ async function transcribeAudio(audioBlob) {
 
             if (!elements.chatScreen.classList.contains('hidden')) {
                 addMessage(cleanText, 'user');
-                if (actionable) {
-                    showResponseModeSelector(cleanText);
+                if (actionable && state.voiceTriggered) {
+                    // Voice: ask mode by TTS and listen
+                    // Return here — askResponseModeByVoice manages its own recording cycle
+                    askResponseModeByVoice(cleanText);
+                    return;
                 } else {
+                    // Non-actionable: send directly
                     sendToWebSocket(cleanText);
                 }
             } else {
+                // Coming from welcome/plan screen
                 elements.planScreen?.classList.add('hidden');
-                showChatScreen(cleanText, actionable);
+                if (actionable && state.voiceTriggered) {
+                    // Show chat first, then ask mode by voice
+                    showChatScreen(cleanText, false, true); // skipSend=true
+                    return;
+                }
+                showChatScreen(cleanText, false);
             }
         } else {
             console.error('Error transcripción:', data.error);
@@ -1597,6 +1639,7 @@ function toggleRecording() {
     } else {
         // Voice interaction → auto-enable TTS responses
         enableTTS();
+        state.voiceTriggered = true;
         startRecording();
     }
 }
@@ -1671,19 +1714,74 @@ function sendMessage() {
     // Guardar en búsquedas recientes
     saveRecentSearch(message);
 
-    const actionable = isActionableQuery(message);
+    // Text input → always send directly as 'full', no mode selector
+    state.voiceTriggered = false;
 
     // Si estamos en welcome, ir al chat
     if (!elements.welcomeScreen.classList.contains('hidden')) {
-        showChatScreen(message, actionable); // solo mostrar selector si es consulta real
+        showChatScreen(message, false); // text: no selector
     } else {
         addMessage(message, 'user');
-        if (actionable) {
-            showResponseModeSelector(message);
-        } else {
-            sendToWebSocket(message); // enviar directo sin selector
-        }
+        sendToWebSocket(message); // text: send directly as 'full'
     }
+}
+
+/**
+ * Asks response mode by voice: TTS asks "¿Resumida o extendida?",
+ * then starts recording to listen for the user's voice answer.
+ */
+async function askResponseModeByVoice(message) {
+    console.log('[Voice Mode] askResponseModeByVoice called for:', message);
+
+    // 1. Show visual indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'voice-mode-asking';
+    indicator.innerHTML = `
+        <i class="ph ph-speaker-high"></i>
+        <span>Omia pregunta: ¿Resumida o extendida?</span>
+    `;
+    elements.chatMessages.appendChild(indicator);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+    // 2. Play question via TTS (skip_summary = true, send text directly)
+    try {
+        console.log('[Voice Mode] Playing TTS question...');
+        await playTTSAndWait('¿Quieres la respuesta resumida o extendida?');
+        console.log('[Voice Mode] TTS question finished');
+    } catch (e) {
+        console.error('[Voice Mode] TTS failed:', e);
+    }
+
+    // 3. Wait 400ms for speaker echo to dissipate before opening mic
+    await new Promise(r => setTimeout(r, 400));
+
+    // 4. Update indicator to show we're listening
+    indicator.innerHTML = `
+        <i class="ph ph-microphone"></i>
+        <span>Escuchando tu respuesta...</span>
+    `;
+
+    // 5. Set flag so transcribeAudio knows we're awaiting mode
+    state.awaitingVoiceMode = message;
+
+    // 6. Start recording to listen for answer (with longer min recording)
+    console.log('[Voice Mode] Starting recording for mode answer...');
+    state.voiceModeRecording = true; // flag for silence detection to use longer min
+    startRecording();
+
+    // 7. Safety timeout — if no answer in 10s, send as 'full'
+    state.voiceModeTimeout = setTimeout(() => {
+        if (state.awaitingVoiceMode) {
+            console.log('[Voice Mode] Timeout — sending as full');
+            state.voiceModeRecording = false;
+            const msg = state.awaitingVoiceMode;
+            state.awaitingVoiceMode = null;
+            const asking = document.querySelector('.voice-mode-asking');
+            if (asking) asking.remove();
+            stopRecording();
+            sendToWebSocket(msg, 'full');
+        }
+    }, 10000);
 }
 
 /**
@@ -2162,6 +2260,7 @@ function onWakeWordDetected() {
     playWakeBeep();
     // Voice interaction → auto-enable TTS responses
     enableTTS();
+    state.voiceTriggered = true;
 
     if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
@@ -2370,6 +2469,60 @@ async function playTTS(text) {
 }
 
 /**
+ * Plays TTS and returns a Promise that resolves when audio finishes.
+ * Used for voice mode question so we can wait before starting recording.
+ */
+function playTTSAndWait(text) {
+    return new Promise(async (resolve) => {
+        stopTTS();
+        try {
+            console.log('[TTS] playTTSAndWait: requesting audio for:', text);
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, skip_summary: true })
+            });
+            if (!response.ok) {
+                console.error('[TTS] playTTSAndWait: server error', response.status);
+                resolve();
+                return;
+            }
+
+            const blob = await response.blob();
+            console.log('[TTS] playTTSAndWait: got blob, size:', blob.size);
+            if (blob.size === 0) {
+                console.error('[TTS] playTTSAndWait: empty blob');
+                resolve();
+                return;
+            }
+
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            state.ttsAudio = audio;
+
+            audio.addEventListener('ended', () => {
+                console.log('[TTS] playTTSAndWait: audio ended');
+                URL.revokeObjectURL(audioUrl);
+                state.ttsAudio = null;
+                resolve();
+            });
+            audio.addEventListener('error', (e) => {
+                console.error('[TTS] playTTSAndWait: audio error', e);
+                URL.revokeObjectURL(audioUrl);
+                state.ttsAudio = null;
+                resolve();
+            });
+
+            await audio.play();
+            console.log('[TTS] playTTSAndWait: playing...');
+        } catch (e) {
+            console.error('[TTS] playTTSAndWait error:', e);
+            resolve();
+        }
+    });
+}
+
+/**
  * Detiene la reproducción TTS actual.
  */
 function stopTTS() {
@@ -2439,6 +2592,7 @@ function init() {
         }
         // Voice interaction → auto-enable TTS responses
         enableTTS();
+        state.voiceTriggered = true;
         // Navigate to chat first, then start recording after transition
         if (elements.chatScreen.classList.contains('hidden')) {
             showChatScreen('', false);

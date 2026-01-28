@@ -219,14 +219,15 @@ TTS_SUMMARY_PROMPT = """Eres Omia, una asistente de ventas de Puro Omega. Convie
 
 REGLAS:
 1. Habla como si estuvieras conversando con el representante de ventas, en tono cercano y profesional.
-2. NO leas tablas, listas con viñetas ni datos técnicos literales. Resume los puntos clave de forma fluida.
+2. NUNCA leas tablas, filas, columnas, pipes (|), separadores (---) ni datos tabulares. Extrae solo los 2-3 datos más relevantes de la tabla y menciónalos de forma conversacional. Ejemplo: "El Natural DHA tiene 250 miligramos de DHA y está indicado para embarazadas."
 3. Máximo 3-4 oraciones (50-80 palabras). Sé concisa pero informativa.
 4. Menciona solo el dato más importante (nombre de producto, dosis clave, o argumento principal).
 5. Si hay un guion sugerido para el médico, menciónalo brevemente: "podrías decirle al doctor..."
-6. NO uses markdown, asteriscos, viñetas ni formato. Solo texto plano para ser leído en voz alta.
+6. NO uses markdown, asteriscos, viñetas, listas ni formato. Solo texto plano corrido para ser leído en voz alta por un sintetizador de voz.
 7. NO digas "aquí tienes", "en resumen", "la respuesta es". Ve directo al contenido.
 8. Usa vocabulario mexicano natural: "mira", "fíjate que", "lo que te recomiendo es".
-9. Termina con algo útil: un tip, una frase para el médico, o un dato que el representante pueda recordar fácilmente."""
+9. Termina con algo útil: un tip, una frase para el médico, o un dato que el representante pueda recordar fácilmente.
+10. NUNCA incluyas caracteres especiales como |, *, #, >, -, ni guiones al inicio de líneas. El texto debe sonar 100% natural al escucharlo."""
 
 
 def _generate_tts_summary(agent_response: str) -> str:
@@ -247,9 +248,16 @@ def _generate_tts_summary(agent_response: str) -> str:
         )
         summary = response.choices[0].message.content.strip()
         # Limpiar cualquier markdown residual
-        summary = re.sub(r'\*+', '', summary)
-        summary = re.sub(r'#{1,6}\s+', '', summary)
-        summary = re.sub(r'^>\s*', '', summary, flags=re.MULTILINE)
+        summary = re.sub(r'\*+', '', summary)           # bold/italic
+        summary = re.sub(r'#{1,6}\s+', '', summary)     # headings
+        summary = re.sub(r'^>\s*', '', summary, flags=re.MULTILINE)  # blockquotes
+        summary = re.sub(r'\|', ' ', summary)            # table pipes
+        summary = re.sub(r'^[\s\-:]+$', '', summary, flags=re.MULTILINE)  # table separators (---|---)
+        summary = re.sub(r'^[-•]\s+', '', summary, flags=re.MULTILINE)    # list bullets
+        summary = re.sub(r'^\d+\.\s+', '', summary, flags=re.MULTILINE)   # numbered lists
+        summary = re.sub(r'\s{2,}', ' ', summary)       # collapse multiple spaces
+        summary = re.sub(r'\n{2,}', '. ', summary)      # multiple newlines → period
+        summary = summary.strip()
         print(f"[TTS] Summary ({len(summary)} chars): {summary[:100]}...")
         return summary
     except Exception as e:
@@ -259,12 +267,13 @@ def _generate_tts_summary(agent_response: str) -> str:
 
 class TTSRequest(BaseModel):
     text: str
+    skip_summary: bool = False  # True = send text directly to ElevenLabs without LLM summary
 
 
 @app.post("/api/tts")
 async def text_to_speech(req: TTSRequest):
     """Genera audio TTS via ElevenLabs.
-    1. El LLM resume la respuesta en un discurso conversacional corto.
+    1. El LLM resume la respuesta en un discurso conversacional corto (unless skip_summary).
     2. Ese resumen se envía a ElevenLabs para generar audio."""
     if not elevenlabs_api_key:
         raise HTTPException(status_code=503, detail="ELEVENLABS_API_KEY no configurada")
@@ -272,10 +281,13 @@ async def text_to_speech(req: TTSRequest):
     if not req.text or not req.text.strip():
         raise HTTPException(status_code=400, detail="Texto vacío")
 
-    # Paso 1: Generar resumen conversacional con el LLM
-    summary = await asyncio.to_thread(_generate_tts_summary, req.text)
-    if not summary:
-        raise HTTPException(status_code=500, detail="No se pudo generar resumen para TTS")
+    # Paso 1: Generar resumen conversacional con el LLM (or use text directly)
+    if req.skip_summary:
+        summary = req.text.strip()
+    else:
+        summary = await asyncio.to_thread(_generate_tts_summary, req.text)
+        if not summary:
+            raise HTTPException(status_code=500, detail="No se pudo generar resumen para TTS")
 
     # Paso 2: Enviar resumen a ElevenLabs
     url = (

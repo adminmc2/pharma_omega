@@ -66,7 +66,8 @@ Todos los cambios notables del proyecto Puro Omega.
 | 28-ene-26 | Bot renombrado a "Omia" | ✅ | HTML, JS, CSS, backend — "Puro Omega" y "Omega 3" intactos |
 | 28-ene-26 | Toggle "Hola, Omia · on/off" | ✅ | Formato con coma y separador ·, altura 40px, gap 8px coherente |
 | 28-ene-26 | Cache-busting estáticos | ✅ | Query string `?v=3.5.1` en style.css para evitar cache del navegador |
-| 28-ene-26 | Mood slider thumb oscuro | ✅ | Círculo del slider usa `--md-sys-color-primary` (#2D5BA0) |
+| 28-ene-26 | Mood slider thumb dinámico | ✅ | Círculo del slider usa `--mood-fg` sólido (sin opacity) |
+| 28-ene-26 | Flujo de voz con pregunta TTS | ✅ | Omia pregunta modo por voz antes de responder, texto envía directo |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -76,6 +77,29 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.6.0] - 2026-01-28
+
+### Añadido
+- **Flujo de voz con pregunta de modo por TTS** — Cuando la interacción es por voz (wake word, micrófono, o "Habla conmigo"), Omia pregunta en voz alta "¿Quieres la respuesta resumida o extendida?" usando ElevenLabs TTS antes de responder
+  - `playTTSAndWait()` — Wrapper Promise de TTS que resuelve al terminar el audio
+  - `askResponseModeByVoice()` — Reproduce pregunta por TTS, activa micrófono para escuchar respuesta
+  - Indicador visual `.voice-mode-asking` con icono pulsante (speaker → micrófono)
+  - Detección de respuesta: "resumida/corta/breve" → modo short, cualquier otra cosa → modo full
+  - Badge visual `.response-mode-chosen` muestra la elección del usuario
+  - Timeout de seguridad: 8 segundos sin respuesta → envía como modo full automáticamente
+- **Flag `state.voiceTriggered`** — Distingue interacciones por voz vs texto
+  - Se activa en: `onWakeWordDetected()`, `toggleRecording()`, click en tarjeta "Habla conmigo"
+  - Se resetea en `sendMessage()` para entrada por texto
+
+### Cambiado
+- **Texto por teclado ya no muestra selector de modo** — Se envía directo como modo `full` sin preguntar
+  - `sendMessage()` simplificado: elimina `showResponseModeSelector()` para texto
+  - Solo consultas por voz + actionable activan la pregunta de modo
+- **`transcribeAudio()`** — Intercepta respuesta de modo cuando `state.awaitingVoiceMode` está activo
+- **Cache-busting** — `style.css?v=3.6.0` y `app.js?v=3.6.0`
 
 ---
 
