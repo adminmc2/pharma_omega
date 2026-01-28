@@ -1,5 +1,5 @@
 /**
- * Puro Omega - App Principal
+ * Omega - App Principal
  * Chat con voz y transiciones
  */
 
@@ -1813,7 +1813,7 @@ function renderInfographic(data, afterElement) {
         <div class="infographic-card__header">
             <div class="infographic-card__brand">
                 <i class="ph-bold ph-pulse"></i>
-                <span>Puro Omega</span>
+                <span>Omega</span>
             </div>
             <h3 class="infographic-card__title">${data.titulo || 'Resumen'}</h3>
             ${data.subtitulo ? `<p class="infographic-card__subtitle">${data.subtitulo}</p>` : ''}
@@ -1825,7 +1825,7 @@ function renderInfographic(data, afterElement) {
             ${quoteHTML}
         </div>
         <div class="infographic-card__footer">
-            <span>Puro Omega &middot; Infograf&iacute;a generada por IA</span>
+            <span>Omega &middot; Infograf&iacute;a generada por IA</span>
         </div>
         <div class="infographic-actions">
             <button class="infographic-actions__download" title="Descargar PNG">
@@ -1998,7 +1998,7 @@ function init() {
     // Renderizar búsquedas recientes
     renderRecentSearches();
 
-    console.log('Puro Omega inicializado');
+    console.log('Omega inicializado');
 }
 
 // Iniciar

@@ -1,5 +1,5 @@
 """
-Puro Omega - Asistente de Ventas RAG v3.0
+Omega - Asistente de Ventas RAG v3.0
 Backend FastAPI con WebSocket para streaming
 """
 
@@ -101,7 +101,7 @@ async def lifespan(app: FastAPI):
     print("Cerrando aplicación...")
 
 app = FastAPI(
-    title="Puro Omega - Asistente de Ventas",
+    title="Omega - Asistente de Ventas",
     version="3.0.0",
     lifespan=lifespan
 )
@@ -299,7 +299,7 @@ def is_greeting_or_vague(message: str) -> bool:
     return not any(re.search(p, t) for p in pharma_patterns)
 
 
-GREETING_RESPONSE = """Soy tu asistente de ventas de **Puro Omega**. Para poder ayudarte, cuéntame qué necesitas. Por ejemplo:
+GREETING_RESPONSE = """Soy **Omega**, tu asistente de ventas. Para poder ayudarte, cuéntame qué necesitas. Por ejemplo:
 
 - **Producto**: *"¿Qué es Natural DHA y para qué sirve?"*
 - **Objeción**: *"Un médico dice que es caro, ¿cómo respondo?"*

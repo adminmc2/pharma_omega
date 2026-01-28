@@ -59,7 +59,7 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | Investigación TTS optimización | ✅ | Strip markdown antes de speech, frases cortas (max 20 palabras) |
 | 27-ene-26 | Selección LLM | ✅ | Recomendado: Kimi K2 en Groq (mejor formato, tablas, structured output) |
 | 27-ene-26 | Plan mejora RAG definido | ✅ | 5 pasos: prompts CO-STAR, LLM Kimi K2, marked.js, CSS chat, TTS strip |
-| - | Logo Puro Omega | ⏳ | Añadir al header |
+| 28-ene-26 | Logo Puro Omega | ✅ | Añadido al header, bot renombrado a "Omega" |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -69,6 +69,41 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.4.0] - 2026-01-28
+
+### Añadido
+- **Bot renombrado a "Omega"** - El asistente se llama "Omega" en el chat header, título de página, greeting y infografías
+- **Logo Puro Omega** - Integrado en el header de la app
+- **Selector de modo de respuesta** - Resumida / Extendida antes de cada consulta
+  - Templates por agente: productos (tabla + dato diferenciador), objeciones (tabla + guion), argumentos (insight + guion)
+  - Solo aparece para consultas pharma reales (whitelist de keywords)
+- **Detección de consultas pharma (whitelist)** - `isActionableQuery()` en frontend y `is_greeting_or_vague()` en backend
+  - Saludos y frases vagas se envían directo sin selector de formato
+  - Respuesta de greeting sin Unicode emojis, compatible con Phosphor Icons
+- **Cobertura RAG baja: redirección** - Respuesta corta sin argumentario fabricado
+  - No inventa cifras ni porcentajes
+  - Usa consenso médico general sin datos exactos
+  - Sugiere 2-3 preguntas sobre temas cubiertos por Puro Omega
+- **Infografía** - Backend handler + html2canvas CDN + render/download PNG (deshabilitado temporalmente)
+- **Persistencia de chat** - Respuestas se guardan en búsquedas recientes vía `updateRecentSearchAnswer()`
+- **System prompts CO-STAR** - Agentes con técnicas de venta completas
+  - Productos: FAB + Anchoring + Autoridad
+  - Objeciones: Feel-Felt-Found + Boomerang + Aversión a la pérdida
+  - Argumentos: SPIN Selling + Challenger Sale + Social Proof + Prescription Pathway
+
+### Cambiado
+- **Orquestador**: migrado a Kimi K2 (`moonshotai/kimi-k2-instruct`) vía Groq
+- **Cobertura RAG media**: marcador `*(fuente externa no empresarial)*` obligatorio para datos no-RAG
+- **Cobertura RAG alta**: complemento externo solo para datos críticos faltantes
+- **max_tokens**: 400 (low coverage) / 500 (short) / 1000 (extended)
+
+### Arreglado
+- Selector de formato ya no aparece para mensajes absurdos o saludos
+- Greeting response usa markdown compatible con `enrichWithIcons()` (Phosphor, no Unicode)
+- Cobertura RAG baja ya no genera argumentarios completos con datos inventados
 
 ---
 
