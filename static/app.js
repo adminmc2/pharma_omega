@@ -2943,51 +2943,75 @@ function init() {
 
     elements.planCard?.addEventListener('click', showPlanScreen);
 
-    // FAQ chips (event delegation) - iOS-optimized touch handling
-    let faqChipTouchHandled = false;
-    let faqChipTouchTimeout = null;
+    // FAQ chips (event delegation) - iOS-optimized with INSTANT visual feedback
+    let faqChipProcessing = false;
+
+    const applyFaqChipActiveStyle = (chip) => {
+        // Apply inline styles IMMEDIATELY for iOS - cannot rely on CSS classes
+        chip.style.transform = 'scale(0.96)';
+        chip.style.background = '#D6E2FF'; // primary-container
+        chip.style.borderColor = '#2D5BA0'; // primary
+        chip.style.color = '#142D5E'; // on-primary-container
+    };
+
+    const removeFaqChipActiveStyle = (chip) => {
+        chip.style.transform = '';
+        chip.style.background = '';
+        chip.style.borderColor = '';
+        chip.style.color = '';
+    };
 
     const executeFaqChipAction = (chip) => {
-        if (!chip || !chip.dataset.question) return;
+        if (!chip || !chip.dataset.question || faqChipProcessing) return;
+        faqChipProcessing = true;
         console.log('[FAQ Chip] Executing action for:', chip.dataset.question);
         saveRecentSearch(chip.dataset.question);
         showChatScreen(chip.dataset.question, true);
+        // Reset after navigation
+        setTimeout(() => { faqChipProcessing = false; }, 800);
     };
 
-    // Use pointerdown for immediate response on iOS
-    elements.faqSection?.addEventListener('pointerdown', (e) => {
+    // TOUCHSTART - immediate visual feedback on touch devices
+    elements.faqSection?.addEventListener('touchstart', (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip) {
-            chip.classList.add('touch-active');
+            applyFaqChipActiveStyle(chip);
         }
     }, { passive: true });
 
-    elements.faqSection?.addEventListener('pointerup', (e) => {
+    // TOUCHEND - execute action and remove style
+    elements.faqSection?.addEventListener('touchend', (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip) {
-            chip.classList.remove('touch-active');
+            // Execute action immediately on touchend (no delay)
+            executeFaqChipAction(chip);
+            // Remove style after short delay for visual feedback
+            setTimeout(() => removeFaqChipActiveStyle(chip), 150);
         }
     }, { passive: true });
 
-    elements.faqSection?.addEventListener('pointercancel', () => {
-        document.querySelectorAll('.faq-chip.touch-active').forEach(c => c.classList.remove('touch-active'));
+    // TOUCHCANCEL - cleanup
+    elements.faqSection?.addEventListener('touchcancel', () => {
+        document.querySelectorAll('.faq-chip').forEach(c => removeFaqChipActiveStyle(c));
     }, { passive: true });
 
-    // Single click handler - works for both touch and mouse
+    // MOUSEDOWN/MOUSEUP for desktop
+    elements.faqSection?.addEventListener('mousedown', (e) => {
+        const chip = e.target.closest('.faq-chip');
+        if (chip) applyFaqChipActiveStyle(chip);
+    });
+
+    elements.faqSection?.addEventListener('mouseup', (e) => {
+        const chip = e.target.closest('.faq-chip');
+        if (chip) setTimeout(() => removeFaqChipActiveStyle(chip), 150);
+    });
+
+    // CLICK - fallback for desktop (touchend already handles mobile)
     elements.faqSection?.addEventListener('click', (e) => {
+        // Only execute if not already processed by touchend
+        if ('ontouchstart' in window) return; // Skip on touch devices
         const chip = e.target.closest('.faq-chip');
         if (chip && chip.dataset.question) {
-            // Debounce to prevent accidental double-taps
-            if (faqChipTouchHandled) {
-                console.log('[FAQ Chip] Debounced - ignoring rapid tap');
-                return;
-            }
-            faqChipTouchHandled = true;
-            clearTimeout(faqChipTouchTimeout);
-            faqChipTouchTimeout = setTimeout(() => {
-                faqChipTouchHandled = false;
-            }, 500);
-
             executeFaqChipAction(chip);
         }
     });

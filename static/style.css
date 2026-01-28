@@ -151,7 +151,8 @@ html {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
-    /* Fondo extendido a TODA la pantalla iOS incluyendo notch/Dynamic Island */
+    /* Fondo extendido a TODA la pantalla iOS incluyendo notch y home indicator */
+    height: 100%;
     min-height: 100%;
     min-height: 100vh;
     min-height: 100dvh;
@@ -165,13 +166,18 @@ html {
         radial-gradient(ellipse 60% 50% at 75% 90%, rgba(45, 91, 160, 0.08) 0%, transparent 65%),
         radial-gradient(ellipse 50% 40% at 50% 5%, rgba(153, 78, 149, 0.08) 0%, transparent 60%);
     background-attachment: fixed;
+    /* PWA iOS: extender fondo a bordes */
+    background-size: 100% 100%;
+    overflow: hidden;
 }
 
 body {
+    height: 100%;
     min-height: 100%;
     min-height: 100vh;
     min-height: 100dvh;
     min-height: -webkit-fill-available;
+    overflow: hidden;
 }
 
 /* ============================================
@@ -219,15 +225,31 @@ body::before {
 }
 
 /* ============================================
-   APP CONTAINER — Full screen como mood-overlay
+   APP CONTAINER — Full screen incluyendo home indicator
    ============================================ */
 .app-container {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Extender más allá del bottom safe area para cubrir home indicator */
+    min-height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
     z-index: 1;
     overflow: hidden;
+    /* Fondo de respaldo para el área del home indicator */
+    background-color: #FBF8FF;
+    background-image:
+        radial-gradient(ellipse 80% 60% at 15% 10%, rgba(45, 91, 160, 0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 70% at 85% 40%, rgba(153, 78, 149, 0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 75% 55% at 20% 85%, rgba(91, 115, 167, 0.16) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 75% 90%, rgba(45, 91, 160, 0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 50% 5%, rgba(153, 78, 149, 0.08) 0%, transparent 60%);
 }
 
 /* ============================================
@@ -772,12 +794,23 @@ body[data-mood-active] .bento-card--mood {
 }
 
 /* Touch/click active state - más visible para móvil */
+/* NOTE: On iOS, inline styles applied via JS take precedence for instant feedback */
 .faq-chip:active,
 .faq-chip.touch-active {
-    transform: scale(0.96);
-    background: var(--md-sys-color-primary-container);
-    border-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary-container);
+    transform: scale(0.96) !important;
+    background: var(--md-sys-color-primary-container) !important;
+    border-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+}
+
+/* iOS Safari specific: ensure active state works */
+@supports (-webkit-touch-callout: none) {
+    .faq-chip {
+        /* Force hardware acceleration for smoother transform */
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        will-change: transform, background-color;
+    }
 }
 
 /* ============================================
