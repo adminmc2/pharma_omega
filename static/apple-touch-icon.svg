@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <defs>
+    <!-- Fondo con gradiente suave -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5F2FC"/>
+      <stop offset="100%" stop-color="#EAE7F1"/>
+    </linearGradient>
+    <!-- Gradiente radial del orb -->
+    <radialGradient id="orbGradApple" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#A1B8F2"/>
+      <stop offset="40%" stop-color="#31BEEF"/>
+      <stop offset="75%" stop-color="#994E95"/>
+      <stop offset="100%" stop-color="#2D5BA0"/>
+    </radialGradient>
+    <!-- Glow exterior -->
+    <radialGradient id="glowGradApple" cx="50%" cy="50%" r="50%">
+      <stop offset="60%" stop-color="#31BEEF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#31BEEF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Brillo superior -->
+    <radialGradient id="shineGradApple" cx="35%" cy="25%" r="35%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fondo (iOS requiere fondo sólido) -->
+  <rect width="180" height="180" fill="url(#bgGrad)"/>
+
+  <!-- Glow exterior -->
+  <circle cx="90" cy="90" r="75" fill="url(#glowGradApple)"/>
+
+  <!-- Esfera principal -->
+  <circle cx="90" cy="90" r="56" fill="url(#orbGradApple)"/>
+
+  <!-- Brillo superior (efecto 3D) -->
+  <ellipse cx="75" cy="72" rx="25" ry="18" fill="url(#shineGradApple)"/>
+
+  <!-- Puntos decorativos (partículas del orb) -->
+  <circle cx="65" cy="80" r="3" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="78" cy="65" r="2.5" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="100" cy="75" r="2" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="110" cy="95" r="2.5" fill="#A1B8F2" opacity="0.8"/>
+  <circle cx="72" cy="105" r="2" fill="#31BEEF" opacity="0.7"/>
+  <circle cx="95" cy="115" r="2" fill="#994E95" opacity="0.6"/>
+</svg>

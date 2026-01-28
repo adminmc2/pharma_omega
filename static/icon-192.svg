@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <!-- Fondo con gradiente suave -->
+    <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5F2FC"/>
+      <stop offset="100%" stop-color="#EAE7F1"/>
+    </linearGradient>
+    <!-- Gradiente radial del orb -->
+    <radialGradient id="orbGrad192" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#A1B8F2"/>
+      <stop offset="40%" stop-color="#31BEEF"/>
+      <stop offset="75%" stop-color="#994E95"/>
+      <stop offset="100%" stop-color="#2D5BA0"/>
+    </radialGradient>
+    <!-- Glow exterior -->
+    <radialGradient id="glowGrad192" cx="50%" cy="50%" r="50%">
+      <stop offset="60%" stop-color="#31BEEF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#31BEEF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Brillo superior -->
+    <radialGradient id="shineGrad192" cx="35%" cy="25%" r="35%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="192" height="192" fill="url(#bgGrad192)"/>
+
+  <!-- Glow exterior -->
+  <circle cx="96" cy="96" r="80" fill="url(#glowGrad192)"/>
+
+  <!-- Esfera principal -->
+  <circle cx="96" cy="96" r="60" fill="url(#orbGrad192)"/>
+
+  <!-- Brillo superior (efecto 3D) -->
+  <ellipse cx="80" cy="77" rx="27" ry="19" fill="url(#shineGrad192)"/>
+
+  <!-- Puntos decorativos (partículas del orb) -->
+  <circle cx="70" cy="85" r="3.2" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="83" cy="70" r="2.6" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="107" cy="80" r="2.1" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="117" cy="100" r="2.7" fill="#A1B8F2" opacity="0.8"/>
+  <circle cx="77" cy="112" r="2.2" fill="#31BEEF" opacity="0.7"/>
+  <circle cx="102" cy="122" r="2.1" fill="#994E95" opacity="0.6"/>
+</svg>

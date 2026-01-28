@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Gradiente radial del orb -->
+    <radialGradient id="orbGrad" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#A1B8F2"/>
+      <stop offset="40%" stop-color="#31BEEF"/>
+      <stop offset="75%" stop-color="#994E95"/>
+      <stop offset="100%" stop-color="#2D5BA0"/>
+    </radialGradient>
+    <!-- Glow exterior -->
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="60%" stop-color="#31BEEF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#31BEEF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Brillo superior -->
+    <radialGradient id="shineGrad" cx="35%" cy="25%" r="35%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Glow exterior -->
+  <circle cx="256" cy="256" r="240" fill="url(#glowGrad)"/>
+
+  <!-- Esfera principal -->
+  <circle cx="256" cy="256" r="180" fill="url(#orbGrad)"/>
+
+  <!-- Brillo superior (efecto 3D) -->
+  <ellipse cx="210" cy="190" rx="80" ry="60" fill="url(#shineGrad)"/>
+
+  <!-- Puntos decorativos (partículas del orb) -->
+  <circle cx="180" cy="220" r="8" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="220" cy="170" r="6" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="280" cy="200" r="5" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="310" cy="260" r="7" fill="#A1B8F2" opacity="0.8"/>
+  <circle cx="200" cy="290" r="6" fill="#31BEEF" opacity="0.7"/>
+  <circle cx="260" cy="320" r="5" fill="#994E95" opacity="0.6"/>
+  <circle cx="330" cy="300" r="4" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="170" cy="260" r="5" fill="#31BEEF" opacity="0.6"/>
+</svg>
