@@ -1475,10 +1475,10 @@ body[data-mood-active] .message.assistant {
     animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
 }
 
-/* Voice orb — modifier on chat-nav-btn, dark circle with waveform */
+/* Voice orb — modifier on chat-nav-btn, same dark color as send button */
 .chat-nav-btn.chat-voice-orb {
-    background: var(--md-sys-color-on-primary-container);
-    color: var(--md-sys-color-primary-container);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     border-radius: 50%;
 }
 
@@ -1488,8 +1488,8 @@ body[data-mood-active] .message.assistant {
 
 /* Active state — glow */
 .chat-nav-btn.chat-voice-orb.voice-orb--active {
-    background: var(--md-sys-color-on-primary-container);
-    color: var(--md-sys-color-primary-container);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     box-shadow: 0 0 0 2.5px rgba(45, 91, 160, 0.25), 0 0 8px rgba(45, 91, 160, 0.12);
     animation: voice-orb-glow 2.5s ease-in-out infinite;
 }
@@ -1499,10 +1499,10 @@ body[data-mood-active] .message.assistant {
     50% { box-shadow: 0 0 0 3px rgba(45, 91, 160, 0.4), 0 0 14px rgba(45, 91, 160, 0.2); }
 }
 
-/* Inactive state — muted */
+/* Inactive state — same color, no glow */
 .chat-nav-btn.chat-voice-orb:not(.voice-orb--active) {
-    background: var(--md-sys-color-surface-variant);
-    color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     box-shadow: none;
     animation: none;
 }
@@ -1719,13 +1719,11 @@ body[data-mood-active] .message.assistant {
     width: 24px;
     height: 24px;
     border-radius: var(--md-sys-shape-full);
-    background: var(--mood-fg);
+    background: var(--md-sys-color-primary);
     border: none;
     cursor: pointer;
-    opacity: 0.6;
     transition:
-        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        background 0.5s var(--md-sys-motion-easing-standard);
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
 .mood-overlay__slider::-webkit-slider-thumb:active {
@@ -1736,10 +1734,9 @@ body[data-mood-active] .message.assistant {
     width: 24px;
     height: 24px;
     border-radius: var(--md-sys-shape-full);
-    background: var(--mood-fg);
+    background: var(--md-sys-color-primary);
     border: none;
     cursor: pointer;
-    opacity: 0.6;
 }
 
 .mood-overlay__slider::-moz-range-track {

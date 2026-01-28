@@ -66,6 +66,7 @@ Todos los cambios notables del proyecto Puro Omega.
 | 28-ene-26 | Bot renombrado a "Omia" | ✅ | HTML, JS, CSS, backend — "Puro Omega" y "Omega 3" intactos |
 | 28-ene-26 | Toggle "Hola, Omia · on/off" | ✅ | Formato con coma y separador ·, altura 40px, gap 8px coherente |
 | 28-ene-26 | Cache-busting estáticos | ✅ | Query string `?v=3.5.1` en style.css para evitar cache del navegador |
+| 28-ene-26 | Mood slider thumb oscuro | ✅ | Círculo del slider usa `--md-sys-color-primary` (#2D5BA0) |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -75,6 +76,15 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.5.2] - 2026-01-28
+
+### Cambiado
+- **Mood slider thumb** — Círculo del slider ahora usa `--md-sys-color-primary` (#2D5BA0) en vez de `--mood-fg` con opacity 0.6
+  - Mismo color oscuro que el botón de enviar, sin transparencia
+  - Aplicado a webkit y moz
 
 ---
 
