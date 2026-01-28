@@ -3056,107 +3056,154 @@ body[data-mood-active] .message.assistant {
    Wake Word — "Hola Omega" toggle & feedback
    ============================================ */
 
-/* Toggle button in header */
-.wake-word-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid var(--md-sys-color-outline-variant);
+/* Wake Word toggle — M3 text button, coherent with header-icon-btn height */
+.wake-word-toggle {
+    height: 36px;
+    border-radius: var(--md-sys-shape-full);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    padding: 0 14px 0 10px;
+    cursor: pointer;
     background: transparent;
     color: var(--md-sys-color-on-surface-variant);
-    cursor: pointer;
-    padding: 0;
-    border-radius: var(--md-sys-shape-full);
-    width: 40px;
-    height: 40px;
-    position: relative;
-    transition:
-        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-}
-
-.wake-word-btn .ph {
-    font-size: 20px;
-}
-
-.wake-word-btn:hover {
-    background: rgba(234, 231, 241, 0.5);
-}
-
-.wake-word-btn:active {
-    transform: scale(0.92);
-}
-
-/* Active state (wake word enabled) */
-.wake-word-btn--active {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    border-color: var(--md-sys-color-primary);
-}
-
-.wake-word-btn--active:hover {
-    background: var(--md-sys-color-primary);
-    opacity: 0.9;
-}
-
-/* Listening indicator dot */
-.wake-word-indicator {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: transparent;
-    transition: background var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-}
-
-.wake-word-indicator--active {
-    background: #4CAF50;
-    animation: wakeWordPulse 2s ease-in-out infinite;
-}
-
-@keyframes wakeWordPulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 0 4px rgba(76, 175, 80, 0);
-    }
-}
-
-/* Toast notification when wake word detected */
-.wake-word-toast {
-    position: fixed;
-    top: calc(var(--safe-top, 0px) + 16px);
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background: var(--md-sys-color-inverse-surface);
-    color: var(--md-sys-color-inverse-on-surface);
-    font: var(--md-sys-typescale-label-large);
-    padding: 10px 20px;
-    border-radius: var(--md-sys-shape-full);
-    box-shadow: var(--md-sys-elevation-3);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    opacity: 0;
+    gap: 6px;
+    font-family: var(--md-sys-typescale-label-large-font, 'Quicksand', sans-serif);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
     transition:
-        opacity 0.3s var(--md-sys-motion-easing-emphasized-decelerate),
-        transform 0.3s var(--md-sys-motion-easing-emphasized-decelerate);
-    z-index: 9999;
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    white-space: nowrap;
+    align-self: center;
+}
+
+.wake-word-toggle .ph {
+    font-size: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.wake-word-toggle .wake-word-label {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hover state layer */
+.wake-word-toggle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
     pointer-events: none;
 }
 
-.wake-word-toast .ph {
-    font-size: 18px;
+.wake-word-toggle:hover::before {
+    opacity: var(--md-sys-state-hover);
+}
+
+.wake-word-toggle:active::before {
+    opacity: var(--md-sys-state-pressed);
+}
+
+/* Active state: tonal fill + green accent */
+.wake-word-toggle.wake-word-toggle--active {
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    border-color: transparent;
+}
+
+.wake-word-toggle.wake-word-toggle--active .ph {
     color: #4CAF50;
+}
+
+/* Wake word feedback — centered overlay card */
+.wake-word-toast {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s var(--md-sys-motion-easing-emphasized-decelerate);
+}
+
+/* Scrim detrás */
+.wake-word-toast::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.wake-word-toast__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: var(--md-sys-color-surface);
+    border-radius: var(--md-sys-shape-extra-large, 28px);
+    padding: 32px 40px;
+    box-shadow: var(--md-sys-elevation-3);
+    transform: scale(0.85);
+    transition: transform 0.4s var(--md-sys-motion-easing-emphasized-decelerate);
+}
+
+.wake-word-toast__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    animation: wakeWordPulseRing 1.8s ease-in-out infinite;
+}
+
+@keyframes wakeWordPulseRing {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(45, 91, 160, 0.3); }
+    50% { box-shadow: 0 0 0 12px rgba(45, 91, 160, 0); }
+}
+
+.wake-word-toast__text {
+    font-family: var(--md-sys-typescale-title-medium-font, 'Quicksand', sans-serif);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+
+.wake-word-toast__hint {
+    font-family: var(--md-sys-typescale-body-small-font, 'Source Sans 3', sans-serif);
+    font-size: 13px;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
 }
 
 .wake-word-toast--visible {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+}
+
+.wake-word-toast--visible .wake-word-toast__card {
+    transform: scale(1);
 }
 
 /* --- Print styles --- */
@@ -3174,7 +3221,7 @@ body[data-mood-active] .message.assistant {
     .response-mode-chosen {
         display: none !important;
     }
-    .wake-word-btn,
+    .wake-word-toggle,
     .wake-word-toast {
         display: none !important;
     }

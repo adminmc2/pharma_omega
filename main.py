@@ -251,6 +251,29 @@ async def handle_infographic_request(websocket: WebSocket, agent_response: str):
         })
 
 
+def strip_wake_word(message: str) -> str:
+    """Elimina variantes del wake word 'Hola Omega' del mensaje.
+    Si lo que queda es solo un saludo vacío, retorna cadena vacía."""
+    import unicodedata
+    t = message.strip()
+    # Remove wake word patterns (case-insensitive)
+    wake_patterns = [
+        r'(?:hola|hey|oye|ok|ola)\s*(?:o\s*m[oe]ga|mogea)',
+        r'\bo\s*m[oe]ga\b',
+        r'\bmogea\b',
+    ]
+    for p in wake_patterns:
+        t = re.sub(p, '', t, flags=re.IGNORECASE).strip()
+    # Remove leftover punctuation/whitespace
+    t = re.sub(r'^[,\s.!?]+', '', t).strip()
+    # If only a bare greeting remains, return empty
+    bare = unicodedata.normalize('NFD', t.lower())
+    bare = re.sub(r'[\u0300-\u036f]', '', bare).strip()
+    if re.match(r'^(hola|hey|oye|ok|buenas?|buenos?|que tal|como estas?|gracias?|adios|hasta luego)?[.!?,\s]*$', bare):
+        return ''
+    return t
+
+
 def is_greeting_or_vague(message: str) -> bool:
     """Detecta si un mensaje NO contiene consulta pharma real.
     Usa whitelist: si no hay ninguna palabra clave del dominio, es vago."""
@@ -334,6 +357,13 @@ async def websocket_chat(websocket: WebSocket):
 
             if not user_message.strip():
                 continue
+
+            # Strip wake word ("Hola Omega") from the message
+            cleaned = strip_wake_word(user_message)
+            if not cleaned:
+                # Message was only a wake word — ignore silently
+                continue
+            user_message = cleaned
 
             # Saludos y mensajes vagos: responder directamente sin agente ni RAG
             if is_greeting_or_vague(user_message):

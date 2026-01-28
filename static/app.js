@@ -39,11 +39,11 @@ const state = {
     websocket: null,
     currentMessage: '',
     orbMode: 'minimize', // Opción fija: orb minimizado flotante en chat
-    // Detección de silencio
+    audioStream: null,
+    // Silence detection
     audioContext: null,
     analyser: null,
     silenceTimer: null,
-    audioStream: null,
     // Wake word
     wakeWordEnabled: false,
     wakeWordRecognition: null,
@@ -1362,7 +1362,6 @@ async function startRecording() {
 
         state.mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
-            stopSilenceDetection();
             await transcribeAudio(audioBlob);
             stream.getTracks().forEach(track => track.stop());
         };
@@ -1370,11 +1369,10 @@ async function startRecording() {
         state.mediaRecorder.start();
         state.isRecording = true;
 
-        // Actualizar UI
-        updateRecordingUI(true);
-
-        // Iniciar detección de silencio
+        // Start silence detection (auto-stop after 5s silence)
         startSilenceDetection(stream);
+
+        updateRecordingUI(true);
 
     } catch (error) {
         console.error('Error micrófono:', error);
@@ -1386,15 +1384,15 @@ async function startRecording() {
 
 function stopRecording() {
     if (state.mediaRecorder && state.isRecording) {
+        stopSilenceDetection();
         state.mediaRecorder.stop();
         state.isRecording = false;
-        stopSilenceDetection();
         updateRecordingUI(false, true); // processing = true
     }
 }
 
 // ============================================
-// Detección automática de silencio
+// Detección automática de silencio (pausa prudencial)
 // ============================================
 function startSilenceDetection(stream) {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1409,38 +1407,50 @@ function startSilenceDetection(stream) {
     state.analyser = analyser;
 
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    const SILENCE_THRESHOLD = 15;   // Nivel de ruido considerado silencio
-    const SILENCE_DURATION = 1800;  // ms de silencio para auto-parar
-    const MIN_RECORDING = 800;      // ms mínimo de grabación antes de detectar silencio
+
+    const SILENCE_THRESHOLD = 15;
+    const SILENCE_DURATION = 5000;  // 5s de silencio — pausa prudencial
+    const MIN_RECORDING = 2000;     // No evaluar hasta 2s de grabación
+    const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
 
     let silenceStart = null;
+    let speechDetected = false;
     const recordStart = Date.now();
 
     function checkSilence() {
         if (!state.isRecording) return;
 
+        const elapsed = Date.now() - recordStart;
+
+        if (elapsed > MAX_RECORDING) {
+            console.log('[Silence] Max recording time reached, stopping');
+            stopRecording();
+            return;
+        }
+
         analyser.getByteFrequencyData(dataArray);
 
-        // Calcular volumen promedio
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++) {
             sum += dataArray[i];
         }
         const avg = sum / dataArray.length;
 
-        const elapsed = Date.now() - recordStart;
+        // Detect real speech
+        if (avg > SILENCE_THRESHOLD * 1.5) {
+            speechDetected = true;
+        }
 
-        if (avg < SILENCE_THRESHOLD && elapsed > MIN_RECORDING) {
-            // Hay silencio
+        // Only evaluate silence after MIN_RECORDING and after speech was detected
+        if (avg < SILENCE_THRESHOLD && elapsed > MIN_RECORDING && speechDetected) {
             if (!silenceStart) {
                 silenceStart = Date.now();
             } else if (Date.now() - silenceStart > SILENCE_DURATION) {
-                // Silencio prolongado: parar grabación automáticamente
+                console.log('[Silence] 5s silence after speech, auto-stopping');
                 stopRecording();
                 return;
             }
-        } else {
-            // Hay sonido: resetear timer de silencio
+        } else if (avg >= SILENCE_THRESHOLD) {
             silenceStart = null;
         }
 
@@ -1463,13 +1473,24 @@ function stopSilenceDetection() {
 }
 
 function updateRecordingUI(recording, processing = false) {
-    // Welcome screen
-    elements.orbCard?.classList.toggle('listening', recording);
+    // Welcome screen — toggle class + update text
+    if (elements.orbCard) {
+        elements.orbCard.classList.toggle('listening', recording);
+        const orbTitle = elements.orbCard.querySelector('.bento-card__title');
+        if (orbTitle) {
+            orbTitle.textContent = recording ? 'Toca para parar' : (processing ? 'Procesando...' : 'Habla conmigo');
+        }
+    }
 
-    // Chat screen
-    elements.chatMicBtn?.classList.toggle('recording', recording);
-
-    // Plan screen add button (sin estado listening)
+    // Chat screen — toggle recording class + swap icon
+    if (elements.chatMicBtn) {
+        elements.chatMicBtn.classList.toggle('recording', recording);
+        const icon = elements.chatMicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        elements.chatMicBtn.title = recording ? 'Parar grabación' : 'Micrófono';
+    }
 
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
@@ -1494,29 +1515,66 @@ async function transcribeAudio(audioBlob) {
         const data = await response.json();
 
         if (data.success && data.text) {
+            // Strip wake word from transcription so "Hola Omega, ..." becomes just "..."
+            const cleanText = stripWakeWord(data.text);
+
+            // If the transcription was ONLY a wake word (nothing else), skip sending
+            if (!cleanText) {
+                console.log('[Voice] Transcription was only a wake word, ignoring');
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
+            // Check if there's an active response mode selector — user is choosing "resumida" or "extendida" by voice
+            const activeSelector = document.querySelector('.response-mode-selector');
+            if (activeSelector) {
+                const lower = cleanText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const isShort = /\b(resumida|corta|breve|resumen|resumido)\b/.test(lower);
+                const isFull = /\b(extendida|completa|larga|extendido|completo|detallada)\b/.test(lower);
+                if (isShort || isFull) {
+                    const mode = isShort ? 'short' : 'full';
+                    const btn = activeSelector.querySelector(`[data-mode="${mode}"]`);
+                    if (btn) {
+                        console.log(`[Voice] Mode selector: chose "${mode}" by voice`);
+                        btn.click();
+                        updateRecordingUI(false);
+                        resumeWakeWordAfterRecording();
+                        return;
+                    }
+                }
+            }
+
             // Guardar en búsquedas recientes (como voz)
-            saveRecentSearch(data.text, true);
-            const actionable = isActionableQuery(data.text);
+            saveRecentSearch(cleanText, true);
+            const actionable = isActionableQuery(cleanText);
 
             if (!elements.chatScreen.classList.contains('hidden')) {
-                addMessage(data.text, 'user');
+                addMessage(cleanText, 'user');
                 if (actionable) {
-                    showResponseModeSelector(data.text);
+                    showResponseModeSelector(cleanText);
                 } else {
-                    sendToWebSocket(data.text);
+                    sendToWebSocket(cleanText);
                 }
             } else {
                 elements.planScreen?.classList.add('hidden');
-                showChatScreen(data.text, actionable);
+                showChatScreen(cleanText, actionable);
             }
         } else {
             console.error('Error transcripción:', data.error);
+            // Show capabilities message when transcription fails
+            if (!elements.chatScreen.classList.contains('hidden')) {
+                addMessage('No pude entender lo que dijiste. Puedes preguntarme sobre:\n\n- **Productos**: "¿Qué es Natural DHA?"\n- **Objeciones**: "Un médico dice que es caro"\n- **Argumentos**: "¿Cómo presento Puro Omega a un cardiólogo?"', 'assistant');
+            }
         }
 
         updateRecordingUI(false);
 
     } catch (error) {
         console.error('Error transcripción:', error);
+        if (!elements.chatScreen.classList.contains('hidden')) {
+            addMessage('No pude entender lo que dijiste. Intenta de nuevo.', 'assistant');
+        }
         updateRecordingUI(false);
     }
 
@@ -1897,20 +1955,79 @@ function downloadInfographicAsPNG(cardElement) {
 // ============================================
 // Wake Word Detection — "Hola Omega" / "Hey Omega" / "Omega"
 // ============================================
+// Flexible patterns — no \b boundaries (Spanish SpeechRecognition
+// transcripts often lack proper word spacing/punctuation)
 const WAKE_WORD_PATTERNS = [
-    /\bomega\b/i,
-    /\bhola\s+omega\b/i,
-    /\bhey\s+omega\b/i,
-    /\boye\s+omega\b/i,
-    /\bok\s+omega\b/i,
+    /hola\s*omega/i,
+    /hey\s*omega/i,
+    /oye\s*omega/i,
+    /ok\s*omega/i,
+    /ola\s*omega/i,    // common speech-to-text typo
+    /hola\s*o[mn]ega/i, // phonetic variants
 ];
+
+// Single-word fallback: standalone "omega" only if it's the whole transcript
+const WAKE_WORD_SOLO = /^\s*o[mn]ega\s*$/i;
 
 /**
  * Checks if the transcript contains a wake word.
  */
 function containsWakeWord(transcript) {
     const t = transcript.toLowerCase().trim();
-    return WAKE_WORD_PATTERNS.some(p => p.test(t));
+    if (!t) return false;
+    // Multi-word patterns first (more specific)
+    if (WAKE_WORD_PATTERNS.some(p => p.test(t))) return true;
+    // Solo "omega" only if the entire transcript is just the word
+    if (WAKE_WORD_SOLO.test(t)) return true;
+    return false;
+}
+
+/**
+ * Strips wake word patterns from transcribed text.
+ * Returns cleaned text, or empty string if the text was ONLY a wake word / greeting.
+ */
+function stripWakeWord(text) {
+    let t = text.trim();
+
+    // 1) Remove wake word patterns anywhere in the text (not just start)
+    for (const pattern of WAKE_WORD_PATTERNS) {
+        t = t.replace(new RegExp(pattern.source + '[,\\s.!?]*', 'gi'), '').trim();
+    }
+
+    // 2) Strip standalone "omega" / "mogea" / "o mega" variations
+    t = t.replace(/\b[oó]\s*m[oe]ga\b[,\s.!?]*/gi, '').trim();
+    t = t.replace(/\bmogea\b[,\s.!?]*/gi, '').trim();
+
+    // 3) If what remains is just a greeting word or nothing, return empty
+    const leftover = t.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/^\s*(hola|hey|oye|ok|buenas?|buenos?|que tal|como estas?|gracias?|adios|hasta luego)?\s*[.!?,]*\s*$/i.test(leftover)) {
+        return '';
+    }
+
+    return t;
+}
+
+/**
+ * Play a short beep to confirm wake word detection.
+ */
+function playWakeBeep() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);  // A5
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.25);
+        osc.onended = () => ctx.close();
+    } catch (e) {
+        // Silently ignore — beep is optional UX nicety
+    }
 }
 
 /**
@@ -1931,7 +2048,7 @@ function startWakeWordListening() {
     recognition.lang = 'es-ES';
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
+    recognition.maxAlternatives = 3; // more alternatives = better chance of matching
 
     recognition.onstart = () => {
         state.wakeWordActive = true;
@@ -1940,27 +2057,32 @@ function startWakeWordListening() {
     };
 
     recognition.onresult = (event) => {
-        // Check all results (both interim and final)
+        // Check all results and all alternatives
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (containsWakeWord(transcript)) {
-                console.log('[WakeWord] Wake word detected:', transcript);
-                // Stop recognition and start recording
-                recognition.stop();
-                state.wakeWordActive = false;
+            for (let a = 0; a < event.results[i].length; a++) {
+                const transcript = event.results[i][a].transcript;
+                if (containsWakeWord(transcript)) {
+                    console.log('[WakeWord] Wake word detected:', transcript);
+                    // Prevent onend from restarting listening during the transition
+                    state.wakeWordEnabled = false;
+                    recognition.abort();
+                    state.wakeWordActive = false;
 
-                // Brief delay to allow SpeechRecognition to release the mic
-                setTimeout(() => {
-                    onWakeWordDetected();
-                }, 300);
-                return;
+                    // Brief delay to release mic, then start recording
+                    setTimeout(() => {
+                        // Re-enable wake word (will restart after recording)
+                        state.wakeWordEnabled = true;
+                        onWakeWordDetected();
+                    }, 400);
+                    return;
+                }
             }
         }
     };
 
     recognition.onerror = (event) => {
-        // 'no-speech' and 'aborted' are normal — just restart
-        if (event.error === 'no-speech' || event.error === 'aborted') {
+        // 'no-speech', 'aborted', 'network' are normal in continuous mode
+        if (['no-speech', 'aborted', 'network'].includes(event.error)) {
             return;
         }
         console.warn('[WakeWord] Error:', event.error);
@@ -1971,26 +2093,42 @@ function startWakeWordListening() {
         if (event.error === 'not-allowed') {
             state.wakeWordEnabled = false;
             updateWakeWordToggle(false);
+            localStorage.setItem('omega_wake_word', 'off');
             return;
         }
     };
 
     recognition.onend = () => {
         state.wakeWordActive = false;
-        // Auto-restart if still enabled and not currently recording
+        // Auto-restart: always restart if enabled, with a very short delay
+        // Chrome stops continuous mode after ~5-10s of silence, so this is critical
         if (state.wakeWordEnabled && !state.isRecording) {
             setTimeout(() => {
-                if (state.wakeWordEnabled && !state.isRecording) {
+                if (state.wakeWordEnabled && !state.isRecording && !state.wakeWordActive) {
                     startWakeWordListening();
                 }
-            }, 500);
+            }, 150); // shorter delay = faster recovery
         } else {
             updateWakeWordUI(false);
         }
     };
 
     state.wakeWordRecognition = recognition;
-    recognition.start();
+
+    try {
+        recognition.start();
+    } catch (e) {
+        console.warn('[WakeWord] Failed to start:', e);
+        state.wakeWordActive = false;
+        // Retry after a brief pause
+        if (state.wakeWordEnabled) {
+            setTimeout(() => {
+                if (state.wakeWordEnabled && !state.isRecording && !state.wakeWordActive) {
+                    startWakeWordListening();
+                }
+            }, 1000);
+        }
+    }
 }
 
 /**
@@ -2007,21 +2145,20 @@ function stopWakeWordListening() {
 
 /**
  * Called when the wake word is detected.
- * Starts the MediaRecorder recording flow.
+ * Plays beep, shows visual feedback, navigates to chat and starts recording.
+ * Like Siri: say "Hola Omega" → it listens to everything you say.
  */
 function onWakeWordDetected() {
-    // Play a subtle audio feedback (optional visual cue)
-    showWakeWordFeedback();
+    playWakeBeep();
 
-    // Ensure we're on the chat screen; if not, switch to it
-    if (!elements.chatScreen.classList.contains('hidden')) {
-        // Already in chat — start recording directly
-        startRecording();
-    } else if (!elements.welcomeScreen.classList.contains('hidden')) {
-        // In welcome screen — use the orb card flow
-        startRecording();
+    if (elements.chatScreen.classList.contains('hidden')) {
+        // Navigate to chat, then start recording after transition
+        showChatScreen('', false);
+        setTimeout(() => {
+            startRecording();
+        }, 400);
     } else {
-        // In plan screen — start recording
+        // Already on chat — just start recording
         startRecording();
     }
 }
@@ -2033,10 +2170,17 @@ function showWakeWordFeedback() {
     // Flash the orb
     if (window.orbSetListening) window.orbSetListening(true);
 
-    // Show a brief toast
+    // Build centered overlay card
     const toast = document.createElement('div');
     toast.className = 'wake-word-toast';
-    toast.innerHTML = '<i class="ph ph-microphone"></i> Omega te escucha...';
+    toast.innerHTML = `
+        <div class="wake-word-toast__card">
+            <div class="wake-word-toast__icon">
+                <i class="ph ph-chat-circle-dots"></i>
+            </div>
+            <span class="wake-word-toast__text">Hola, soy Omega</span>
+            <span class="wake-word-toast__hint">Abriendo chat...</span>
+        </div>`;
     document.body.appendChild(toast);
 
     // Animate in
@@ -2044,11 +2188,11 @@ function showWakeWordFeedback() {
         toast.classList.add('wake-word-toast--visible');
     });
 
-    // Remove after 2s
+    // Remove after 2.5s
     setTimeout(() => {
         toast.classList.remove('wake-word-toast--visible');
         toast.addEventListener('transitionend', () => toast.remove());
-    }, 2000);
+    }, 2500);
 }
 
 /**
@@ -2068,34 +2212,28 @@ function toggleWakeWord() {
 }
 
 /**
- * Updates the wake word toggle button visual state.
+ * Updates the wake word toggle button visual state + text label.
  */
 function updateWakeWordToggle(enabled) {
-    const btn = document.getElementById('wake-word-btn');
-    if (btn) {
-        btn.classList.toggle('wake-word-btn--active', enabled);
-        btn.title = enabled ? 'Desactivar "Hola Omega"' : 'Activar "Hola Omega"';
-    }
-    // Also update chat screen toggle if present
-    const chatBtn = document.getElementById('chat-wake-word-btn');
-    if (chatBtn) {
-        chatBtn.classList.toggle('wake-word-btn--active', enabled);
-        chatBtn.title = enabled ? 'Desactivar "Hola Omega"' : 'Activar "Hola Omega"';
-    }
+    ['wake-word-btn', 'chat-wake-word-btn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.classList.toggle('wake-word-toggle--active', enabled);
+        btn.title = enabled ? 'Desactivar Hola Omega' : 'Activar Hola Omega';
+        const label = btn.querySelector('.wake-word-label');
+        if (label) label.textContent = enabled ? 'Hola Omega on' : 'Hola Omega off';
+        const icon = btn.querySelector('.ph');
+        if (icon) {
+            icon.className = enabled ? 'ph ph-microphone' : 'ph ph-microphone-slash';
+        }
+    });
 }
 
 /**
- * Updates the wake word listening indicator.
+ * Updates the wake word listening indicator (no-op now, state shown by label).
  */
 function updateWakeWordUI(listening) {
-    const indicator = document.getElementById('wake-word-indicator');
-    if (indicator) {
-        indicator.classList.toggle('wake-word-indicator--active', listening);
-    }
-    const chatIndicator = document.getElementById('chat-wake-word-indicator');
-    if (chatIndicator) {
-        chatIndicator.classList.toggle('wake-word-indicator--active', listening);
-    }
+    // Visual state is fully handled by updateWakeWordToggle
 }
 
 /**
@@ -2119,8 +2257,22 @@ function init() {
         alert('Pantalla de cuenta - próximamente');
     });
 
-    // Bento cards
-    elements.orbCard?.addEventListener('click', toggleRecording);
+    // Bento cards — "Habla conmigo": go to chat + start recording
+    elements.orbCard?.addEventListener('click', () => {
+        if (state.isRecording) {
+            stopRecording();
+            return;
+        }
+        // Navigate to chat first, then start recording after transition
+        if (elements.chatScreen.classList.contains('hidden')) {
+            showChatScreen('', false);
+            setTimeout(() => {
+                startRecording();
+            }, 400);
+        } else {
+            startRecording();
+        }
+    });
 
     elements.moodCard?.addEventListener('click', openMoodOverlay);
 

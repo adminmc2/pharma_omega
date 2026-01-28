@@ -60,7 +60,7 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | Selección LLM | ✅ | Recomendado: Kimi K2 en Groq (mejor formato, tablas, structured output) |
 | 27-ene-26 | Plan mejora RAG definido | ✅ | 5 pasos: prompts CO-STAR, LLM Kimi K2, marked.js, CSS chat, TTS strip |
 | 28-ene-26 | Logo Puro Omega | ✅ | Añadido al header, bot renombrado a "Omega" |
-| 28-ene-26 | Wake word "Hola Omega" | ✅ | SpeechRecognition continuo, toggle en header, toast visual |
+| 28-ene-26 | Wake word "Hola Omega" | ✅ | SpeechRecognition continuo, toggle "Micro off/on", beep, patterns flexibles, strip wake word de transcripción |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -78,12 +78,15 @@ Todos los cambios notables del proyecto Puro Omega.
 ### Añadido
 - **Wake word "Hola Omega"** - Activación por voz con SpeechRecognition
   - Detecta "Hola Omega", "Hey Omega", "Oye Omega", "OK Omega" o simplemente "Omega"
-  - Escucha continua en segundo plano (Web Speech API, es-ES)
-  - Al detectar el wake word, activa grabación MediaRecorder automáticamente
-  - Toggle on/off en header (welcome + chat), estado persistido en localStorage
-  - Indicador verde pulsante cuando está escuchando
+  - Patterns flexibles sin `\b` para compatibilidad con transcripción española
+  - `maxAlternatives: 3` — comprueba múltiples hipótesis del reconocedor
+  - Auto-restart rápido (150ms) cuando Chrome detiene el modo continuo por silencio
+  - Beep de confirmación audible (880Hz sine, 250ms) al detectar wake word
+  - Toggle "Micro off" / "Micro on" en header (welcome + chat) con icono dinámico
+  - Botón coherente con el estilo de la barra: outlined pill, tonal fill al activar
   - Toast visual "Omega te escucha..." al detectar wake word
   - Se pausa durante grabación y se reanuda tras transcripción
+  - Estado persistido en localStorage
 - **Bot renombrado a "Omega"** - El asistente se llama "Omega" en el chat header, título de página, greeting y infografías
 - **Logo Puro Omega** - Integrado en el header de la app
 - **Selector de modo de respuesta** - Resumida / Extendida antes de cada consulta
@@ -110,6 +113,7 @@ Todos los cambios notables del proyecto Puro Omega.
 - **max_tokens**: 400 (low coverage) / 500 (short) / 1000 (extended)
 
 ### Arreglado
+- **Wake word no se envía como mensaje** — `stripWakeWord()` limpia "Hola Omega" de la transcripción antes de enviar al chat; si solo se dijo el wake word, se ignora
 - Selector de formato ya no aparece para mensajes absurdos o saludos
 - Greeting response usa markdown compatible con `enrichWithIcons()` (Phosphor, no Unicode)
 - Cobertura RAG baja ya no genera argumentarios completos con datos inventados
