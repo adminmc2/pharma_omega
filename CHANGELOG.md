@@ -68,6 +68,11 @@ Todos los cambios notables del proyecto Puro Omega.
 | 28-ene-26 | Cache-busting estáticos | ✅ | Query string `?v=3.5.1` en style.css para evitar cache del navegador |
 | 28-ene-26 | Mood slider thumb dinámico | ✅ | Círculo del slider usa `--mood-fg` sólido (sin opacity) |
 | 28-ene-26 | Flujo de voz con pregunta TTS | ✅ | Omia pregunta modo por voz antes de responder, texto envía directo |
+| 28-ene-26 | Pantalla login demo | ✅ | Orb + saludo TTS para presentación, credenciales Pablo/Prisma |
+| 28-ene-26 | Footer Prisma Consul | ✅ | Logo SVG animado + copyright + versión en login |
+| 28-ene-26 | Botón logout | ✅ | En todas las pantallas (welcome, chat, plan) |
+| 28-ene-26 | Foto perfil personalizada | ✅ | profile.jpg con ajuste de posición |
+| 28-ene-26 | TTS voz más natural | ✅ | ElevenLabs multilingual_v2, stability 0.35, style 0.45 |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -77,6 +82,32 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.9.0] - 2026-01-28
+
+### Añadido
+- **Pantalla de login para demo** — Presentación para Blanca/Prisma Consul
+  - Orb animado de 200px centrado en login
+  - Click en orb reproduce saludo TTS personalizado vía ElevenLabs
+  - Credenciales: Pablo / Prisma
+  - Footer con logo Prisma Consul (SVG animado con rayos pulsantes)
+  - Copyright "© 2026 Todos los derechos reservados" + versión
+- **Botón de logout** en todas las pantallas
+  - Icono `ph-sign-out` de Phosphor
+  - Añadido en: welcome, chat, plan (al lado de catálogos)
+  - Limpia localStorage y resetea estado de demo
+- **TTS voz más natural** — Configuración optimizada de ElevenLabs
+  - Modelo: `eleven_multilingual_v2` (mejor español)
+  - Stability: 0.35 (más expresiva)
+  - Style: 0.45 (más emocional/cálida)
+- **Icono Face ID** — Cambiado de `ph-fingerprint` a `ph-scan-smiley`
+
+### Cambiado
+- Saludo personalizado: "Armando" → "Pablo" en welcome y plan
+- Sombra más evidente en botón Face ID
+- Logo Prisma con fondo violeta suave semi-transparente
 
 ---
 
