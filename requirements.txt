@@ -14,5 +14,8 @@ groq>=0.4.0
 # Procesamiento numérico
 numpy>=1.24.0
 
+# HTTP client async (TTS proxy a ElevenLabs)
+httpx>=0.27.0
+
 # Variables de entorno
 python-dotenv>=1.0.0

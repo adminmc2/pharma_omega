@@ -60,7 +60,10 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | Selección LLM | ✅ | Recomendado: Kimi K2 en Groq (mejor formato, tablas, structured output) |
 | 27-ene-26 | Plan mejora RAG definido | ✅ | 5 pasos: prompts CO-STAR, LLM Kimi K2, marked.js, CSS chat, TTS strip |
 | 28-ene-26 | Logo Puro Omega | ✅ | Añadido al header, bot renombrado a "Omega" |
-| 28-ene-26 | Wake word "Hola Omega" | ✅ | SpeechRecognition continuo, toggle "Micro off/on", beep, patterns flexibles, strip wake word de transcripción |
+| 28-ene-26 | Wake word "Hola Omega" → "Hola Omia" | ✅ | Renombrado para evitar conflicto con producto Omega 3 |
+| 28-ene-26 | Botón voice orb en chat | ✅ | Phosphor waveform, auto-activación por voz, toggle TTS |
+| 28-ene-26 | ElevenLabs TTS | ✅ | Camila MX, resumen conversacional LLM, streaming proxy |
+| 28-ene-26 | Bot renombrado a "Omia" | ✅ | HTML, JS, CSS, backend — "Puro Omega" y "Omega 3" intactos |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -73,10 +76,41 @@ Todos los cambios notables del proyecto Puro Omega.
 
 ---
 
+## [3.5.0] - 2026-01-28
+
+### Añadido
+- **Bot renombrado a "Omia"** — Nuevo nombre para evitar conflicto con el producto "Omega 3"
+  - Wake word cambiado de "Hola Omega" a **"Hola Omia"** (también "Hey Omia", "Oye Omia", "OK Omia")
+  - Patrón solo: `om[ií]a` en vez de `omega` — ya no interfiere con menciones del producto
+  - `stripWakeWord()` actualizado en frontend y backend: solo limpia "omia", no toca "omega"
+  - Título de página, chat header, greeting, infografías, tooltips, localStorage keys → todo "Omia"
+  - TTS summary prompt: "Eres Omia, asistente de ventas de Puro Omega"
+  - Todas las referencias a marca "Puro Omega" y producto "Omega-3" se mantienen intactas
+- **Botón de voz (voice orb)** en la barra inferior del chat
+  - Icono Phosphor `ph-waveform` dentro de un círculo oscuro (estilo Claude)
+  - Usa clase base `chat-nav-btn` para renderizado consistente con cámara/mic/enviar
+  - Estado activo: fondo `--md-sys-color-on-primary-container` con glow pulsante
+  - Estado inactivo: fondo `--md-sys-color-surface-variant`
+  - Se activa automáticamente al usar "Hola Omia", botón de micrófono, o tarjeta "Habla conmigo"
+  - Toggle: click para desactivar/activar lectura en voz alta de respuestas
+- **ElevenLabs TTS integrado** — Voz Camila MX (Flash v2.5), proxy streaming via httpx
+  - Resumen conversacional generado por Kimi K2 (50-80 palabras) antes de enviar a ElevenLabs
+  - Botón speaker en cada mensaje para reproducir individualmente
+  - Auto-play cuando TTS está habilitado al finalizar respuesta
+
+### Cambiado
+- Barra inferior del chat: botones reducidos a 30px, padding `10px 12px`, gap `6px`, min-height `52px`
+- Input del chat: padding `6px 14px`, font-size `0.875rem`
+
+### Arreglado
+- **"Omega 3" ya no se borra de transcripciones de voz** — el strip solo elimina "omia", preservando todas las menciones del producto
+
+---
+
 ## [3.4.0] - 2026-01-28
 
 ### Añadido
-- **Wake word "Hola Omega"** - Activación por voz con SpeechRecognition
+- **Wake word "Hola Omega"** - Activación por voz con SpeechRecognition (renombrado a "Hola Omia" en v3.5.0)
   - Detecta "Hola Omega", "Hey Omega", "Oye Omega", "OK Omega" o simplemente "Omega"
   - Patterns flexibles sin `\b` para compatibilidad con transcripción española
   - `maxAlternatives: 3` — comprueba múltiples hipótesis del reconocedor

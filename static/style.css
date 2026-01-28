@@ -1424,15 +1424,15 @@ body[data-mood-active] .message.assistant {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: var(--space-12) var(--space-16);
-    margin: 0 var(--space-16);
-    margin-bottom: calc(var(--space-12) + var(--safe-bottom));
+    padding: 10px 12px;
+    margin: 0 var(--space-12);
+    margin-bottom: calc(var(--space-8) + var(--safe-bottom));
     border-radius: var(--md-sys-shape-large);
     box-shadow: var(--md-sys-elevation-2);
     flex-shrink: 0;
     position: relative;
-    min-height: 72px;
-    gap: var(--space-8);
+    min-height: 52px;
+    gap: 6px;
 }
 
 /* Nav-style icon buttons */
@@ -1444,19 +1444,20 @@ body[data-mood-active] .message.assistant {
     background: transparent;
     color: var(--md-sys-color-on-surface-variant);
     cursor: pointer;
-    padding: var(--space-8);
+    padding: 0;
     border-radius: var(--md-sys-shape-full);
     position: relative;
     transition:
         color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-    width: 48px;
-    height: 48px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
     flex-shrink: 0;
 }
 
 .chat-nav-btn .ph {
-    font-size: 26px;
+    font-size: 18px;
 }
 
 .chat-nav-btn:hover {
@@ -1471,6 +1472,38 @@ body[data-mood-active] .message.assistant {
     background: var(--md-sys-color-error);
     color: var(--md-sys-color-on-error);
     animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
+}
+
+/* Voice orb — modifier on chat-nav-btn, dark circle with waveform */
+.chat-nav-btn.chat-voice-orb {
+    background: var(--md-sys-color-on-primary-container);
+    color: var(--md-sys-color-primary-container);
+    border-radius: 50%;
+}
+
+.chat-nav-btn.chat-voice-orb .ph-waveform {
+    font-size: 16px;
+}
+
+/* Active state — glow */
+.chat-nav-btn.chat-voice-orb.voice-orb--active {
+    background: var(--md-sys-color-on-primary-container);
+    color: var(--md-sys-color-primary-container);
+    box-shadow: 0 0 0 2.5px rgba(45, 91, 160, 0.25), 0 0 8px rgba(45, 91, 160, 0.12);
+    animation: voice-orb-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes voice-orb-glow {
+    0%, 100% { box-shadow: 0 0 0 2.5px rgba(45, 91, 160, 0.25), 0 0 8px rgba(45, 91, 160, 0.1); }
+    50% { box-shadow: 0 0 0 3px rgba(45, 91, 160, 0.4), 0 0 14px rgba(45, 91, 160, 0.2); }
+}
+
+/* Inactive state — muted */
+.chat-nav-btn.chat-voice-orb:not(.voice-orb--active) {
+    background: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    box-shadow: none;
+    animation: none;
 }
 
 /* Send button — filled accent */
@@ -1501,8 +1534,9 @@ body[data-mood-active] .message.assistant {
     border-radius: var(--md-sys-shape-extra-large);
     background: var(--md-sys-color-surface-container-low);
     font: var(--md-sys-typescale-body-large);
-    padding: var(--space-12) var(--space-16);
+    padding: 6px 14px;
     color: var(--md-sys-color-on-surface);
+    font-size: 0.875rem;
     min-width: 0;
     transition:
         border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
@@ -3053,7 +3087,7 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   Wake Word — "Hola Omega" toggle & feedback
+   Wake Word — "Hola Omia" toggle & feedback
    ============================================ */
 
 /* Wake Word toggle — M3 text button, coherent with header-icon-btn height */
@@ -3207,6 +3241,41 @@ body[data-mood-active] .message.assistant {
 }
 
 /* --- Print styles --- */
+/* ============================================
+   TTS Speaker Button
+   ============================================ */
+
+.tts-speaker-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface-variant);
+    border-radius: var(--md-sys-shape-full);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, transform 0.15s;
+    margin-top: var(--space-4);
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.tts-speaker-btn:hover {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    transform: scale(1.1);
+}
+
+.tts-speaker-btn:active {
+    transform: scale(0.95);
+}
+
+.tts-speaker-btn .ph {
+    font-size: 16px;
+}
+
 @media print {
     .infographic-actions {
         display: none !important;
@@ -3223,6 +3292,9 @@ body[data-mood-active] .message.assistant {
     }
     .wake-word-toggle,
     .wake-word-toast {
+        display: none !important;
+    }
+    .tts-speaker-btn {
         display: none !important;
     }
 }

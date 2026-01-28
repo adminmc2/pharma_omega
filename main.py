@@ -1,5 +1,5 @@
 """
-Omega - Asistente de Ventas RAG v3.0
+Omia - Asistente de Ventas RAG v3.0
 Backend FastAPI con WebSocket para streaming
 """
 
@@ -10,9 +10,10 @@ import asyncio
 from typing import Optional
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -85,6 +86,13 @@ groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
 if not groq_api_key:
     print("⚠️  GROQ_API_KEY no configurada - LLM y transcripción deshabilitados")
 
+# ElevenLabs TTS (voz de Omia)
+elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
+elevenlabs_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "NWqMOQLlMBaUbjKYdhbW")
+
+if not elevenlabs_api_key:
+    print("⚠️  ELEVENLABS_API_KEY no configurada - TTS deshabilitado")
+
 # Orquestador de agentes
 orchestrator: Optional[Orchestrator] = None
 
@@ -101,7 +109,7 @@ async def lifespan(app: FastAPI):
     print("Cerrando aplicación...")
 
 app = FastAPI(
-    title="Omega - Asistente de Ventas",
+    title="Omia - Asistente de Ventas",
     version="3.0.0",
     lifespan=lifespan
 )
@@ -206,6 +214,107 @@ async def transcribe_voice(audio: UploadFile = File(...)):
         return {"text": "", "success": False, "error": str(e)}
 
 
+# Prompt para generar resumen conversacional para TTS
+TTS_SUMMARY_PROMPT = """Eres Omia, una asistente de ventas de Puro Omega. Convierte la siguiente respuesta escrita en un RESUMEN HABLADO conversacional y natural.
+
+REGLAS:
+1. Habla como si estuvieras conversando con el representante de ventas, en tono cercano y profesional.
+2. NO leas tablas, listas con viñetas ni datos técnicos literales. Resume los puntos clave de forma fluida.
+3. Máximo 3-4 oraciones (50-80 palabras). Sé concisa pero informativa.
+4. Menciona solo el dato más importante (nombre de producto, dosis clave, o argumento principal).
+5. Si hay un guion sugerido para el médico, menciónalo brevemente: "podrías decirle al doctor..."
+6. NO uses markdown, asteriscos, viñetas ni formato. Solo texto plano para ser leído en voz alta.
+7. NO digas "aquí tienes", "en resumen", "la respuesta es". Ve directo al contenido.
+8. Usa vocabulario mexicano natural: "mira", "fíjate que", "lo que te recomiendo es".
+9. Termina con algo útil: un tip, una frase para el médico, o un dato que el representante pueda recordar fácilmente."""
+
+
+def _generate_tts_summary(agent_response: str) -> str:
+    """Genera un resumen conversacional corto del texto del agente para TTS."""
+    if not llm_client:
+        return ""
+
+    try:
+        response = llm_client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {"role": "system", "content": TTS_SUMMARY_PROMPT},
+                {"role": "user", "content": agent_response}
+            ],
+            stream=False,
+            max_tokens=200,
+            temperature=0.6
+        )
+        summary = response.choices[0].message.content.strip()
+        # Limpiar cualquier markdown residual
+        summary = re.sub(r'\*+', '', summary)
+        summary = re.sub(r'#{1,6}\s+', '', summary)
+        summary = re.sub(r'^>\s*', '', summary, flags=re.MULTILINE)
+        print(f"[TTS] Summary ({len(summary)} chars): {summary[:100]}...")
+        return summary
+    except Exception as e:
+        print(f"[TTS] Error generating summary: {e}")
+        return ""
+
+
+class TTSRequest(BaseModel):
+    text: str
+
+
+@app.post("/api/tts")
+async def text_to_speech(req: TTSRequest):
+    """Genera audio TTS via ElevenLabs.
+    1. El LLM resume la respuesta en un discurso conversacional corto.
+    2. Ese resumen se envía a ElevenLabs para generar audio."""
+    if not elevenlabs_api_key:
+        raise HTTPException(status_code=503, detail="ELEVENLABS_API_KEY no configurada")
+
+    if not req.text or not req.text.strip():
+        raise HTTPException(status_code=400, detail="Texto vacío")
+
+    # Paso 1: Generar resumen conversacional con el LLM
+    summary = await asyncio.to_thread(_generate_tts_summary, req.text)
+    if not summary:
+        raise HTTPException(status_code=500, detail="No se pudo generar resumen para TTS")
+
+    # Paso 2: Enviar resumen a ElevenLabs
+    url = (
+        f"https://api.elevenlabs.io/v1/text-to-speech/{elevenlabs_voice_id}/stream"
+        f"?output_format=mp3_44100_128"
+    )
+    headers = {
+        "xi-api-key": elevenlabs_api_key,
+        "Content-Type": "application/json",
+    }
+    body = {
+        "text": summary,
+        "model_id": "eleven_flash_v2_5",
+        "language_code": "es",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+            "style": 0.0,
+            "use_speaker_boost": True,
+        },
+    }
+
+    async def stream_audio():
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            async with client.stream("POST", url, headers=headers, json=body) as resp:
+                if resp.status_code != 200:
+                    error_body = await resp.aread()
+                    print(f"[TTS] ElevenLabs error {resp.status_code}: {error_body[:200]}")
+                    return
+                async for chunk in resp.aiter_bytes(chunk_size=4096):
+                    yield chunk
+
+    return StreamingResponse(
+        stream_audio(),
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
 def _generate_infographic_sync(agent_response: str) -> dict:
     """Llamada sincrónica al LLM para generar infografía (se ejecuta en thread pool)"""
     print(f"[Infographic] Llamando a {INFOGRAPHIC_MODEL} con {len(agent_response)} chars...")
@@ -252,15 +361,14 @@ async def handle_infographic_request(websocket: WebSocket, agent_response: str):
 
 
 def strip_wake_word(message: str) -> str:
-    """Elimina variantes del wake word 'Hola Omega' del mensaje.
+    """Elimina variantes del wake word 'Hola Omia' del mensaje.
     Si lo que queda es solo un saludo vacío, retorna cadena vacía."""
     import unicodedata
     t = message.strip()
     # Remove wake word patterns (case-insensitive)
     wake_patterns = [
-        r'(?:hola|hey|oye|ok|ola)\s*(?:o\s*m[oe]ga|mogea)',
-        r'\bo\s*m[oe]ga\b',
-        r'\bmogea\b',
+        r'(?:hola|hey|oye|ok|ola)\s*om[ií]a',
+        r'\bom[ií]a\b',
     ]
     for p in wake_patterns:
         t = re.sub(p, '', t, flags=re.IGNORECASE).strip()
@@ -322,7 +430,7 @@ def is_greeting_or_vague(message: str) -> bool:
     return not any(re.search(p, t) for p in pharma_patterns)
 
 
-GREETING_RESPONSE = """Soy **Omega**, tu asistente de ventas. Para poder ayudarte, cuéntame qué necesitas. Por ejemplo:
+GREETING_RESPONSE = """Soy **Omia**, tu asistente de ventas. Para poder ayudarte, cuéntame qué necesitas. Por ejemplo:
 
 - **Producto**: *"¿Qué es Natural DHA y para qué sirve?"*
 - **Objeción**: *"Un médico dice que es caro, ¿cómo respondo?"*
@@ -358,7 +466,7 @@ async def websocket_chat(websocket: WebSocket):
             if not user_message.strip():
                 continue
 
-            # Strip wake word ("Hola Omega") from the message
+            # Strip wake word ("Hola Omia") from the message
             cleaned = strip_wake_word(user_message)
             if not cleaned:
                 # Message was only a wake word — ignore silently

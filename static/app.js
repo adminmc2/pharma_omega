@@ -1,5 +1,5 @@
 /**
- * Omega - App Principal
+ * Omia - App Principal
  * Chat con voz y transiciones
  */
 
@@ -1305,6 +1305,12 @@ function sendToWebSocket(message, responseMode = 'full') {
                 if (state.currentQuery) {
                     updateRecentSearchAnswer(state.currentQuery, state.currentMessage);
                 }
+
+                // TTS: añadir botón speaker + auto-play si está habilitado
+                addSpeakerButton(assistantMessage, state.currentMessage);
+                if (state.ttsEnabled) {
+                    playTTS(state.currentMessage);
+                }
             }
             elements.chatStatus.textContent = 'En línea';
             // Limpiar estado de cobertura RAG
@@ -1340,6 +1346,9 @@ function sendToWebSocket(message, responseMode = 'full') {
 // ============================================
 async function startRecording() {
     try {
+        // Stop TTS if playing (don't talk while listening)
+        stopTTS();
+
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
@@ -1515,7 +1524,7 @@ async function transcribeAudio(audioBlob) {
         const data = await response.json();
 
         if (data.success && data.text) {
-            // Strip wake word from transcription so "Hola Omega, ..." becomes just "..."
+            // Strip wake word from transcription so "Hola Omia, ..." becomes just "..."
             const cleanText = stripWakeWord(data.text);
 
             // If the transcription was ONLY a wake word (nothing else), skip sending
@@ -1586,6 +1595,8 @@ function toggleRecording() {
     if (state.isRecording) {
         stopRecording();
     } else {
+        // Voice interaction → auto-enable TTS responses
+        enableTTS();
         startRecording();
     }
 }
@@ -1883,7 +1894,7 @@ function renderInfographic(data, afterElement) {
         <div class="infographic-card__header">
             <div class="infographic-card__brand">
                 <i class="ph-bold ph-pulse"></i>
-                <span>Omega</span>
+                <span>Omia</span>
             </div>
             <h3 class="infographic-card__title">${data.titulo || 'Resumen'}</h3>
             ${data.subtitulo ? `<p class="infographic-card__subtitle">${data.subtitulo}</p>` : ''}
@@ -1895,7 +1906,7 @@ function renderInfographic(data, afterElement) {
             ${quoteHTML}
         </div>
         <div class="infographic-card__footer">
-            <span>Omega &middot; Infograf&iacute;a generada por IA</span>
+            <span>Omia &middot; Infograf&iacute;a generada por IA</span>
         </div>
         <div class="infographic-actions">
             <button class="infographic-actions__download" title="Descargar PNG">
@@ -1953,21 +1964,21 @@ function downloadInfographicAsPNG(cardElement) {
 
 
 // ============================================
-// Wake Word Detection — "Hola Omega" / "Hey Omega" / "Omega"
+// Wake Word Detection — "Hola Omia" / "Hey Omia" / "Omia"
 // ============================================
 // Flexible patterns — no \b boundaries (Spanish SpeechRecognition
 // transcripts often lack proper word spacing/punctuation)
 const WAKE_WORD_PATTERNS = [
-    /hola\s*omega/i,
-    /hey\s*omega/i,
-    /oye\s*omega/i,
-    /ok\s*omega/i,
-    /ola\s*omega/i,    // common speech-to-text typo
-    /hola\s*o[mn]ega/i, // phonetic variants
+    /hola\s*omia/i,
+    /hey\s*omia/i,
+    /oye\s*omia/i,
+    /ok\s*omia/i,
+    /ola\s*omia/i,     // common speech-to-text typo
+    /hola\s*om[ií]a/i, // phonetic variants
 ];
 
-// Single-word fallback: standalone "omega" only if it's the whole transcript
-const WAKE_WORD_SOLO = /^\s*o[mn]ega\s*$/i;
+// Single-word fallback: standalone "omia" only if it's the whole transcript
+const WAKE_WORD_SOLO = /^\s*om[ií]a\s*$/i;
 
 /**
  * Checks if the transcript contains a wake word.
@@ -1977,7 +1988,7 @@ function containsWakeWord(transcript) {
     if (!t) return false;
     // Multi-word patterns first (more specific)
     if (WAKE_WORD_PATTERNS.some(p => p.test(t))) return true;
-    // Solo "omega" only if the entire transcript is just the word
+    // Solo "omia" only if the entire transcript is just the word
     if (WAKE_WORD_SOLO.test(t)) return true;
     return false;
 }
@@ -1994,9 +2005,8 @@ function stripWakeWord(text) {
         t = t.replace(new RegExp(pattern.source + '[,\\s.!?]*', 'gi'), '').trim();
     }
 
-    // 2) Strip standalone "omega" / "mogea" / "o mega" variations
-    t = t.replace(/\b[oó]\s*m[oe]ga\b[,\s.!?]*/gi, '').trim();
-    t = t.replace(/\bmogea\b[,\s.!?]*/gi, '').trim();
+    // 2) Strip standalone "omia" variations
+    t = t.replace(/\bom[ií]a\b[,\s.!?]*/gi, '').trim();
 
     // 3) If what remains is just a greeting word or nothing, return empty
     const leftover = t.toLowerCase()
@@ -2093,7 +2103,7 @@ function startWakeWordListening() {
         if (event.error === 'not-allowed') {
             state.wakeWordEnabled = false;
             updateWakeWordToggle(false);
-            localStorage.setItem('omega_wake_word', 'off');
+            localStorage.setItem('omia_wake_word', 'off');
             return;
         }
     };
@@ -2146,10 +2156,12 @@ function stopWakeWordListening() {
 /**
  * Called when the wake word is detected.
  * Plays beep, shows visual feedback, navigates to chat and starts recording.
- * Like Siri: say "Hola Omega" → it listens to everything you say.
+ * Like Siri: say "Hola Omia" → it listens to everything you say.
  */
 function onWakeWordDetected() {
     playWakeBeep();
+    // Voice interaction → auto-enable TTS responses
+    enableTTS();
 
     if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
@@ -2178,7 +2190,7 @@ function showWakeWordFeedback() {
             <div class="wake-word-toast__icon">
                 <i class="ph ph-chat-circle-dots"></i>
             </div>
-            <span class="wake-word-toast__text">Hola, soy Omega</span>
+            <span class="wake-word-toast__text">Hola, soy Omia</span>
             <span class="wake-word-toast__hint">Abriendo chat...</span>
         </div>`;
     document.body.appendChild(toast);
@@ -2204,10 +2216,10 @@ function toggleWakeWord() {
 
     if (state.wakeWordEnabled) {
         startWakeWordListening();
-        localStorage.setItem('omega_wake_word', 'on');
+        localStorage.setItem('omia_wake_word', 'on');
     } else {
         stopWakeWordListening();
-        localStorage.setItem('omega_wake_word', 'off');
+        localStorage.setItem('omia_wake_word', 'off');
     }
 }
 
@@ -2219,9 +2231,9 @@ function updateWakeWordToggle(enabled) {
         const btn = document.getElementById(id);
         if (!btn) return;
         btn.classList.toggle('wake-word-toggle--active', enabled);
-        btn.title = enabled ? 'Desactivar Hola Omega' : 'Activar Hola Omega';
+        btn.title = enabled ? 'Desactivar Hola Omia' : 'Activar Hola Omia';
         const label = btn.querySelector('.wake-word-label');
-        if (label) label.textContent = enabled ? 'Hola Omega on' : 'Hola Omega off';
+        if (label) label.textContent = enabled ? 'Hola Omia on' : 'Hola Omia off';
         const icon = btn.querySelector('.ph');
         if (icon) {
             icon.className = enabled ? 'ph ph-microphone' : 'ph ph-microphone-slash';
@@ -2249,6 +2261,168 @@ function resumeWakeWordAfterRecording() {
 }
 
 // ============================================
+// TTS — Lectura en voz alta (ElevenLabs)
+// ============================================
+
+// Estado TTS
+state.ttsAudio = null;       // Audio element actual
+state.ttsPlaying = false;    // Reproducción en curso
+state.ttsEnabled = true;     // Auto-play habilitado (se puede toggle)
+
+/**
+ * Toggles TTS auto-play on/off via the voice button in chat bottom bar.
+ */
+function toggleTTS() {
+    state.ttsEnabled = !state.ttsEnabled;
+    updateVoiceButton(state.ttsEnabled);
+
+    if (state.ttsEnabled) {
+        localStorage.setItem('omia_tts', 'on');
+    } else {
+        stopTTS();
+        localStorage.setItem('omia_tts', 'off');
+    }
+}
+
+/**
+ * Enables TTS silently (no toggle, just turn on).
+ * Called when voice interaction starts (wake word, orb card, mic button).
+ */
+function enableTTS() {
+    if (!state.ttsEnabled) {
+        state.ttsEnabled = true;
+        updateVoiceButton(true);
+        localStorage.setItem('omia_tts', 'on');
+    }
+}
+
+/**
+ * Updates the voice orb button UI in the chat bottom bar.
+ */
+function updateVoiceButton(enabled) {
+    const btn = document.getElementById('chat-voice-btn');
+    if (!btn) return;
+    if (enabled) {
+        btn.classList.add('voice-orb--active');
+        btn.title = 'Voz de Omia activada';
+    } else {
+        btn.classList.remove('voice-orb--active');
+        btn.title = 'Voz de Omia desactivada';
+    }
+}
+
+/**
+ * Envía texto al endpoint /api/tts y reproduce el audio streaming.
+ * Si ya hay un audio reproduciéndose, lo detiene primero.
+ */
+async function playTTS(text) {
+    // Detener audio previo si existe
+    stopTTS();
+
+    if (!text || !text.trim()) return;
+
+    try {
+        console.log(`[TTS] Requesting audio for ${text.length} chars...`);
+        const response = await fetch('/api/tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+            console.error('[TTS] Server error:', response.status);
+            return;
+        }
+
+        // Reproducir como blob (más compatible que MediaSource para MP3 streaming)
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+
+        state.ttsAudio = audio;
+        state.ttsPlaying = true;
+
+        // Activar orb en modo "hablando"
+        if (window.orbSetListening) window.orbSetListening(true);
+
+        audio.addEventListener('ended', () => {
+            state.ttsPlaying = false;
+            URL.revokeObjectURL(audioUrl);
+            if (window.orbSetListening) window.orbSetListening(false);
+            // Reanudar wake word después de hablar
+            resumeWakeWordAfterRecording();
+        });
+
+        audio.addEventListener('error', (e) => {
+            console.error('[TTS] Audio playback error:', e);
+            state.ttsPlaying = false;
+            if (window.orbSetListening) window.orbSetListening(false);
+        });
+
+        await audio.play();
+        console.log('[TTS] Playing audio');
+
+    } catch (err) {
+        console.error('[TTS] Error:', err);
+        state.ttsPlaying = false;
+        if (window.orbSetListening) window.orbSetListening(false);
+    }
+}
+
+/**
+ * Detiene la reproducción TTS actual.
+ */
+function stopTTS() {
+    if (state.ttsAudio) {
+        state.ttsAudio.pause();
+        state.ttsAudio.currentTime = 0;
+        state.ttsAudio = null;
+    }
+    state.ttsPlaying = false;
+    if (window.orbSetListening) window.orbSetListening(false);
+}
+
+/**
+ * Añade un botón de speaker a un mensaje del asistente para re-escuchar.
+ */
+function addSpeakerButton(messageElement, fullText) {
+    if (!messageElement || !fullText) return;
+
+    const row = messageElement.closest('.message-row') || messageElement;
+
+    // No duplicar
+    if (row.querySelector('.tts-speaker-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'tts-speaker-btn';
+    btn.title = 'Escuchar respuesta';
+    btn.innerHTML = '<i class="ph ph-speaker-high"></i>';
+
+    btn.addEventListener('click', () => {
+        if (state.ttsPlaying && state.ttsAudio) {
+            stopTTS();
+            btn.innerHTML = '<i class="ph ph-speaker-high"></i>';
+            btn.title = 'Escuchar respuesta';
+        } else {
+            playTTS(fullText);
+            btn.innerHTML = '<i class="ph ph-stop"></i>';
+            btn.title = 'Detener audio';
+            // Restaurar icono cuando termine
+            const checkEnd = setInterval(() => {
+                if (!state.ttsPlaying) {
+                    btn.innerHTML = '<i class="ph ph-speaker-high"></i>';
+                    btn.title = 'Escuchar respuesta';
+                    clearInterval(checkEnd);
+                }
+            }, 500);
+        }
+    });
+
+    row.appendChild(btn);
+}
+
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -2263,6 +2437,8 @@ function init() {
             stopRecording();
             return;
         }
+        // Voice interaction → auto-enable TTS responses
+        enableTTS();
         // Navigate to chat first, then start recording after transition
         if (elements.chatScreen.classList.contains('hidden')) {
             showChatScreen('', false);
@@ -2383,14 +2559,27 @@ function init() {
     document.getElementById('chat-wake-word-btn')?.addEventListener('click', toggleWakeWord);
 
     // Restore wake word preference from localStorage
-    const savedWakeWord = localStorage.getItem('omega_wake_word');
+    const savedWakeWord = localStorage.getItem('omia_wake_word');
     if (savedWakeWord === 'on') {
         state.wakeWordEnabled = true;
         updateWakeWordToggle(true);
         startWakeWordListening();
     }
 
-    console.log('Omega inicializado');
+    // TTS voice button in chat bottom bar
+    document.getElementById('chat-voice-btn')?.addEventListener('click', toggleTTS);
+
+    // Restore TTS preference from localStorage (default: on)
+    const savedTTS = localStorage.getItem('omia_tts');
+    if (savedTTS === 'off') {
+        state.ttsEnabled = false;
+        updateVoiceButton(false);
+    } else {
+        state.ttsEnabled = true;
+        updateVoiceButton(true);
+    }
+
+    console.log('Omia inicializada');
 }
 
 // Iniciar
