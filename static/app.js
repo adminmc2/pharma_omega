@@ -44,6 +44,10 @@ const state = {
     analyser: null,
     silenceTimer: null,
     audioStream: null,
+    // Wake word
+    wakeWordEnabled: false,
+    wakeWordRecognition: null,
+    wakeWordActive: false, // true while SpeechRecognition is running
     // Mood
     mood: {
         value: 100,
@@ -1336,6 +1340,11 @@ function sendToWebSocket(message, responseMode = 'full') {
 // ============================================
 async function startRecording() {
     try {
+        // Pause wake word listening while recording
+        if (state.wakeWordActive) {
+            stopWakeWordListening();
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
@@ -1510,6 +1519,9 @@ async function transcribeAudio(audioBlob) {
         console.error('Error transcripción:', error);
         updateRecordingUI(false);
     }
+
+    // Resume wake word listening after recording completes
+    resumeWakeWordAfterRecording();
 }
 
 function toggleRecording() {
@@ -1883,6 +1895,222 @@ function downloadInfographicAsPNG(cardElement) {
 
 
 // ============================================
+// Wake Word Detection — "Hola Omega" / "Hey Omega" / "Omega"
+// ============================================
+const WAKE_WORD_PATTERNS = [
+    /\bomega\b/i,
+    /\bhola\s+omega\b/i,
+    /\bhey\s+omega\b/i,
+    /\boye\s+omega\b/i,
+    /\bok\s+omega\b/i,
+];
+
+/**
+ * Checks if the transcript contains a wake word.
+ */
+function containsWakeWord(transcript) {
+    const t = transcript.toLowerCase().trim();
+    return WAKE_WORD_PATTERNS.some(p => p.test(t));
+}
+
+/**
+ * Starts continuous SpeechRecognition listening for the wake word.
+ * When detected, stops listening and triggers MediaRecorder recording.
+ */
+function startWakeWordListening() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.warn('[WakeWord] SpeechRecognition not supported in this browser');
+        return;
+    }
+
+    // Don't start if already running or currently recording
+    if (state.wakeWordActive || state.isRecording) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        state.wakeWordActive = true;
+        updateWakeWordUI(true);
+        console.log('[WakeWord] Listening for wake word...');
+    };
+
+    recognition.onresult = (event) => {
+        // Check all results (both interim and final)
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (containsWakeWord(transcript)) {
+                console.log('[WakeWord] Wake word detected:', transcript);
+                // Stop recognition and start recording
+                recognition.stop();
+                state.wakeWordActive = false;
+
+                // Brief delay to allow SpeechRecognition to release the mic
+                setTimeout(() => {
+                    onWakeWordDetected();
+                }, 300);
+                return;
+            }
+        }
+    };
+
+    recognition.onerror = (event) => {
+        // 'no-speech' and 'aborted' are normal — just restart
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+            return;
+        }
+        console.warn('[WakeWord] Error:', event.error);
+        state.wakeWordActive = false;
+        updateWakeWordUI(false);
+
+        // If permission denied, disable wake word
+        if (event.error === 'not-allowed') {
+            state.wakeWordEnabled = false;
+            updateWakeWordToggle(false);
+            return;
+        }
+    };
+
+    recognition.onend = () => {
+        state.wakeWordActive = false;
+        // Auto-restart if still enabled and not currently recording
+        if (state.wakeWordEnabled && !state.isRecording) {
+            setTimeout(() => {
+                if (state.wakeWordEnabled && !state.isRecording) {
+                    startWakeWordListening();
+                }
+            }, 500);
+        } else {
+            updateWakeWordUI(false);
+        }
+    };
+
+    state.wakeWordRecognition = recognition;
+    recognition.start();
+}
+
+/**
+ * Stops wake word listening.
+ */
+function stopWakeWordListening() {
+    if (state.wakeWordRecognition) {
+        state.wakeWordRecognition.abort();
+        state.wakeWordRecognition = null;
+    }
+    state.wakeWordActive = false;
+    updateWakeWordUI(false);
+}
+
+/**
+ * Called when the wake word is detected.
+ * Starts the MediaRecorder recording flow.
+ */
+function onWakeWordDetected() {
+    // Play a subtle audio feedback (optional visual cue)
+    showWakeWordFeedback();
+
+    // Ensure we're on the chat screen; if not, switch to it
+    if (!elements.chatScreen.classList.contains('hidden')) {
+        // Already in chat — start recording directly
+        startRecording();
+    } else if (!elements.welcomeScreen.classList.contains('hidden')) {
+        // In welcome screen — use the orb card flow
+        startRecording();
+    } else {
+        // In plan screen — start recording
+        startRecording();
+    }
+}
+
+/**
+ * Shows a brief visual flash when wake word is detected.
+ */
+function showWakeWordFeedback() {
+    // Flash the orb
+    if (window.orbSetListening) window.orbSetListening(true);
+
+    // Show a brief toast
+    const toast = document.createElement('div');
+    toast.className = 'wake-word-toast';
+    toast.innerHTML = '<i class="ph ph-microphone"></i> Omega te escucha...';
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.classList.add('wake-word-toast--visible');
+    });
+
+    // Remove after 2s
+    setTimeout(() => {
+        toast.classList.remove('wake-word-toast--visible');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 2000);
+}
+
+/**
+ * Toggles wake word detection on/off.
+ */
+function toggleWakeWord() {
+    state.wakeWordEnabled = !state.wakeWordEnabled;
+    updateWakeWordToggle(state.wakeWordEnabled);
+
+    if (state.wakeWordEnabled) {
+        startWakeWordListening();
+        localStorage.setItem('omega_wake_word', 'on');
+    } else {
+        stopWakeWordListening();
+        localStorage.setItem('omega_wake_word', 'off');
+    }
+}
+
+/**
+ * Updates the wake word toggle button visual state.
+ */
+function updateWakeWordToggle(enabled) {
+    const btn = document.getElementById('wake-word-btn');
+    if (btn) {
+        btn.classList.toggle('wake-word-btn--active', enabled);
+        btn.title = enabled ? 'Desactivar "Hola Omega"' : 'Activar "Hola Omega"';
+    }
+    // Also update chat screen toggle if present
+    const chatBtn = document.getElementById('chat-wake-word-btn');
+    if (chatBtn) {
+        chatBtn.classList.toggle('wake-word-btn--active', enabled);
+        chatBtn.title = enabled ? 'Desactivar "Hola Omega"' : 'Activar "Hola Omega"';
+    }
+}
+
+/**
+ * Updates the wake word listening indicator.
+ */
+function updateWakeWordUI(listening) {
+    const indicator = document.getElementById('wake-word-indicator');
+    if (indicator) {
+        indicator.classList.toggle('wake-word-indicator--active', listening);
+    }
+    const chatIndicator = document.getElementById('chat-wake-word-indicator');
+    if (chatIndicator) {
+        chatIndicator.classList.toggle('wake-word-indicator--active', listening);
+    }
+}
+
+/**
+ * Restarts wake word listening after recording completes.
+ * Called at the end of transcribeAudio().
+ */
+function resumeWakeWordAfterRecording() {
+    if (state.wakeWordEnabled && !state.wakeWordActive) {
+        setTimeout(() => {
+            startWakeWordListening();
+        }, 1000);
+    }
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -1997,6 +2225,18 @@ function init() {
 
     // Renderizar búsquedas recientes
     renderRecentSearches();
+
+    // Wake word toggle buttons
+    document.getElementById('wake-word-btn')?.addEventListener('click', toggleWakeWord);
+    document.getElementById('chat-wake-word-btn')?.addEventListener('click', toggleWakeWord);
+
+    // Restore wake word preference from localStorage
+    const savedWakeWord = localStorage.getItem('omega_wake_word');
+    if (savedWakeWord === 'on') {
+        state.wakeWordEnabled = true;
+        updateWakeWordToggle(true);
+        startWakeWordListening();
+    }
 
     console.log('Omega inicializado');
 }

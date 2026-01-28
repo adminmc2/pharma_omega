@@ -60,6 +60,7 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | Selección LLM | ✅ | Recomendado: Kimi K2 en Groq (mejor formato, tablas, structured output) |
 | 27-ene-26 | Plan mejora RAG definido | ✅ | 5 pasos: prompts CO-STAR, LLM Kimi K2, marked.js, CSS chat, TTS strip |
 | 28-ene-26 | Logo Puro Omega | ✅ | Añadido al header, bot renombrado a "Omega" |
+| 28-ene-26 | Wake word "Hola Omega" | ✅ | SpeechRecognition continuo, toggle en header, toast visual |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -75,6 +76,14 @@ Todos los cambios notables del proyecto Puro Omega.
 ## [3.4.0] - 2026-01-28
 
 ### Añadido
+- **Wake word "Hola Omega"** - Activación por voz con SpeechRecognition
+  - Detecta "Hola Omega", "Hey Omega", "Oye Omega", "OK Omega" o simplemente "Omega"
+  - Escucha continua en segundo plano (Web Speech API, es-ES)
+  - Al detectar el wake word, activa grabación MediaRecorder automáticamente
+  - Toggle on/off en header (welcome + chat), estado persistido en localStorage
+  - Indicador verde pulsante cuando está escuchando
+  - Toast visual "Omega te escucha..." al detectar wake word
+  - Se pausa durante grabación y se reanuda tras transcripción
 - **Bot renombrado a "Omega"** - El asistente se llama "Omega" en el chat header, título de página, greeting y infografías
 - **Logo Puro Omega** - Integrado en el header de la app
 - **Selector de modo de respuesta** - Resumida / Extendida antes de cada consulta
