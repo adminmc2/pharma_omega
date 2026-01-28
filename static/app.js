@@ -53,6 +53,8 @@ const state = {
     awaitingVoiceMode: null,    // pending message waiting for mode selection by voice
     voiceModeTimeout: null,     // timeout for auto-sending if no voice response
     voiceModeRecording: false,  // true when recording mode answer (longer silence detection)
+    // iOS audio unlock
+    iosAudioElement: null,      // pre-created Audio element for iOS
     // Mood
     mood: {
         value: 100,
@@ -1739,6 +1741,9 @@ async function transcribeAudio(audioBlob) {
 }
 
 function toggleRecording() {
+    // iOS: Pre-warm audio element on user gesture so TTS can play later
+    warmupIOSAudio();
+
     if (state.isRecording) {
         stopRecording();
     } else {
@@ -1746,6 +1751,32 @@ function toggleRecording() {
         enableTTS();
         state.voiceTriggered = true;
         startRecording();
+    }
+}
+
+/**
+ * iOS Safari requires audio to be "unlocked" by user gesture.
+ * This creates and plays a silent audio to enable future playback.
+ */
+function warmupIOSAudio() {
+    // Only needed on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (!isIOS) return;
+
+    try {
+        // Create audio element if not exists
+        if (!state.iosAudioElement) {
+            state.iosAudioElement = new Audio();
+            // Tiny silent WAV
+            state.iosAudioElement.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+        }
+        // Play and immediately pause to "unlock" audio
+        state.iosAudioElement.play().then(() => {
+            state.iosAudioElement.pause();
+            console.log('[iOS] Audio unlocked');
+        }).catch(() => {});
+    } catch (e) {
+        // Silently ignore
     }
 }
 
@@ -2921,6 +2952,9 @@ function init() {
 
     // Bento cards — "Habla conmigo": go to chat + start recording
     elements.orbCard?.addEventListener('click', () => {
+        // iOS: Pre-warm audio on user gesture
+        warmupIOSAudio();
+
         if (state.isRecording) {
             stopRecording();
             return;
