@@ -426,6 +426,19 @@ function saveRecentSearch(query, isVoice = false) {
     renderRecentSearches();
 }
 
+/**
+ * Actualiza la búsqueda reciente más reciente que coincida con la query,
+ * añadiendo la respuesta completa del agente para persistencia.
+ */
+function updateRecentSearchAnswer(query, answer) {
+    const searches = loadRecentSearches();
+    const idx = searches.findIndex(s => s.query.toLowerCase() === query.toLowerCase());
+    if (idx !== -1) {
+        searches[idx].answer = answer;
+        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+    }
+}
+
 function renderRecentSearches() {
     const container = document.getElementById('recent-searches-list');
     const section = document.getElementById('recent-searches');
@@ -469,7 +482,7 @@ function renderRecentSearches() {
             if (item.answer) {
                 showChatScreenWithAnswer(item.query, item.answer);
             } else {
-                showChatScreen(item.query);
+                showChatScreen(item.query, isActionableQuery(item.query));
             }
         });
         container.appendChild(el);
@@ -712,7 +725,7 @@ function renderPlanTasks() {
 // ============================================
 // Navegación entre pantallas
 // ============================================
-function showChatScreen(initialMessage) {
+function showChatScreen(initialMessage, showSelector = false) {
     // Fade out welcome
     elements.welcomeScreen.classList.add('fade-out');
 
@@ -727,7 +740,11 @@ function showChatScreen(initialMessage) {
         // Añadir mensaje del usuario
         if (initialMessage) {
             addMessage(initialMessage, 'user');
-            sendToWebSocket(initialMessage);
+            if (showSelector) {
+                showResponseModeSelector(initialMessage);
+            } else {
+                sendToWebSocket(initialMessage);
+            }
         }
 
         // Focus en input
@@ -803,12 +820,340 @@ function showChatFromPlan() {
 }
 
 // ============================================
+// Markdown rendering + Phosphor icon enrichment
+// ============================================
+
+// Map of keywords to Phosphor icon names for semantic enrichment
+const ICON_MAP_HEADERS = {
+    // Product-related
+    'producto':     'package',
+    'productos':    'package',
+    'omega':        'drop',
+    'dha':          'drop',
+    'epa':          'drop',
+    'natural dha':  'leaf',
+    'puro omega':   'drop',
+    'puro epa':     'drop',
+    'composición':  'flask',
+    'composicion':  'flask',
+    'ingrediente':  'flask',
+    'formulación':  'flask',
+    'formulacion':  'flask',
+    // Clinical / medical
+    'indicación':   'heartbeat',
+    'indicacion':   'heartbeat',
+    'indicaciones': 'heartbeat',
+    'clínic':       'heartbeat',
+    'clinic':       'heartbeat',
+    'dosis':        'eyedropper',
+    'dosificación': 'eyedropper',
+    'posología':    'eyedropper',
+    'beneficio':    'star',
+    'beneficios':   'star',
+    'ventaja':      'star',
+    'ventajas':     'star',
+    // Quality & tech
+    'calidad':      'seal-check',
+    'certificación':'seal-check',
+    'certificacion':'seal-check',
+    'tecnología':   'gear',
+    'tecnologia':   'gear',
+    'rtg':          'gear',
+    'pureza':       'shield-check',
+    'seguridad':    'shield-check',
+    // Sales
+    'argumento':    'megaphone',
+    'argumentos':   'megaphone',
+    'venta':        'trend-up',
+    'ventas':       'trend-up',
+    'estrategia':   'strategy',
+    'presentación': 'presentation-chart',
+    'presentacion': 'presentation-chart',
+    // Objections
+    'objeción':     'shield',
+    'objecion':     'shield',
+    'objeciones':   'shield',
+    'precio':       'currency-circle-dollar',
+    'costo':        'currency-circle-dollar',
+    'coste':        'currency-circle-dollar',
+    'eficacia':     'chart-line-up',
+    'resultado':    'chart-line-up',
+    'resultados':   'chart-line-up',
+    // Medical specialties
+    'cardio':       'heart',
+    'cardiología':  'heart',
+    'cardiologia':  'heart',
+    'ginecología':  'gender-female',
+    'ginecologia':  'gender-female',
+    'neurología':   'brain',
+    'neurologia':   'brain',
+    'pediatría':    'baby',
+    'pediatria':    'baby',
+    'psiquiatría':  'brain',
+    'psiquiatria':  'brain',
+    'reumatología': 'bone',
+    'reumatologia': 'bone',
+    // Specialist
+    'especialista': 'user-circle',
+    'médico':       'stethoscope',
+    'medico':       'stethoscope',
+    'doctor':       'stethoscope',
+    'paciente':     'user',
+    'perfil':       'user-focus',
+    // Sections
+    'reconocimiento': 'handshake',
+    'reencuadre':     'arrows-clockwise',
+    'guion':          'quotes',
+    'guión':          'quotes',
+    'script':         'quotes',
+    'datos clave':    'chart-bar',
+    'evidencia':      'article',
+    'estudio':        'book-open-text',
+    'estudios':       'book-open-text',
+    'referencia':     'book-open-text',
+    'comparativa':    'scales',
+    'comparación':    'scales',
+    'comparacion':    'scales',
+    'diferencia':     'scales',
+    'diferenciación': 'star-four',
+    'diferenciacion': 'star-four',
+    'conclusión':     'check-circle',
+    'conclusion':     'check-circle',
+    'resumen':        'list-bullets',
+    'recomendación':  'lightbulb',
+    'recomendacion':  'lightbulb',
+    'tip':            'lightbulb',
+    'nota':           'note',
+    'importante':     'warning-circle',
+    'advertencia':    'warning',
+    'interacción':    'warning',
+    'interaccion':    'warning',
+    'contraindicación': 'prohibit'
+};
+
+// Icon for table header cells based on content
+const ICON_MAP_TABLE = {
+    'producto':       'package',
+    'nombre':         'tag',
+    'composición':    'flask',
+    'composicion':    'flask',
+    'dosis':          'eyedropper',
+    'concentración':  'flask',
+    'concentracion':  'flask',
+    'indicación':     'heartbeat',
+    'indicacion':     'heartbeat',
+    'presentación':   'pill',
+    'presentacion':   'pill',
+    'precio':         'currency-circle-dollar',
+    'beneficio':      'star',
+    'ventaja':        'star',
+    'característica': 'check-circle',
+    'caracteristica': 'check-circle',
+    'aspecto':        'list-bullets',
+    'dato':           'chart-bar',
+    'detalle':        'info',
+    'componente':     'flask',
+    'epa':            'drop',
+    'dha':            'drop',
+    'forma':          'shapes',
+    'certificación':  'seal-check',
+    'certificacion':  'seal-check',
+    'paso':           'number-circle-one',
+    'acción':         'lightning',
+    'accion':         'lightning',
+    'argumento':      'megaphone',
+    'objeción':       'shield',
+    'objecion':       'shield',
+    'respuesta':      'chat-circle-text'
+};
+
+/**
+ * Find the best matching Phosphor icon for a text string.
+ */
+function findIconForText(text, iconMap) {
+    const lower = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const lowerOriginal = text.toLowerCase();
+
+    // Try exact or partial match
+    for (const [keyword, icon] of Object.entries(iconMap)) {
+        const kwNorm = keyword.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (lowerOriginal.includes(keyword) || lower.includes(kwNorm)) {
+            return icon;
+        }
+    }
+    return null;
+}
+
+/**
+ * Post-process rendered HTML to inject Phosphor icons at semantic points.
+ * - Before h2/h3 headings
+ * - In table header cells
+ * - Before blockquotes (as a quote icon)
+ * - Before list items (subtle icon for key terms)
+ */
+function enrichWithIcons(html) {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+
+    // 1. Headings — inject icon before text
+    container.querySelectorAll('h2, h3').forEach(heading => {
+        const text = heading.textContent;
+        const icon = findIconForText(text, ICON_MAP_HEADERS);
+        if (icon) {
+            const iconEl = document.createElement('i');
+            iconEl.className = `ph ph-${icon} md-icon-heading`;
+            heading.insertBefore(iconEl, heading.firstChild);
+            // Add a space after icon
+            heading.insertBefore(document.createTextNode(' '), iconEl.nextSibling);
+        }
+    });
+
+    // 2. Table header cells — inject icon before text
+    container.querySelectorAll('thead th').forEach(th => {
+        const text = th.textContent;
+        const icon = findIconForText(text, ICON_MAP_TABLE);
+        if (icon) {
+            const iconEl = document.createElement('i');
+            iconEl.className = `ph ph-${icon} md-icon-th`;
+            th.insertBefore(iconEl, th.firstChild);
+            th.insertBefore(document.createTextNode(' '), iconEl.nextSibling);
+        }
+    });
+
+    // 3. Blockquotes — add quote icon at the start
+    container.querySelectorAll('blockquote').forEach(bq => {
+        const firstP = bq.querySelector('p') || bq;
+        if (!firstP.querySelector('.md-icon-bq')) {
+            const iconEl = document.createElement('i');
+            iconEl.className = 'ph ph-quotes md-icon-bq';
+            firstP.insertBefore(iconEl, firstP.firstChild);
+            firstP.insertBefore(document.createTextNode(' '), iconEl.nextSibling);
+        }
+    });
+
+    // 4. Strong text inside list items — add contextual icon
+    container.querySelectorAll('li').forEach(li => {
+        const strong = li.querySelector('strong');
+        if (strong) {
+            const icon = findIconForText(strong.textContent, ICON_MAP_HEADERS);
+            if (icon) {
+                const iconEl = document.createElement('i');
+                iconEl.className = `ph ph-${icon} md-icon-li`;
+                li.insertBefore(iconEl, li.firstChild);
+                li.insertBefore(document.createTextNode(' '), iconEl.nextSibling);
+            }
+        }
+    });
+
+    // 5. Source badge — replace external source markers with visual badge
+    const GENERAL_MARKERS = [
+        '(fuente externa no empresarial)',
+        '(fuente externa no empresarial)',
+        '*(fuente externa no empresarial)*',
+        // Legacy markers (backward compat)
+        '(información de la web)',
+        '(informacion de la web)',
+        '*(información de la web)*',
+        '*(informacion de la web)*',
+        '(conocimiento científico general)',
+        '(conocimiento cientifico general)',
+        '*(conocimiento científico general)*',
+        '*(conocimiento cientifico general)*'
+    ];
+    const badgeHTML = '<span class="source-badge-general" tabindex="0"><i class="ph ph-warning-circle"></i> Fuente externa</span>';
+
+    let finalHTML = container.innerHTML;
+    for (const marker of GENERAL_MARKERS) {
+        // Replace both the <em> wrapped version and raw text version
+        const emWrapped = `<em>${marker.replace(/^\*|\*$/g, '')}</em>`;
+        if (finalHTML.includes(emWrapped)) {
+            finalHTML = finalHTML.split(emWrapped).join(badgeHTML);
+        }
+        if (finalHTML.includes(marker)) {
+            finalHTML = finalHTML.split(marker).join(badgeHTML);
+        }
+    }
+
+    // 6. Wrap tables in responsive scroll container
+    finalHTML = finalHTML.replace(/<table([\s\S]*?)<\/table>/gi, (match) => {
+        return `<div class="table-responsive">${match}</div>`;
+    });
+
+    return finalHTML;
+}
+
+/**
+ * Render markdown to HTML.
+ * @param {string} text - raw markdown
+ * @param {boolean} enrich - if true, inject Phosphor icons (use false during streaming for performance)
+ */
+function renderMarkdown(text, enrich = true) {
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+        const html = marked.parse(text);
+        const clean = DOMPurify.sanitize(html);
+        return enrich ? enrichWithIcons(clean) : clean;
+    }
+    // Fallback: escape HTML
+    return escapeHtml(text);
+}
+
+function stripMarkdown(text) {
+    return text
+        .replace(/#{1,6}\s+/g, '')           // headers
+        .replace(/\*\*(.+?)\*\*/g, '$1')     // bold
+        .replace(/\*(.+?)\*/g, '$1')         // italic
+        .replace(/_(.+?)_/g, '$1')           // italic alt
+        .replace(/~~(.+?)~~/g, '$1')         // strikethrough
+        .replace(/`(.+?)`/g, '$1')           // inline code
+        .replace(/```[\s\S]*?```/g, '')      // code blocks
+        .replace(/>\s+/g, '')                // blockquotes
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1') // images
+        .replace(/\|[^\n]+\|/g, '')          // table rows
+        .replace(/[-|]+\s*/g, '')            // table separators
+        .replace(/[-*+]\s+/g, '')            // unordered lists
+        .replace(/\d+\.\s+/g, '')            // ordered lists
+        .replace(/\n{2,}/g, '. ')            // double newlines to period
+        .replace(/\n/g, ' ')                 // single newlines to space
+        .replace(/\s{2,}/g, ' ')             // collapse spaces
+        .trim();
+}
+
+// ============================================
+// Responsive tables — scroll hints
+// ============================================
+/**
+ * Initialise scroll-hint classes on .table-responsive wrappers
+ * inside a given container (message element).
+ */
+function initResponsiveTables(container) {
+    if (!container) return;
+    container.querySelectorAll('.table-responsive').forEach(wrapper => {
+        const update = () => {
+            const { scrollLeft, scrollWidth, clientWidth } = wrapper;
+            const scrollable = scrollWidth > clientWidth + 1;
+            wrapper.classList.toggle('is-scrollable', scrollable && scrollLeft < 4);
+            wrapper.classList.toggle('scrolled-mid', scrollable && scrollLeft >= 4 && scrollLeft + clientWidth < scrollWidth - 4);
+            wrapper.classList.toggle('scrolled-end', scrollable && scrollLeft + clientWidth >= scrollWidth - 4);
+        };
+        wrapper.addEventListener('scroll', update, { passive: true });
+        // Initial check (schedule to run after layout)
+        requestAnimationFrame(update);
+    });
+}
+
+// ============================================
 // Mensajes del chat
 // ============================================
 function addMessage(text, role) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
-    messageDiv.textContent = text;
+
+    if (role === 'assistant' && text) {
+        messageDiv.innerHTML = renderMarkdown(text);
+    } else {
+        messageDiv.textContent = text;
+    }
 
     if (role === 'assistant') {
         // Wrapper: orb arriba + burbuja abajo
@@ -827,10 +1172,49 @@ function addMessage(text, role) {
         elements.chatMessages.appendChild(messageDiv);
     }
 
+    // Init responsive table wrappers
+    initResponsiveTables(messageDiv);
+
     // Scroll al final
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 
     return messageDiv;
+}
+
+/**
+ * Inserta un banner de advertencia cuando la cobertura RAG es baja o media.
+ * Se muestra antes de la respuesta del asistente.
+ */
+function insertRagCoverageWarning(coverage, maxScore) {
+    const warning = document.createElement('div');
+    const isLow = coverage === 'low';
+
+    warning.className = `rag-coverage-warning ${isLow ? 'rag-coverage-warning--low' : 'rag-coverage-warning--medium'}`;
+
+    if (isLow) {
+        warning.innerHTML = `
+            <div class="rag-coverage-warning__icon">
+                <i class="ph ph-warning-circle"></i>
+            </div>
+            <div class="rag-coverage-warning__content">
+                <strong>Fuentes externas</strong>
+                <span>Esta consulta no está cubierta en la base de conocimiento de Puro Omega. La respuesta usa información externa general.</span>
+            </div>
+        `;
+    } else {
+        warning.innerHTML = `
+            <div class="rag-coverage-warning__icon">
+                <i class="ph ph-info"></i>
+            </div>
+            <div class="rag-coverage-warning__content">
+                <strong>Cobertura parcial</strong>
+                <span>Parte de esta respuesta puede incluir información de fuentes externas, marcada con el indicador correspondiente.</span>
+            </div>
+        `;
+    }
+
+    elements.chatMessages.appendChild(warning);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
 function addTypingIndicator() {
@@ -860,7 +1244,7 @@ function removeTypingIndicator() {
 // ============================================
 // WebSocket
 // ============================================
-function sendToWebSocket(message) {
+function sendToWebSocket(message, responseMode = 'full') {
     // Mostrar indicador de escritura
     addTypingIndicator();
     elements.chatStatus.textContent = 'Escribiendo...';
@@ -870,10 +1254,11 @@ function sendToWebSocket(message) {
     state.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
 
     state.currentMessage = '';
+    state.currentQuery = message; // Guardar query para persistencia
     let assistantMessage = null;
 
     state.websocket.onopen = () => {
-        const payload = { message };
+        const payload = { message, response_mode: responseMode };
         if (state.mood.submitted) {
             payload.mood = {
                 value: state.mood.value,
@@ -891,19 +1276,42 @@ function sendToWebSocket(message) {
             // Quitar indicador de escritura en el primer token
             if (!assistantMessage) {
                 removeTypingIndicator();
+                // Insertar warning de cobertura RAG si es baja o media
+                if (state.pendingRagCoverage && state.pendingRagCoverage !== 'high') {
+                    insertRagCoverageWarning(state.pendingRagCoverage, state.pendingRagScore);
+                }
                 assistantMessage = addMessage('', 'assistant');
             }
 
             state.currentMessage += data.content;
-            assistantMessage.textContent = state.currentMessage;
+            // During streaming: render markdown without icon enrichment (performance)
+            assistantMessage.innerHTML = renderMarkdown(state.currentMessage, false);
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
         else if (data.type === 'end') {
+            // Final render with full icon enrichment
+            if (assistantMessage && state.currentMessage) {
+                assistantMessage.innerHTML = renderMarkdown(state.currentMessage, true);
+                initResponsiveTables(assistantMessage);
+                // DESHABILITADO: Infografía — para re-activar, descomentar las 2 líneas siguientes
+                // const messageRow = assistantMessage.closest('.message-row') || assistantMessage;
+                // appendInfographicCTA(messageRow, state.currentMessage);
+
+                // Persistir respuesta en búsquedas recientes
+                if (state.currentQuery) {
+                    updateRecentSearchAnswer(state.currentQuery, state.currentMessage);
+                }
+            }
             elements.chatStatus.textContent = 'En línea';
+            // Limpiar estado de cobertura RAG
+            state.pendingRagCoverage = null;
+            state.pendingRagScore = 0;
         }
         else if (data.type === 'agent_info') {
-            // Info del agente usado (opcional: mostrar en UI)
-            console.log('Agente:', data.agent, '- Documentos:', data.context_docs);
+            console.log('Agente:', data.agent, '- Documentos:', data.context_docs, '- Cobertura RAG:', data.rag_coverage);
+            // Guardar cobertura RAG para mostrar warning cuando llegue la respuesta
+            state.pendingRagCoverage = data.rag_coverage || 'high';
+            state.pendingRagScore = data.max_score || 0;
         }
         else if (data.type === 'error') {
             removeTypingIndicator();
@@ -1079,15 +1487,18 @@ async function transcribeAudio(audioBlob) {
         if (data.success && data.text) {
             // Guardar en búsquedas recientes (como voz)
             saveRecentSearch(data.text, true);
+            const actionable = isActionableQuery(data.text);
 
             if (!elements.chatScreen.classList.contains('hidden')) {
-                // Ya estamos en chat, enviar mensaje
                 addMessage(data.text, 'user');
-                sendToWebSocket(data.text);
+                if (actionable) {
+                    showResponseModeSelector(data.text);
+                } else {
+                    sendToWebSocket(data.text);
+                }
             } else {
-                // Desde welcome o plan screen, ocultar ambas e ir al chat
                 elements.planScreen?.classList.add('hidden');
-                showChatScreen(data.text);
+                showChatScreen(data.text, actionable);
             }
         } else {
             console.error('Error transcripción:', data.error);
@@ -1110,6 +1521,60 @@ function toggleRecording() {
 }
 
 // ============================================
+// Detección de consultas con contenido real
+// ============================================
+/**
+ * Determina si un mensaje contiene una consulta real sobre
+ * productos, objeciones o argumentos de Puro Omega.
+ * Solo muestra el selector de formato cuando hay contenido pharma relevante.
+ * Cualquier otra cosa (saludos, frases vagas, charla) se envía directo.
+ */
+function isActionableQuery(text) {
+    const t = text.toLowerCase().trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Palabras clave que indican consulta real sobre el dominio pharma/ventas
+    const pharmaKeywords = [
+        // Productos y sustancias
+        /omega/i, /epa\b/i, /dha\b/i, /capsul/i, /suplemento/i,
+        /aceite/i, /pescado/i, /rtg/i, /etil/i, /triglicerido/i,
+        /natural dha/i, /puro epa/i, /resolving/i, /prm\b/i,
+        // Médico / clínico
+        /medico/i, /doctor/i, /paciente/i, /prescri/i, /dosis/i,
+        /posologi/i, /indicaci/i, /tratamiento/i, /clinico/i,
+        /embaraz/i, /cardio/i, /gineco/i, /neuro/i, /pediatr/i,
+        /psiquiatr/i, /reumat/i, /dermato/i, /oftalmol/i, /urolog/i,
+        /endocrino/i, /gastro/i, /neumol/i, /oncol/i, /geriatr/i,
+        /traumat/i, /internist/i, /medicina general/i,
+        // Especialidades y condiciones
+        /especialidad/i, /especialista/i, /colesterol/i, /inflamac/i,
+        /cardiovascular/i, /diabetes/i, /hipertens/i, /artritis/i,
+        /cerebr/i, /cognitiv/i, /depres/i, /ansiedad/i, /retina/i,
+        /fertil/i, /gestacion/i, /prenatal/i, /menopausia/i,
+        // Objeciones
+        /caro/i, /costoso/i, /precio/i, /barato/i, /coste/i,
+        /no funciona/i, /no sirve/i, /metales pesados/i,
+        /efecto.? secundario/i, /interacci/i, /contraindicac/i,
+        /otra marca/i, /competencia/i, /objecion/i,
+        // Ventas y argumentos
+        /argumento/i, /vender/i, /venta/i, /presentar/i, /visita/i,
+        /represent/i, /estrategi/i, /perfil/i, /diferenci/i,
+        /ventaja/i, /evidencia/i, /estudio/i, /ensayo/i,
+        // Marca
+        /puro omega/i, /omega.?3 index/i, /ifos/i, /certificac/i,
+        // Producto genérico
+        /producto/i, /composici/i, /concentraci/i, /biodisponib/i,
+        /absorci/i, /calidad/i, /pureza/i,
+        // Acciones del dominio
+        /recomiend/i, /recomendar/i, /prescrib/i, /comparar/i, /comparativ/i,
+        /que es\b/i, /para que sirve/i, /como funciona/i, /como respondo/i,
+        /como presento/i, /como vendo/i,
+    ];
+
+    return pharmaKeywords.some(kw => kw.test(t));
+}
+
+// ============================================
 // Enviar mensaje por texto
 // ============================================
 function sendMessage() {
@@ -1125,14 +1590,297 @@ function sendMessage() {
     // Guardar en búsquedas recientes
     saveRecentSearch(message);
 
+    const actionable = isActionableQuery(message);
+
     // Si estamos en welcome, ir al chat
     if (!elements.welcomeScreen.classList.contains('hidden')) {
-        showChatScreen(message);
+        showChatScreen(message, actionable); // solo mostrar selector si es consulta real
     } else {
         addMessage(message, 'user');
-        sendToWebSocket(message);
+        if (actionable) {
+            showResponseModeSelector(message);
+        } else {
+            sendToWebSocket(message); // enviar directo sin selector
+        }
     }
 }
+
+/**
+ * Muestra un selector de modo de respuesta (resumida/extendida)
+ * debajo del mensaje del usuario. Al elegir, envía al WebSocket.
+ */
+function showResponseModeSelector(message) {
+    const selector = document.createElement('div');
+    selector.className = 'response-mode-selector';
+    selector.innerHTML = `
+        <div class="response-mode-selector__header">
+            <i class="ph ph-chat-dots"></i>
+            <span>Formato de respuesta</span>
+        </div>
+        <div class="response-mode-selector__buttons">
+            <button class="response-mode-btn response-mode-btn--short" data-mode="short">
+                <div class="response-mode-btn__icon">
+                    <i class="ph ph-list-bullets"></i>
+                </div>
+                <div class="response-mode-btn__text">
+                    <strong>Resumida</strong>
+                    <span>Datos clave y directa</span>
+                </div>
+            </button>
+            <button class="response-mode-btn response-mode-btn--full" data-mode="full">
+                <div class="response-mode-btn__icon">
+                    <i class="ph ph-article"></i>
+                </div>
+                <div class="response-mode-btn__text">
+                    <strong>Extendida</strong>
+                    <span>Argumentario completo</span>
+                </div>
+            </button>
+        </div>
+    `;
+
+    elements.chatMessages.appendChild(selector);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+    // Handlers
+    selector.querySelectorAll('.response-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            // Reemplazar selector con indicador del modo elegido
+            const chosen = document.createElement('div');
+            chosen.className = 'response-mode-chosen';
+            chosen.innerHTML = mode === 'short'
+                ? '<i class="ph ph-list-bullets"></i> Resumida'
+                : '<i class="ph ph-article"></i> Extendida';
+            selector.replaceWith(chosen);
+            // Enviar al WebSocket con el modo
+            sendToWebSocket(message, mode);
+        });
+    });
+}
+
+// ============================================
+// Infographic Feature
+// ============================================
+
+const INFOGRAPHIC_THEMES = {
+    productos:  { primary: '#6B5B95', primaryDark: '#4A3D6B', light: '#D8D0E8', accent: '#8B78B4', bg: '#EDEAF0', badge: '#F0ECF5', border: '#D5CDE0' },
+    objeciones: { primary: '#7B6B95', primaryDark: '#524068', light: '#DDD0E8', accent: '#9B88B4', bg: '#EFECF2', badge: '#F2EEF7', border: '#D8CFE3' },
+    argumentos: { primary: '#5B6B95', primaryDark: '#3D4A6B', light: '#D0D8E8', accent: '#7888B4', bg: '#EAEDF2', badge: '#ECF0F5', border: '#CDD5E0' }
+};
+
+function appendInfographicCTA(messageRow, fullResponse) {
+    if (!messageRow || !fullResponse) return;
+
+    const cta = document.createElement('div');
+    cta.className = 'infographic-cta';
+    cta.innerHTML = `
+        <i class="ph ph-image-square"></i>
+        <span class="infographic-cta__text">¿Quieres una infografía resumida para mostrar al médico?</span>
+        <div class="infographic-cta__actions">
+            <button class="infographic-cta__btn infographic-cta__btn--yes">
+                <i class="ph ph-check"></i> Sí, generar
+            </button>
+            <button class="infographic-cta__btn infographic-cta__btn--no">
+                <i class="ph ph-x"></i> No, gracias
+            </button>
+        </div>
+    `;
+
+    // Insert after the message row
+    messageRow.after(cta);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+    // Button handlers
+    cta.querySelector('.infographic-cta__btn--yes').addEventListener('click', () => {
+        requestInfographic(fullResponse, cta);
+    });
+    cta.querySelector('.infographic-cta__btn--no').addEventListener('click', () => {
+        cta.classList.add('infographic-cta--exiting');
+        cta.addEventListener('animationend', () => cta.remove());
+    });
+}
+
+async function requestInfographic(agentResponse, ctaElement) {
+    console.log('[Infographic] Requesting infographic via POST...');
+
+    // Replace CTA with loading spinner
+    const loading = document.createElement('div');
+    loading.className = 'infographic-loading';
+    loading.innerHTML = `
+        <div class="infographic-loading__spinner"></div>
+        <span class="infographic-loading__text">Generando infografía...</span>
+    `;
+    ctaElement.replaceWith(loading);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+    try {
+        const response = await fetch('/api/infographic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_response: agentResponse })
+        });
+
+        const result = await response.json();
+        console.log('[Infographic] Response:', result.success);
+
+        if (result.success && result.data) {
+            console.log('[Infographic] Data received, rendering card');
+            const insertAfter = loading.previousElementSibling || elements.chatMessages.lastElementChild;
+            loading.remove();
+            renderInfographic(result.data, insertAfter);
+        } else {
+            console.error('[Infographic] Error:', result.error || result.detail);
+            loading.innerHTML = `
+                <div class="infographic-error">
+                    <i class="ph ph-warning-circle"></i>
+                    <span>No se pudo generar la infografía: ${result.error || 'Error desconocido'}</span>
+                </div>
+            `;
+            loading.className = 'infographic-error-container';
+        }
+    } catch (err) {
+        console.error('[Infographic] Fetch error:', err);
+        loading.innerHTML = `
+            <div class="infographic-error">
+                <i class="ph ph-warning-circle"></i>
+                <span>Error de conexión al generar la infografía.</span>
+            </div>
+        `;
+        loading.className = 'infographic-error-container';
+    }
+}
+
+function renderInfographic(data, afterElement) {
+    const theme = INFOGRAPHIC_THEMES[data.color_tema] || INFOGRAPHIC_THEMES.productos;
+
+    // Build sections HTML (NotebookLM style: white cards with circular icon badges)
+    const sectionsHTML = (data.secciones || []).map(sec => `
+        <div class="infographic-card__section">
+            <div class="infographic-card__section-header">
+                <div class="infographic-card__section-icon">
+                    <i class="ph ph-${sec.icono || 'circle'}"></i>
+                </div>
+                <span class="infographic-card__section-title">${sec.titulo}</span>
+            </div>
+            <ul class="infographic-card__section-list">
+                ${(sec.puntos || []).map(p => `<li>${p}</li>`).join('')}
+            </ul>
+        </div>
+    `).join('');
+
+    // Build data grid HTML (KPI badges)
+    const dataGridHTML = (data.datos_tabla || []).map(d => `
+        <div class="infographic-card__kpi">
+            <span class="infographic-card__kpi-value">${d.valor}</span>
+            <span class="infographic-card__kpi-label">${d.etiqueta}</span>
+        </div>
+    `).join('');
+
+    // Product highlight (circular icon badge)
+    const prod = data.producto_destacado;
+    const productHTML = (prod && prod.nombre) ? `
+        <div class="infographic-card__product">
+            <div class="infographic-card__product-icon">
+                <i class="ph ph-package"></i>
+            </div>
+            <div class="infographic-card__product-info">
+                <strong>${prod.nombre}</strong>
+                ${prod.dosis ? `<span>${prod.dosis}</span>` : ''}
+                ${prod.indicacion ? `<span>${prod.indicacion}</span>` : ''}
+            </div>
+        </div>
+    ` : '';
+
+    // Key phrase
+    const quoteHTML = data.frase_clave ? `
+        <blockquote class="infographic-card__quote">
+            ${data.frase_clave}
+        </blockquote>
+    ` : '';
+
+    // Build full card (NotebookLM style)
+    const card = document.createElement('div');
+    card.className = 'infographic-card';
+    card.style.setProperty('--nblm-bg', theme.bg);
+    card.style.setProperty('--nblm-primary', theme.primary);
+    card.style.setProperty('--nblm-primary-dark', theme.primaryDark);
+    card.style.setProperty('--nblm-primary-light', theme.light);
+    card.style.setProperty('--nblm-accent', theme.accent);
+    card.style.setProperty('--nblm-badge-bg', theme.badge);
+    card.style.setProperty('--nblm-border', theme.border);
+    card.innerHTML = `
+        <div class="infographic-card__header">
+            <div class="infographic-card__brand">
+                <i class="ph-bold ph-pulse"></i>
+                <span>Puro Omega</span>
+            </div>
+            <h3 class="infographic-card__title">${data.titulo || 'Resumen'}</h3>
+            ${data.subtitulo ? `<p class="infographic-card__subtitle">${data.subtitulo}</p>` : ''}
+        </div>
+        ${dataGridHTML ? `<div class="infographic-card__data-grid">${dataGridHTML}</div>` : ''}
+        <div class="infographic-card__body">
+            ${sectionsHTML}
+            ${productHTML}
+            ${quoteHTML}
+        </div>
+        <div class="infographic-card__footer">
+            <span>Puro Omega &middot; Infograf&iacute;a generada por IA</span>
+        </div>
+        <div class="infographic-actions">
+            <button class="infographic-actions__download" title="Descargar PNG">
+                <i class="ph ph-download-simple"></i> Descargar
+            </button>
+        </div>
+    `;
+
+    // Insert into chat
+    if (afterElement && afterElement.parentNode) {
+        afterElement.after(card);
+    } else {
+        elements.chatMessages.appendChild(card);
+    }
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+    // Download handler
+    card.querySelector('.infographic-actions__download').addEventListener('click', () => {
+        downloadInfographicAsPNG(card);
+    });
+}
+
+function downloadInfographicAsPNG(cardElement) {
+    if (typeof html2canvas === 'undefined') {
+        console.error('html2canvas not loaded');
+        return;
+    }
+
+    const actionsBar = cardElement.querySelector('.infographic-actions');
+    if (actionsBar) actionsBar.style.display = 'none';
+
+    html2canvas(cardElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#EDEAF0',
+        logging: false
+    }).then(canvas => {
+        if (actionsBar) actionsBar.style.display = '';
+        canvas.toBlob(blob => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'infografia-puro-omega.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+    }).catch(err => {
+        if (actionsBar) actionsBar.style.display = '';
+        console.error('Error generating PNG:', err);
+    });
+}
+
 
 // ============================================
 // Event Listeners
@@ -1155,7 +1903,7 @@ function init() {
         const chip = e.target.closest('.faq-chip');
         if (chip && chip.dataset.question) {
             saveRecentSearch(chip.dataset.question);
-            showChatScreen(chip.dataset.question);
+            showChatScreen(chip.dataset.question, true); // true = mostrar selector
         }
     });
 

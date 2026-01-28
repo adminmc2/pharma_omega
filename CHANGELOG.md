@@ -49,6 +49,16 @@ Todos los cambios notables del proyecto Puro Omega.
 | 27-ene-26 | Chat header con orb | ✅ | Back + orb + título + help icon |
 | 27-ene-26 | Burbujas chat rediseñadas | ✅ | Avatar orb encima, assistant full-width |
 | 27-ene-26 | Búsquedas recientes | ✅ | localStorage, iconos por tipo, respuestas hardcodeadas |
+| 27-ene-26 | Análisis sistema RAG | ✅ | Diagnóstico: sin markdown rendering, prompts sin templates, muletillas, sin TTS opt |
+| 27-ene-26 | Análisis prompts agentes | ✅ | Productos, objeciones, argumentos — sin formato obligatorio ni CO-STAR |
+| 27-ene-26 | Investigación LLMs alternativos | ✅ | Comparados: Llama 3.3 70B, Llama 4 Scout, Llama 4 Maverick, Kimi K2 |
+| 27-ene-26 | Benchmark formato/tablas | ✅ | Kimi K2: 9.25/10 markdown, 100% structured output conformance |
+| 27-ene-26 | Investigación Groq modelos | ✅ | Disponibles: Kimi K2, Llama 4 Scout/Maverick, Llama 3.3, Qwen3 32B |
+| 27-ene-26 | Investigación CO-STAR framework | ✅ | Context, Objective, Style, Tone, Audience, Response — para prompts pharma |
+| 27-ene-26 | Investigación markdown rendering | ✅ | marked.js (~28KB) + DOMPurify para sanitización HTML |
+| 27-ene-26 | Investigación TTS optimización | ✅ | Strip markdown antes de speech, frases cortas (max 20 palabras) |
+| 27-ene-26 | Selección LLM | ✅ | Recomendado: Kimi K2 en Groq (mejor formato, tablas, structured output) |
+| 27-ene-26 | Plan mejora RAG definido | ✅ | 5 pasos: prompts CO-STAR, LLM Kimi K2, marked.js, CSS chat, TTS strip |
 | - | Logo Puro Omega | ⏳ | Añadir al header |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
@@ -59,6 +69,45 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.3.0] - 2026-01-27
+
+### Investigación y análisis
+
+- **Diagnóstico del sistema RAG** - Análisis completo del pipeline de respuestas
+  - `addMessage()` en `app.js` usa `textContent` — markdown no se renderiza (asteriscos literales)
+  - System prompts sin formato obligatorio de salida (no templates, no secciones)
+  - Muletilla "Basándome en la información proporcionada" no prohibida en prompts
+  - Sin optimización para TTS (frases largas, markdown leído literalmente)
+  - Contexto RAG inyectado como Q&A raw sin estructura
+- **Análisis de system prompts** - Revisión de los 3 agentes especializados
+  - `agent_productos.py`: instrucciones vagas ("Sé técnico pero comprensible"), sin template
+  - `agent_objeciones.py`: técnica de 4 pasos pero sin formato markdown obligatorio
+  - `agent_argumentos.py`: estructura de 5 pasos pero sin enforcement de formato
+  - Ningún agente prohíbe frases de relleno ni define secciones obligatorias
+- **Comparativa de LLMs para formato estructurado** - Evaluación de 4 modelos en Groq
+  - Llama 3.3 70B: bueno en formato, MMLU 86%, MGSM 91.1, ~1200 tok/s
+  - Llama 4 Scout (17B MoE, 16 expertos): Meta corrigió "headers, lists, tables", ~2600 tok/s, $0.11/1M tokens
+  - Llama 4 Maverick (17B MoE, 128 expertos): más potente que Scout, más caro
+  - **Kimi K2** (1T total, 32B activos, 384 expertos): **9.25/10 en markdown** (empata con Claude Opus 4), **100% conformance** en structured output con JSON schema
+- **Investigación de mejores prácticas RAG**
+  - Framework CO-STAR (Context, Objective, Style, Tone, Audience, Response) para prompts médicos/pharma
+  - Markdown-KV: mejor formato de entrada tabular para LLMs (60.7% accuracy, +16pp sobre CSV)
+  - `marked.js` (~28KB) para renderizado markdown → HTML en el frontend
+  - DOMPurify para sanitización de HTML generado
+  - Strip de markdown antes de TTS + frases cortas (max 20 palabras)
+
+### Decisiones tomadas
+
+- **LLM seleccionado**: Kimi K2 en Groq (`moonshotai/kimi-k2-instruct`) — ya se dispone de API key Groq
+- **Plan de mejora en 5 pasos**:
+  1. Reescribir system prompts con CO-STAR + templates obligatorios
+  2. Migrar LLM de DeepSeek a Kimi K2 en Groq
+  3. Agregar `marked.js` para renderizado de markdown en burbujas de chat
+  4. CSS para tablas, negritas, listas dentro de mensajes del asistente
+  5. Post-procesamiento TTS: strip markdown antes de lectura en voz alta
 
 ---
 

@@ -12,16 +12,19 @@ from .agent_argumentos import AgenteArgumentos
 from .base_agent import BaseAgent
 
 
+# Modelo LLM
+LLM_MODEL = "moonshotai/kimi-k2-instruct"
+
 # Cliente LLM lazy (se inicializa cuando se usa)
 _llm_client = None
 
 def get_llm_client():
-    """Obtiene el cliente LLM (lazy initialization)"""
+    """Obtiene el cliente LLM (lazy initialization) — Kimi K2 via Groq"""
     global _llm_client
     if _llm_client is None:
         _llm_client = AsyncOpenAI(
-            api_key=os.getenv("DEEPSEEK_API_KEY"),
-            base_url="https://api.deepseek.com"
+            api_key=os.getenv("GROQ_API_KEY"),
+            base_url="https://api.groq.com/openai/v1"
         )
     return _llm_client
 
@@ -89,7 +92,7 @@ Responde SOLO con una palabra: productos, objeciones o argumentos"""
         """
         try:
             response = await get_llm_client().chat.completions.create(
-                model="deepseek-chat",
+                model=LLM_MODEL,
                 messages=[
                     {"role": "system", "content": self.CLASSIFICATION_PROMPT},
                     {"role": "user", "content": message}
@@ -226,7 +229,7 @@ Responde basándote en el contexto anterior. Si no tienes información específi
 
         # Generar respuesta con streaming
         response = await get_llm_client().chat.completions.create(
-            model="deepseek-chat",
+            model=LLM_MODEL,
             messages=messages,
             stream=True,
             temperature=0.7,
@@ -274,7 +277,7 @@ Responde basándote en el contexto anterior. Si no tienes información específi
         messages.append({"role": "user", "content": message})
 
         response = await get_llm_client().chat.completions.create(
-            model="deepseek-chat",
+            model=LLM_MODEL,
             messages=messages,
             stream=False,
             temperature=0.7,
