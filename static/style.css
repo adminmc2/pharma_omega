@@ -235,7 +235,8 @@ body::before {
 
 .header-actions {
     display: flex;
-    gap: var(--space-4);
+    align-items: center;
+    gap: var(--space-8);
 }
 
 /* M3 Profile Avatar */
@@ -3087,15 +3088,15 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   Wake Word — "Hola Omia" toggle & feedback
+   Wake Word — "Hola, Omia" toggle & feedback
    ============================================ */
 
 /* Wake Word toggle — M3 text button, coherent with header-icon-btn height */
 .wake-word-toggle {
-    height: 36px;
+    height: 40px;
     border-radius: var(--md-sys-shape-full);
     border: 1px solid var(--md-sys-color-outline-variant);
-    padding: 0 14px 0 10px;
+    padding: 0 16px 0 12px;
     cursor: pointer;
     background: transparent;
     color: var(--md-sys-color-on-surface-variant);

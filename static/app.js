@@ -2231,9 +2231,9 @@ function updateWakeWordToggle(enabled) {
         const btn = document.getElementById(id);
         if (!btn) return;
         btn.classList.toggle('wake-word-toggle--active', enabled);
-        btn.title = enabled ? 'Desactivar Hola Omia' : 'Activar Hola Omia';
+        btn.title = enabled ? 'Desactivar Hola, Omia' : 'Activar Hola, Omia';
         const label = btn.querySelector('.wake-word-label');
-        if (label) label.textContent = enabled ? 'Hola Omia on' : 'Hola Omia off';
+        if (label) label.textContent = enabled ? 'Hola, Omia · on' : 'Hola, Omia · off';
         const icon = btn.querySelector('.ph');
         if (icon) {
             icon.className = enabled ? 'ph ph-microphone' : 'ph ph-microphone-slash';

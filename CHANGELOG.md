@@ -64,6 +64,8 @@ Todos los cambios notables del proyecto Puro Omega.
 | 28-ene-26 | Botón voice orb en chat | ✅ | Phosphor waveform, auto-activación por voz, toggle TTS |
 | 28-ene-26 | ElevenLabs TTS | ✅ | Camila MX, resumen conversacional LLM, streaming proxy |
 | 28-ene-26 | Bot renombrado a "Omia" | ✅ | HTML, JS, CSS, backend — "Puro Omega" y "Omega 3" intactos |
+| 28-ene-26 | Toggle "Hola, Omia · on/off" | ✅ | Formato con coma y separador ·, altura 40px, gap 8px coherente |
+| 28-ene-26 | Cache-busting estáticos | ✅ | Query string `?v=3.5.1` en style.css para evitar cache del navegador |
 | - | Dockerfile | ⏳ | Para HF Spaces |
 | - | README HF metadata | ⏳ | Configurar |
 | - | Subir a HF Spaces | ⏳ | Deploy |
@@ -73,6 +75,18 @@ Todos los cambios notables del proyecto Puro Omega.
 | - | Test móvil | ⏳ | Dispositivo real |
 
 **Leyenda:** ✅ Completado | ⏳ Pendiente | ❌ Bloqueado
+
+---
+
+## [3.5.1] - 2026-01-28
+
+### Cambiado
+- **Toggle "Hola, Omia"** — Nuevo formato con coma y separador: `Hola, Omia · on` / `Hola, Omia · off`
+  - Texto actualizado en HTML (welcome + chat header) y JS (`updateWakeWordToggle()`)
+  - Tooltips: "Activar Hola, Omia" / "Desactivar Hola, Omia"
+- **Espaciado header coherente** — `header-actions` gap de 4px → 8px, `align-items: center`
+- **Toggle height** — 36px → 40px con padding ajustado (más proporcionado con header-icon-btn de 48px)
+- **Cache-busting** — `style.css?v=3.5.1` para evitar que el navegador sirva CSS cacheado
 
 ---
 
