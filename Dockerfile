@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código fuente
 COPY main.py .
 COPY agents/ ./agents/
+COPY knowledge_base.json .
 
 # Copiar archivos estáticos
 COPY static/ ./static/
