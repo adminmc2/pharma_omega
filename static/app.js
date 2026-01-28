@@ -1759,25 +1759,17 @@ function toggleRecording() {
  * This creates and plays a silent audio to enable future playback.
  */
 function warmupIOSAudio() {
-    // Only needed on iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (!isIOS) return;
-
+    // Warmup audio on user gesture - works on all browsers
     try {
-        // Create audio element if not exists
         if (!state.iosAudioElement) {
             state.iosAudioElement = new Audio();
-            // Tiny silent WAV
             state.iosAudioElement.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
         }
-        // Play and immediately pause to "unlock" audio
         state.iosAudioElement.play().then(() => {
             state.iosAudioElement.pause();
-            console.log('[iOS] Audio unlocked');
+            console.log('[Audio] Warmup OK');
         }).catch(() => {});
-    } catch (e) {
-        // Silently ignore
-    }
+    } catch (e) {}
 }
 
 // ============================================
