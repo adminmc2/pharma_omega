@@ -2684,73 +2684,104 @@ async function playTTS(text) {
 
 /**
  * Plays TTS and returns a Promise that resolves when audio finishes.
- * Uses Web Speech API (speechSynthesis) which works immediately without fetch.
- * This is critical for iOS/Chrome where audio.play() fails after async operations.
+ * Used for voice mode question so we can wait before starting recording.
  */
 function playTTSAndWait(text) {
-    return new Promise((resolve) => {
-        console.log('[TTS] playTTSAndWait: using speechSynthesis for:', text);
+    return new Promise(async (resolve) => {
+        // No llamar stopTTS aquí — puede interrumpir el audio del demo
+        try {
+            console.log('[TTS] playTTSAndWait: requesting audio for:', text.substring(0, 50) + '...');
 
-        // Check if speechSynthesis is available
-        if (!('speechSynthesis' in window)) {
-            console.warn('[TTS] speechSynthesis not available, skipping');
-            resolve();
-            return;
-        }
+            // iOS: Try to keep audio context alive by touching it
+            unlockiOSAudio();
 
-        // Cancel any ongoing speech
-        window.speechSynthesis.cancel();
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, skip_summary: true })
+            });
+            if (!response.ok) {
+                console.error('[TTS] playTTSAndWait: server error', response.status);
+                resolve();
+                return;
+            }
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-ES';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
+            // Esperar a que se descargue todo el audio antes de reproducir
+            const blob = await response.blob();
 
-        // Try to find a Spanish voice
-        const voices = window.speechSynthesis.getVoices();
-        const spanishVoice = voices.find(v => v.lang.startsWith('es')) ||
-                            voices.find(v => v.lang.includes('ES')) ||
-                            voices[0];
-        if (spanishVoice) {
-            utterance.voice = spanishVoice;
-            console.log('[TTS] Using voice:', spanishVoice.name);
-        }
+            console.log('[TTS] playTTSAndWait: got complete blob, size:', blob.size);
+            if (blob.size === 0) {
+                console.error('[TTS] playTTSAndWait: empty blob');
+                resolve();
+                return;
+            }
 
-        // Activar orb en modo "hablando"
-        if (window.orbSetListening) window.orbSetListening(true);
+            const audioUrl = URL.createObjectURL(blob);
 
-        utterance.onend = () => {
-            console.log('[TTS] playTTSAndWait: speech ended');
-            if (window.orbSetListening) window.orbSetListening(false);
-            resolve();
-        };
+            // Create audio element with iOS-friendly attributes
+            const audio = document.createElement('audio');
+            audio.src = audioUrl;
+            audio.setAttribute('playsinline', '');
+            audio.setAttribute('webkit-playsinline', '');
+            audio.preload = 'auto';
+            state.ttsAudio = audio;
 
-        utterance.onerror = (e) => {
-            console.error('[TTS] playTTSAndWait: speech error', e);
-            if (window.orbSetListening) window.orbSetListening(false);
-            resolve();
-        };
+            // Activar orb en modo "hablando"
+            if (window.orbSetListening) window.orbSetListening(true);
 
-        // iOS Safari fix: voices may not be loaded yet
-        if (voices.length === 0) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                const newVoices = window.speechSynthesis.getVoices();
-                const voice = newVoices.find(v => v.lang.startsWith('es')) || newVoices[0];
-                if (voice) utterance.voice = voice;
-                window.speechSynthesis.speak(utterance);
-            };
-            // Timeout fallback if voices never load
-            setTimeout(() => {
-                if (!utterance.voice) {
-                    window.speechSynthesis.speak(utterance);
+            audio.addEventListener('ended', () => {
+                console.log('[TTS] playTTSAndWait: audio ended naturally');
+                URL.revokeObjectURL(audioUrl);
+                state.ttsAudio = null;
+                if (window.orbSetListening) window.orbSetListening(false);
+                resolve();
+            });
+            audio.addEventListener('error', (e) => {
+                console.error('[TTS] playTTSAndWait: audio error', e);
+                URL.revokeObjectURL(audioUrl);
+                state.ttsAudio = null;
+                if (window.orbSetListening) window.orbSetListening(false);
+                resolve();
+            });
+
+            console.log('[TTS] playTTSAndWait: starting playback, duration will be shown after load');
+            audio.addEventListener('loadedmetadata', () => {
+                console.log('[TTS] playTTSAndWait: audio duration:', audio.duration, 'seconds');
+            });
+
+            // iOS fix: Wait for canplaythrough before playing
+            await new Promise((resolveLoad) => {
+                if (audio.readyState >= 4) {
+                    resolveLoad();
+                } else {
+                    audio.addEventListener('canplaythrough', resolveLoad, { once: true });
+                    // Timeout fallback
+                    setTimeout(resolveLoad, 3000);
                 }
-            }, 500);
-        } else {
-            window.speechSynthesis.speak(utterance);
-        }
+            });
 
-        console.log('[TTS] playTTSAndWait: started speaking');
+            try {
+                await audio.play();
+                console.log('[TTS] playTTSAndWait: playback started');
+            } catch (playError) {
+                console.error('[TTS] playTTSAndWait: play() failed:', playError);
+                // iOS fallback: try again after a tiny delay
+                await new Promise(r => setTimeout(r, 100));
+                try {
+                    await audio.play();
+                    console.log('[TTS] playTTSAndWait: playback started on retry');
+                } catch (retryError) {
+                    console.error('[TTS] playTTSAndWait: retry also failed:', retryError);
+                    URL.revokeObjectURL(audioUrl);
+                    if (window.orbSetListening) window.orbSetListening(false);
+                    resolve();
+                }
+            }
+        } catch (e) {
+            console.error('[TTS] playTTSAndWait error:', e);
+            if (window.orbSetListening) window.orbSetListening(false);
+            resolve();
+        }
     });
 }
 
