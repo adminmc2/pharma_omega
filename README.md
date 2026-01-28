@@ -1,3 +1,14 @@
+---
+title: Omia - Puro Omega
+emoji: 🌊
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: mit
+app_port: 7860
+---
+
 # Puro Omega - Asistente de Ventas IA
 
 Chatbot multi-agente con RAG para representantes de ventas farmacéuticos de Puro Omega (suplementos Omega-3).
