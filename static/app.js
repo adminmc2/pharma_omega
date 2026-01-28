@@ -53,8 +53,6 @@ const state = {
     awaitingVoiceMode: null,    // pending message waiting for mode selection by voice
     voiceModeTimeout: null,     // timeout for auto-sending if no voice response
     voiceModeRecording: false,  // true when recording mode answer (longer silence detection)
-    // iOS audio unlock
-    iosAudioUnlocked: false,    // true after user interaction unlocks audio playback
     // Mood
     mood: {
         value: 100,
@@ -64,45 +62,6 @@ const state = {
         timestamp: null
     }
 };
-
-/**
- * iOS Safari requires audio to be "unlocked" by playing a sound
- * directly in response to a user gesture. Call this on any touch/click
- * that might later need TTS playback.
- */
-function unlockiOSAudio() {
-    if (state.iosAudioUnlocked) return;
-
-    // Create a silent audio context and play it
-    try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-            const ctx = new AudioContext();
-            // Create a short silent buffer
-            const buffer = ctx.createBuffer(1, 1, 22050);
-            const source = ctx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(ctx.destination);
-            source.start(0);
-            console.log('[iOS Audio] Unlocked audio playback');
-            state.iosAudioUnlocked = true;
-        }
-    } catch (e) {
-        console.log('[iOS Audio] Could not unlock:', e);
-    }
-
-    // Also try with an Audio element
-    try {
-        const audio = new Audio();
-        audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-        audio.volume = 0.01;
-        audio.play().then(() => {
-            audio.pause();
-            console.log('[iOS Audio] Audio element unlocked');
-            state.iosAudioUnlocked = true;
-        }).catch(() => {});
-    } catch (e) {}
-}
 
 // Elementos
 const elements = {
@@ -903,22 +862,6 @@ function showChatScreenWithAnswer(question, answer) {
 }
 
 function showWelcomeScreen() {
-    // Detener TTS si está reproduciéndose
-    stopTTS();
-
-    // Detener grabación si está activa
-    if (state.isRecording) {
-        stopRecording();
-    }
-
-    // Resetear estado de voz
-    state.voiceTriggered = false;
-    state.awaitingVoiceMode = null;
-    if (state.voiceModeTimeout) {
-        clearTimeout(state.voiceModeTimeout);
-        state.voiceModeTimeout = null;
-    }
-
     elements.chatScreen.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
@@ -1796,9 +1739,6 @@ async function transcribeAudio(audioBlob) {
 }
 
 function toggleRecording() {
-    // Unlock iOS audio on user gesture (required for TTS to work on iPhone)
-    unlockiOSAudio();
-
     if (state.isRecording) {
         stopRecording();
     } else {
@@ -2429,9 +2369,6 @@ function stopWakeWordListening() {
  * Like Siri: say "Hola Omia" → it listens to everything you say.
  */
 function onWakeWordDetected() {
-    // Ensure iOS audio is unlocked (in case wake word was detected without direct touch)
-    unlockiOSAudio();
-
     playWakeBeep();
     // Voice interaction → auto-enable TTS responses
     enableTTS();
@@ -2595,9 +2532,6 @@ async function playTTS(text) {
 
     if (!text || !text.trim()) return;
 
-    // iOS: ensure audio is unlocked
-    unlockiOSAudio();
-
     try {
         console.log(`[TTS] Requesting audio for ${text.length} chars...`);
         const response = await fetch('/api/tts', {
@@ -2614,13 +2548,7 @@ async function playTTS(text) {
         // Reproducir como blob (más compatible que MediaSource para MP3 streaming)
         const blob = await response.blob();
         const audioUrl = URL.createObjectURL(blob);
-
-        // Create audio element with iOS-friendly attributes
-        const audio = document.createElement('audio');
-        audio.src = audioUrl;
-        audio.setAttribute('playsinline', '');
-        audio.setAttribute('webkit-playsinline', '');
-        audio.preload = 'auto';
+        const audio = new Audio(audioUrl);
 
         state.ttsAudio = audio;
         state.ttsPlaying = true;
@@ -2654,26 +2582,8 @@ async function playTTS(text) {
             if (window.orbSetListening) window.orbSetListening(false);
         });
 
-        // iOS fix: Wait for canplaythrough before playing
-        await new Promise((resolveLoad) => {
-            if (audio.readyState >= 4) {
-                resolveLoad();
-            } else {
-                audio.addEventListener('canplaythrough', resolveLoad, { once: true });
-                setTimeout(resolveLoad, 3000);
-            }
-        });
-
-        try {
-            await audio.play();
-            console.log('[TTS] Playing audio');
-        } catch (playError) {
-            console.error('[TTS] play() failed:', playError);
-            // iOS fallback: try again after a tiny delay
-            await new Promise(r => setTimeout(r, 100));
-            await audio.play();
-            console.log('[TTS] Playing audio on retry');
-        }
+        await audio.play();
+        console.log('[TTS] Playing audio');
 
     } catch (err) {
         console.error('[TTS] Error:', err);
@@ -2691,10 +2601,6 @@ function playTTSAndWait(text) {
         // No llamar stopTTS aquí — puede interrumpir el audio del demo
         try {
             console.log('[TTS] playTTSAndWait: requesting audio for:', text.substring(0, 50) + '...');
-
-            // iOS: Try to keep audio context alive by touching it
-            unlockiOSAudio();
-
             const response = await fetch('/api/tts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2717,13 +2623,7 @@ function playTTSAndWait(text) {
             }
 
             const audioUrl = URL.createObjectURL(blob);
-
-            // Create audio element with iOS-friendly attributes
-            const audio = document.createElement('audio');
-            audio.src = audioUrl;
-            audio.setAttribute('playsinline', '');
-            audio.setAttribute('webkit-playsinline', '');
-            audio.preload = 'auto';
+            const audio = new Audio(audioUrl);
             state.ttsAudio = audio;
 
             // Activar orb en modo "hablando"
@@ -2749,34 +2649,8 @@ function playTTSAndWait(text) {
                 console.log('[TTS] playTTSAndWait: audio duration:', audio.duration, 'seconds');
             });
 
-            // iOS fix: Wait for canplaythrough before playing
-            await new Promise((resolveLoad) => {
-                if (audio.readyState >= 4) {
-                    resolveLoad();
-                } else {
-                    audio.addEventListener('canplaythrough', resolveLoad, { once: true });
-                    // Timeout fallback
-                    setTimeout(resolveLoad, 3000);
-                }
-            });
-
-            try {
-                await audio.play();
-                console.log('[TTS] playTTSAndWait: playback started');
-            } catch (playError) {
-                console.error('[TTS] playTTSAndWait: play() failed:', playError);
-                // iOS fallback: try again after a tiny delay
-                await new Promise(r => setTimeout(r, 100));
-                try {
-                    await audio.play();
-                    console.log('[TTS] playTTSAndWait: playback started on retry');
-                } catch (retryError) {
-                    console.error('[TTS] playTTSAndWait: retry also failed:', retryError);
-                    URL.revokeObjectURL(audioUrl);
-                    if (window.orbSetListening) window.orbSetListening(false);
-                    resolve();
-                }
-            }
+            await audio.play();
+            console.log('[TTS] playTTSAndWait: playback started');
         } catch (e) {
             console.error('[TTS] playTTSAndWait error:', e);
             if (window.orbSetListening) window.orbSetListening(false);
@@ -3047,9 +2921,6 @@ function init() {
 
     // Bento cards — "Habla conmigo": go to chat + start recording
     elements.orbCard?.addEventListener('click', () => {
-        // Unlock iOS audio on user gesture (required for TTS to work on iPhone)
-        unlockiOSAudio();
-
         if (state.isRecording) {
             stopRecording();
             return;
