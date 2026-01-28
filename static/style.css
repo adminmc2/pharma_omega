@@ -1003,7 +1003,7 @@ body[data-mood-active] .bento-card--mood {
     height: 32px;
     object-fit: contain;
     padding: 4px 6px;
-    background: rgba(100, 80, 120, 0.65);
+    background: #1A2535;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
