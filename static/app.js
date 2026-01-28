@@ -903,6 +903,22 @@ function showChatScreenWithAnswer(question, answer) {
 }
 
 function showWelcomeScreen() {
+    // Detener TTS si está reproduciéndose
+    stopTTS();
+
+    // Detener grabación si está activa
+    if (state.isRecording) {
+        stopRecording();
+    }
+
+    // Resetear estado de voz
+    state.voiceTriggered = false;
+    state.awaitingVoiceMode = null;
+    if (state.voiceModeTimeout) {
+        clearTimeout(state.voiceModeTimeout);
+        state.voiceModeTimeout = null;
+    }
+
     elements.chatScreen.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
