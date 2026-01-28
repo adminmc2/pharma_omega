@@ -153,10 +153,10 @@
    Ref: https://dev.to/karmasakshi/make-your-pwas-look-handsome-on-ios-1o08
    ============================================ */
 html {
-    /* El truco: min-height = 100% + safe-area-top empuja el contenido
-       para que el fondo cubra el área del home indicator */
+    /* El truco: min-height = 100% + safe-area-top para que el fondo
+       cubra el área del home indicator sin gap blanco */
     min-height: calc(100% + env(safe-area-inset-top));
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* NO padding aquí - el padding va en los contenedores internos */
 
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
@@ -176,7 +176,9 @@ html {
 body {
     margin: 0;
     padding: 0;
-    min-height: 100%;
+    /* Altura completa de la ventana visible */
+    min-height: 100vh;
+    min-height: 100dvh;
     background: transparent;
 }
 
@@ -224,14 +226,15 @@ body::before {
    APP CONTAINER — Full screen iOS PWA
    ============================================ */
 .app-container {
-    position: relative;
-    min-height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
     z-index: 1;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
 }
 
 /* ============================================
@@ -242,7 +245,11 @@ body::before {
     display: flex;
     flex-direction: column;
     padding: var(--space-20);
-    /* Safe areas ya están en html padding */
+    /* Padding extra para safe areas en iOS */
+    padding-top: calc(var(--space-20) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom));
+    padding-left: calc(var(--space-20) + env(safe-area-inset-left));
+    padding-right: calc(var(--space-20) + env(safe-area-inset-right));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
