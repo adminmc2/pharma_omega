@@ -272,6 +272,75 @@ class TTSRequest(BaseModel):
     skip_summary: bool = False  # True = send text directly to ElevenLabs without LLM summary
 
 
+# ============================================
+# Sincronización de historial entre dispositivos
+# ============================================
+USER_DATA_FILE = "user_data.json"
+
+
+def load_user_data() -> dict:
+    """Carga datos de usuarios desde archivo JSON"""
+    if os.path.exists(USER_DATA_FILE):
+        try:
+            with open(USER_DATA_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[UserData] Error loading: {e}")
+    return {}
+
+
+def save_user_data(data: dict):
+    """Guarda datos de usuarios a archivo JSON"""
+    try:
+        with open(USER_DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[UserData] Error saving: {e}")
+
+
+class SearchHistoryRequest(BaseModel):
+    username: str
+    searches: list  # Lista de búsquedas recientes
+
+
+class GetHistoryRequest(BaseModel):
+    username: str
+
+
+@app.post("/api/history/save")
+async def save_search_history(req: SearchHistoryRequest):
+    """Guarda el historial de búsquedas de un usuario"""
+    if not req.username:
+        raise HTTPException(status_code=400, detail="Username requerido")
+
+    user_data = load_user_data()
+    if req.username not in user_data:
+        user_data[req.username] = {}
+
+    user_data[req.username]["searches"] = req.searches
+    user_data[req.username]["last_sync"] = __import__('time').time()
+    save_user_data(user_data)
+
+    return {"status": "ok", "saved": len(req.searches)}
+
+
+@app.post("/api/history/load")
+async def load_search_history(req: GetHistoryRequest):
+    """Carga el historial de búsquedas de un usuario"""
+    if not req.username:
+        raise HTTPException(status_code=400, detail="Username requerido")
+
+    user_data = load_user_data()
+    if req.username in user_data and "searches" in user_data[req.username]:
+        return {
+            "status": "ok",
+            "searches": user_data[req.username]["searches"],
+            "last_sync": user_data[req.username].get("last_sync", 0)
+        }
+
+    return {"status": "ok", "searches": [], "last_sync": 0}
+
+
 @app.post("/api/tts")
 async def text_to_speech(req: TTSRequest):
     """Genera audio TTS via ElevenLabs.

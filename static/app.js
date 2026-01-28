@@ -420,6 +420,66 @@ function loadRecentSearches() {
     }
 }
 
+/**
+ * Sincroniza el historial con el servidor (carga desde servidor si hay datos más recientes)
+ */
+async function syncSearchHistory() {
+    const username = localStorage.getItem('omia_user');
+    if (!username) return;
+
+    try {
+        const response = await fetch('/api/history/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.searches && data.searches.length > 0) {
+                const localSearches = loadRecentSearches();
+                const localTimestamp = localSearches.length > 0
+                    ? Math.max(...localSearches.map(s => s.timestamp || 0))
+                    : 0;
+
+                // Si el servidor tiene datos más recientes, usarlos
+                if (data.last_sync > localTimestamp) {
+                    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(data.searches));
+                    console.log('[Sync] Loaded', data.searches.length, 'searches from server');
+                    renderRecentSearches();
+                } else {
+                    // Local es más reciente, subir al servidor
+                    await pushSearchHistory();
+                }
+            }
+        }
+    } catch (e) {
+        console.log('[Sync] Could not sync with server:', e.message);
+    }
+}
+
+/**
+ * Sube el historial local al servidor
+ */
+async function pushSearchHistory() {
+    const username = localStorage.getItem('omia_user');
+    if (!username) return;
+
+    const searches = loadRecentSearches();
+    if (searches.length === 0) return;
+
+    try {
+        await fetch('/api/history/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, searches })
+        });
+        console.log('[Sync] Pushed', searches.length, 'searches to server');
+    } catch (e) {
+        console.log('[Sync] Could not push to server:', e.message);
+    }
+}
+
 function saveRecentSearch(query, isVoice = false) {
     const searches = loadRecentSearches();
 
@@ -446,6 +506,9 @@ function saveRecentSearch(query, isVoice = false) {
 
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
     renderRecentSearches();
+
+    // Sincronizar con servidor (async, no bloqueante)
+    pushSearchHistory();
 }
 
 /**
@@ -458,6 +521,8 @@ function updateRecentSearchAnswer(query, answer) {
     if (idx !== -1) {
         searches[idx].answer = answer;
         localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+        // Sincronizar con servidor
+        pushSearchHistory();
     }
 }
 
@@ -2495,8 +2560,20 @@ async function playTTS(text) {
             state.ttsPlaying = false;
             URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
-            // Reanudar wake word después de hablar
-            resumeWakeWordAfterRecording();
+
+            // Si la interacción fue por voz, activar micrófono automáticamente
+            if (state.voiceTriggered && state.ttsEnabled) {
+                console.log('[TTS] Voice mode — auto-starting recording after TTS ended');
+                // Pequeño delay para que el usuario sepa que puede hablar
+                setTimeout(() => {
+                    if (!state.isRecording && !state.ttsPlaying) {
+                        startRecording();
+                    }
+                }, 300);
+            } else {
+                // Solo reanudar wake word si no es modo voz
+                resumeWakeWordAfterRecording();
+            }
         });
 
         audio.addEventListener('error', (e) => {
@@ -2683,6 +2760,8 @@ function handleLogin(username, password) {
         localStorage.setItem('omia_logged_in', 'true');
         localStorage.setItem('omia_user', username);
         hideLoginScreen();
+        // Sincronizar historial después de login
+        syncSearchHistory();
         return true;
     }
     return false;
@@ -2864,44 +2943,52 @@ function init() {
 
     elements.planCard?.addEventListener('click', showPlanScreen);
 
-    // FAQ chips (event delegation) - optimized for mobile touch
-    const handleFaqChipClick = (e) => {
-        const chip = e.target.closest('.faq-chip');
-        if (chip && chip.dataset.question) {
-            // Prevent double-firing from touch + click
-            if (e.type === 'touchend') {
-                e.preventDefault();
-            }
-            saveRecentSearch(chip.dataset.question);
-            showChatScreen(chip.dataset.question, true); // true = mostrar selector
-        }
+    // FAQ chips (event delegation) - iOS-optimized touch handling
+    let faqChipTouchHandled = false;
+    let faqChipTouchTimeout = null;
+
+    const executeFaqChipAction = (chip) => {
+        if (!chip || !chip.dataset.question) return;
+        console.log('[FAQ Chip] Executing action for:', chip.dataset.question);
+        saveRecentSearch(chip.dataset.question);
+        showChatScreen(chip.dataset.question, true);
     };
 
-    // Touch feedback for mobile
-    elements.faqSection?.addEventListener('touchstart', (e) => {
+    // Use pointerdown for immediate response on iOS
+    elements.faqSection?.addEventListener('pointerdown', (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip) {
             chip.classList.add('touch-active');
         }
     }, { passive: true });
 
-    elements.faqSection?.addEventListener('touchend', (e) => {
+    elements.faqSection?.addEventListener('pointerup', (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip) {
             chip.classList.remove('touch-active');
-            handleFaqChipClick(e);
         }
-    });
+    }, { passive: true });
 
-    elements.faqSection?.addEventListener('touchcancel', () => {
+    elements.faqSection?.addEventListener('pointercancel', () => {
         document.querySelectorAll('.faq-chip.touch-active').forEach(c => c.classList.remove('touch-active'));
     }, { passive: true });
 
-    // Desktop click fallback
+    // Single click handler - works for both touch and mouse
     elements.faqSection?.addEventListener('click', (e) => {
-        // Only handle if not from touch (prevents double-fire)
-        if (!e.sourceCapabilities?.firesTouchEvents) {
-            handleFaqChipClick(e);
+        const chip = e.target.closest('.faq-chip');
+        if (chip && chip.dataset.question) {
+            // Debounce to prevent accidental double-taps
+            if (faqChipTouchHandled) {
+                console.log('[FAQ Chip] Debounced - ignoring rapid tap');
+                return;
+            }
+            faqChipTouchHandled = true;
+            clearTimeout(faqChipTouchTimeout);
+            faqChipTouchTimeout = setTimeout(() => {
+                faqChipTouchHandled = false;
+            }, 500);
+
+            executeFaqChipAction(chip);
         }
     });
 
@@ -2995,6 +3082,11 @@ function init() {
 
     // Renderizar búsquedas recientes
     renderRecentSearches();
+
+    // Sincronizar historial con servidor si el usuario está logueado
+    if (localStorage.getItem('omia_logged_in') === 'true') {
+        syncSearchHistory();
+    }
 
     // Wake word toggle buttons
     document.getElementById('wake-word-btn')?.addEventListener('click', toggleWakeWord);
