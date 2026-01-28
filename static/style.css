@@ -147,24 +147,21 @@
     padding: 0;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    /* iOS PWA: forzar altura completa */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-}
-
+/* ============================================
+   iOS PWA FULL SCREEN FIX
+   Solución para el gap blanco en el home indicator
+   Ref: https://dev.to/karmasakshi/make-your-pwas-look-handsome-on-ios-1o08
+   ============================================ */
 html {
+    /* El truco: min-height = 100% + safe-area-top empuja el contenido
+       para que el fondo cubra el área del home indicator */
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+
     /* Aurora gradient - fondo principal */
     background-color: #FBF8FF;
     background-image:
@@ -173,9 +170,13 @@ html {
         radial-gradient(ellipse 75% 55% at 20% 85%, rgba(91, 115, 167, 0.16) 0%, transparent 70%),
         radial-gradient(ellipse 60% 50% at 75% 90%, rgba(45, 91, 160, 0.08) 0%, transparent 65%),
         radial-gradient(ellipse 50% 40% at 50% 5%, rgba(153, 78, 149, 0.08) 0%, transparent 60%);
+    background-attachment: fixed;
 }
 
 body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
     background: transparent;
 }
 
@@ -223,15 +224,14 @@ body::before {
    APP CONTAINER — Full screen iOS PWA
    ============================================ */
 .app-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     z-index: 1;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ============================================
@@ -242,8 +242,7 @@ body::before {
     display: flex;
     flex-direction: column;
     padding: var(--space-20);
-    padding-top: calc(var(--space-20) + var(--safe-top));
-    padding-bottom: calc(var(--space-20) + var(--safe-bottom));
+    /* Safe areas ya están en html padding */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
