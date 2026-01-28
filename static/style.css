@@ -1719,11 +1719,12 @@ body[data-mood-active] .message.assistant {
     width: 24px;
     height: 24px;
     border-radius: var(--md-sys-shape-full);
-    background: var(--md-sys-color-primary);
+    background: var(--mood-fg);
     border: none;
     cursor: pointer;
     transition:
-        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        background 0.5s var(--md-sys-motion-easing-standard);
 }
 
 .mood-overlay__slider::-webkit-slider-thumb:active {
@@ -1734,7 +1735,7 @@ body[data-mood-active] .message.assistant {
     width: 24px;
     height: 24px;
     border-radius: var(--md-sys-shape-full);
-    background: var(--md-sys-color-primary);
+    background: var(--mood-fg);
     border: none;
     cursor: pointer;
 }

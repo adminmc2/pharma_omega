@@ -82,9 +82,9 @@ Todos los cambios notables del proyecto Puro Omega.
 ## [3.5.2] - 2026-01-28
 
 ### Cambiado
-- **Mood slider thumb** — Círculo del slider ahora usa `--md-sys-color-primary` (#2D5BA0) en vez de `--mood-fg` con opacity 0.6
-  - Mismo color oscuro que el botón de enviar, sin transparencia
-  - Aplicado a webkit y moz
+- **Mood slider thumb dinámico** — Círculo del slider usa `--mood-fg` sin opacity, cambia de color según el mood seleccionado (rojo oscuro, amarillo oscuro, violeta oscuro, etc.)
+  - Transición suave de 0.5s al cambiar mood
+  - Eliminada opacity 0.6 para que el color sea sólido
 
 ---
 
