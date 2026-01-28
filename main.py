@@ -191,8 +191,10 @@ async def transcribe_voice(audio: UploadFile = File(...)):
         # Leer el archivo de audio
         audio_bytes = await audio.read()
 
-        # Crear archivo temporal para Groq
-        temp_filename = f"temp_audio.{audio.filename.split('.')[-1] if audio.filename else 'webm'}"
+        # Crear archivo temporal para Groq (usar /tmp para permisos en Docker)
+        import tempfile
+        ext = audio.filename.split('.')[-1] if audio.filename else 'webm'
+        temp_filename = os.path.join(tempfile.gettempdir(), f"temp_audio_{os.getpid()}.{ext}")
 
         with open(temp_filename, "wb") as f:
             f.write(audio_bytes)
