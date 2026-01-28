@@ -1644,8 +1644,8 @@ body[data-mood-active] .message.assistant {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 10px 16px;
-    padding-bottom: calc(10px + var(--safe-bottom));
+    padding: 16px 16px;
+    padding-bottom: calc(16px + var(--safe-bottom));
     padding-left: calc(16px + env(safe-area-inset-left, 0px));
     padding-right: calc(16px + env(safe-area-inset-right, 0px));
     margin: 0;
@@ -1653,8 +1653,18 @@ body[data-mood-active] .message.assistant {
     box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
     position: relative;
-    min-height: 52px;
-    gap: 6px;
+    min-height: 64px;
+    gap: 8px;
+}
+
+/* iPhone responsive — más espacio en móvil */
+@media (max-width: 480px) {
+    .chat-bottom-bar {
+        padding: 14px 12px;
+        padding-bottom: calc(14px + var(--safe-bottom));
+        min-height: 60px;
+        gap: 6px;
+    }
 }
 
 /* Nav-style icon buttons */
@@ -1672,14 +1682,14 @@ body[data-mood-active] .message.assistant {
     transition:
         color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     flex-shrink: 0;
 }
 
 .chat-nav-btn .ph {
-    font-size: 18px;
+    font-size: 22px;
 }
 
 .chat-nav-btn:hover {
@@ -1756,10 +1766,11 @@ body[data-mood-active] .message.assistant {
     border-radius: var(--md-sys-shape-extra-large);
     background: var(--md-sys-color-surface-container-low);
     font: var(--md-sys-typescale-body-large);
-    padding: 6px 14px;
+    padding: 10px 16px;
     color: var(--md-sys-color-on-surface);
-    font-size: 0.875rem;
+    font-size: 1rem;
     min-width: 0;
+    min-height: 44px;
     transition:
         border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
