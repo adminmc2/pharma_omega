@@ -1,46 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
   <defs>
-    <!-- Fondo con gradiente suave -->
-    <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg192" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#F5F2FC"/>
       <stop offset="100%" stop-color="#EAE7F1"/>
     </linearGradient>
-    <!-- Gradiente radial del orb -->
-    <radialGradient id="orbGrad192" cx="40%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="#A1B8F2"/>
-      <stop offset="40%" stop-color="#31BEEF"/>
-      <stop offset="75%" stop-color="#994E95"/>
-      <stop offset="100%" stop-color="#2D5BA0"/>
-    </radialGradient>
-    <!-- Glow exterior -->
-    <radialGradient id="glowGrad192" cx="50%" cy="50%" r="50%">
-      <stop offset="60%" stop-color="#31BEEF" stop-opacity="0.25"/>
+    <radialGradient id="glow192" cx="50%" cy="50%" r="50%">
+      <stop offset="50%" stop-color="#31BEEF" stop-opacity="0.2"/>
       <stop offset="100%" stop-color="#31BEEF" stop-opacity="0"/>
-    </radialGradient>
-    <!-- Brillo superior -->
-    <radialGradient id="shineGrad192" cx="35%" cy="25%" r="35%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <!-- Fondo -->
-  <rect width="192" height="192" fill="url(#bgGrad192)"/>
+  <rect width="192" height="192" fill="url(#bg192)"/>
 
-  <!-- Glow exterior -->
-  <circle cx="96" cy="96" r="80" fill="url(#glowGrad192)"/>
+  <!-- Glow -->
+  <circle cx="96" cy="96" r="80" fill="url(#glow192)"/>
 
-  <!-- Esfera principal -->
-  <circle cx="96" cy="96" r="60" fill="url(#orbGrad192)"/>
+  <!-- Partículas del orb - Capa trasera -->
+  <circle cx="58" cy="70" r="4.2" fill="#994E95" opacity="0.35"/>
+  <circle cx="134" cy="64" r="3.8" fill="#A1B8F2" opacity="0.3"/>
+  <circle cx="112" cy="122" r="4.2" fill="#31BEEF" opacity="0.35"/>
+  <circle cx="48" cy="106" r="3.2" fill="#994E95" opacity="0.3"/>
+  <circle cx="138" cy="112" r="3.8" fill="#A1B8F2" opacity="0.35"/>
+  <circle cx="75" cy="132" r="3.2" fill="#31BEEF" opacity="0.3"/>
 
-  <!-- Brillo superior (efecto 3D) -->
-  <ellipse cx="80" cy="77" rx="27" ry="19" fill="url(#shineGrad192)"/>
+  <!-- Capa media -->
+  <circle cx="70" cy="58" r="5.3" fill="#31BEEF" opacity="0.55"/>
+  <circle cx="122" cy="80" r="4.8" fill="#A1B8F2" opacity="0.5"/>
+  <circle cx="80" cy="106" r="5.8" fill="#994E95" opacity="0.55"/>
+  <circle cx="54" cy="87" r="4.3" fill="#31BEEF" opacity="0.45"/>
+  <circle cx="128" cy="115" r="4.3" fill="#A1B8F2" opacity="0.5"/>
+  <circle cx="96" cy="64" r="4.8" fill="#994E95" opacity="0.45"/>
+  <circle cx="64" cy="117" r="4.3" fill="#31BEEF" opacity="0.5"/>
+  <circle cx="133" cy="90" r="4.3" fill="#A1B8F2" opacity="0.45"/>
 
-  <!-- Puntos decorativos (partículas del orb) -->
-  <circle cx="70" cy="85" r="3.2" fill="#FFFFFF" opacity="0.9"/>
-  <circle cx="83" cy="70" r="2.6" fill="#FFFFFF" opacity="0.7"/>
-  <circle cx="107" cy="80" r="2.1" fill="#FFFFFF" opacity="0.6"/>
-  <circle cx="117" cy="100" r="2.7" fill="#A1B8F2" opacity="0.8"/>
-  <circle cx="77" cy="112" r="2.2" fill="#31BEEF" opacity="0.7"/>
-  <circle cx="102" cy="122" r="2.1" fill="#994E95" opacity="0.6"/>
+  <!-- Capa frontal -->
+  <circle cx="77" cy="83" r="7.5" fill="#31BEEF" opacity="0.8"/>
+  <circle cx="109" cy="94" r="6.4" fill="#A1B8F2" opacity="0.75"/>
+  <circle cx="66" cy="101" r="5.8" fill="#994E95" opacity="0.7"/>
+  <circle cx="115" cy="72" r="5.3" fill="#31BEEF" opacity="0.75"/>
+  <circle cx="90" cy="115" r="6.9" fill="#A1B8F2" opacity="0.8"/>
+  <circle cx="126" cy="98" r="5.3" fill="#994E95" opacity="0.65"/>
+  <circle cx="72" cy="122" r="4.8" fill="#31BEEF" opacity="0.7"/>
+  <circle cx="101" cy="77" r="5.8" fill="#A1B8F2" opacity="0.75"/>
+  <circle cx="85" cy="90" r="6.4" fill="#994E95" opacity="0.75"/>
+  <circle cx="119" cy="106" r="5.3" fill="#31BEEF" opacity="0.7"/>
+  <circle cx="62" cy="77" r="4.8" fill="#A1B8F2" opacity="0.65"/>
+  <circle cx="104" cy="122" r="5.3" fill="#994E95" opacity="0.7"/>
+
+  <!-- Brillos blancos -->
+  <circle cx="75" cy="80" r="3.2" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="101" cy="87" r="2.7" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="83" cy="98" r="2.1" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="112" cy="69" r="2.1" fill="#FFFFFF" opacity="0.75"/>
+  <circle cx="66" cy="94" r="1.9" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="94" cy="75" r="2.3" fill="#FFFFFF" opacity="0.8"/>
 </svg>
