@@ -378,6 +378,18 @@
         if (navOrb) orbInstances.push(navOrb);
     };
 
+    // Crear orb del login — igual que el principal
+    function initLoginOrb() {
+        const container = document.getElementById('login-orb-container');
+        if (container && container.offsetWidth > 0) {
+            const loginOrb = createOrb('login-orb-container', 200);
+            if (loginOrb) orbInstances.push(loginOrb);
+        } else if (container) {
+            requestAnimationFrame(initLoginOrb);
+        }
+    }
+    initLoginOrb();
+
     // API pública: tintar colores del orb con el mood (sutil)
     window.orbSetMoodTint = function(r, g, b) {
         moodTint = { r, g, b };

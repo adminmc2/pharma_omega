@@ -14,15 +14,66 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=3.6.8">
+    <link rel="stylesheet" href="/static/style.css?v=3.8.8">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%232D5BA0'/%3E%3C/svg%3E">
 </head>
 <body>
     <div class="app-container">
         <!-- ============================================
+             PANTALLA DE LOGIN
+             ============================================ -->
+        <main class="main-content login-screen" id="login-screen">
+            <div class="login-content">
+                <!-- Título -->
+                <h1 class="login-title">Omia</h1>
+
+                <!-- Orb -->
+                <div class="login-orb-wrapper">
+                    <div class="orb-container" id="login-orb-container"></div>
+                </div>
+
+                <!-- Descripción -->
+                <p class="login-description">
+                    Sistema personalizado y especializado<br>de agentes IA para procesos de<br>venta y atención médica
+                </p>
+
+                <!-- Campo usuario -->
+                <div class="login-field" id="login-field-user">
+                    <i class="ph ph-user"></i>
+                    <input type="text" id="login-user" placeholder="Usuario" autocomplete="username" required>
+                </div>
+
+                <!-- Campo contraseña -->
+                <div class="login-field" id="login-field-password">
+                    <i class="ph ph-lock"></i>
+                    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" required>
+                </div>
+
+                <!-- Botón entrar -->
+                <button class="login-btn" id="login-btn" type="button">
+                    Entrar
+                </button>
+
+                <!-- Face ID -->
+                <button class="login-faceid" id="faceid-btn" type="button">
+                    <i class="ph ph-scan-smiley"></i>
+                    <span>Face ID</span>
+                </button>
+
+                <!-- Footer con logo Prisma Consul -->
+                <footer class="login-footer">
+                    <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="login-footer__logo">
+                    <span class="login-footer__company">Prisma Consul</span>
+                    <span class="login-footer__copyright">© 2026 Todos los derechos reservados</span>
+                    <span class="login-footer__version">Versión 3.8.2</span>
+                </footer>
+            </div>
+        </main>
+
+        <!-- ============================================
              PANTALLA DE BIENVENIDA
              ============================================ -->
-        <main class="main-content welcome-screen" id="welcome-screen">
+        <main class="main-content welcome-screen hidden" id="welcome-screen">
             <!-- Header con perfil e iconos -->
             <div class="header-row">
                 <button class="profile-btn" id="profile-btn" title="Mi cuenta">
@@ -39,12 +90,15 @@
                     <button class="header-icon-btn" id="catalog-btn" title="Catálogos">
                         <i class="ph ph-book-open"></i>
                     </button>
+                    <button class="header-icon-btn" id="logout-btn" title="Cerrar sesión">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- Saludo -->
             <div class="greeting-section">
-                <h1 class="greeting-title">Hola, Armando <i class="ph ph-hand-waving wave"></i></h1>
+                <h1 class="greeting-title">Hola, Pablo <i class="ph ph-hand-waving wave"></i></h1>
             </div>
 
             <!-- Bento Card Grid -->
@@ -177,6 +231,9 @@
                     <button class="header-icon-btn" id="chat-faq-btn" title="Preguntas frecuentes">
                         <i class="ph ph-question"></i>
                     </button>
+                    <button class="header-icon-btn" id="chat-logout-btn" title="Cerrar sesión">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
                 </div>
             </div>
 
@@ -229,12 +286,15 @@
                         <button class="header-icon-btn" id="plan-catalog-btn" title="Catálogos">
                             <i class="ph ph-book-open"></i>
                         </button>
+                        <button class="header-icon-btn" id="plan-logout-btn" title="Cerrar sesión">
+                            <i class="ph ph-sign-out"></i>
+                        </button>
                     </div>
                 </div>
 
                 <!-- Título tipo greeting -->
                 <div class="greeting-section">
-                    <h1 class="greeting-title">Tu plan, Armando</h1>
+                    <h1 class="greeting-title">Tu plan, Pablo</h1>
                 </div>
                 <!-- Filtro Overview -->
                 <div class="plan-overview-filter">
@@ -402,6 +462,6 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- Orb 3D Canvas -->
     <script src="/static/orb.js"></script>
-    <script src="/static/app.js?v=3.6.8"></script>
+    <script src="/static/app.js?v=3.8.9"></script>
 </body>
 </html>

@@ -65,6 +65,14 @@ const state = {
 
 // Elementos
 const elements = {
+    // Login screen
+    loginScreen: document.getElementById('login-screen'),
+    loginUser: document.getElementById('login-user'),
+    loginPassword: document.getElementById('login-password'),
+    loginBtn: document.getElementById('login-btn'),
+    faceidBtn: document.getElementById('faceid-btn'),
+    loginOrbContainer: document.getElementById('login-orb-container'),
+
     // Welcome screen
     welcomeScreen: document.getElementById('welcome-screen'),
     profileBtn: document.getElementById('profile-btn'),
@@ -91,6 +99,11 @@ const elements = {
     planOverviewChips: document.querySelectorAll('.plan-filter-chip'),
     navChatBtn: document.getElementById('nav-chat-btn'),
     navOrb: document.getElementById('nav-orb'),
+
+    // Logout buttons (all screens)
+    logoutBtn: document.getElementById('logout-btn'),
+    chatLogoutBtn: document.getElementById('chat-logout-btn'),
+    planLogoutBtn: document.getElementById('plan-logout-btn'),
 
     // Mood overlay
     moodOverlay: document.getElementById('mood-overlay'),
@@ -2474,9 +2487,9 @@ async function playTTS(text) {
  */
 function playTTSAndWait(text) {
     return new Promise(async (resolve) => {
-        stopTTS();
+        // No llamar stopTTS aquí — puede interrumpir el audio del demo
         try {
-            console.log('[TTS] playTTSAndWait: requesting audio for:', text);
+            console.log('[TTS] playTTSAndWait: requesting audio for:', text.substring(0, 50) + '...');
             const response = await fetch('/api/tts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2488,8 +2501,10 @@ function playTTSAndWait(text) {
                 return;
             }
 
+            // Esperar a que se descargue todo el audio antes de reproducir
             const blob = await response.blob();
-            console.log('[TTS] playTTSAndWait: got blob, size:', blob.size);
+
+            console.log('[TTS] playTTSAndWait: got complete blob, size:', blob.size);
             if (blob.size === 0) {
                 console.error('[TTS] playTTSAndWait: empty blob');
                 resolve();
@@ -2500,23 +2515,34 @@ function playTTSAndWait(text) {
             const audio = new Audio(audioUrl);
             state.ttsAudio = audio;
 
+            // Activar orb en modo "hablando"
+            if (window.orbSetListening) window.orbSetListening(true);
+
             audio.addEventListener('ended', () => {
-                console.log('[TTS] playTTSAndWait: audio ended');
+                console.log('[TTS] playTTSAndWait: audio ended naturally');
                 URL.revokeObjectURL(audioUrl);
                 state.ttsAudio = null;
+                if (window.orbSetListening) window.orbSetListening(false);
                 resolve();
             });
             audio.addEventListener('error', (e) => {
                 console.error('[TTS] playTTSAndWait: audio error', e);
                 URL.revokeObjectURL(audioUrl);
                 state.ttsAudio = null;
+                if (window.orbSetListening) window.orbSetListening(false);
                 resolve();
             });
 
+            console.log('[TTS] playTTSAndWait: starting playback, duration will be shown after load');
+            audio.addEventListener('loadedmetadata', () => {
+                console.log('[TTS] playTTSAndWait: audio duration:', audio.duration, 'seconds');
+            });
+
             await audio.play();
-            console.log('[TTS] playTTSAndWait: playing...');
+            console.log('[TTS] playTTSAndWait: playback started');
         } catch (e) {
             console.error('[TTS] playTTSAndWait error:', e);
+            if (window.orbSetListening) window.orbSetListening(false);
             resolve();
         }
     });
@@ -2576,9 +2602,205 @@ function addSpeakerButton(messageElement, fullText) {
 
 
 // ============================================
+// Login & Authentication
+// ============================================
+let demoOrbClicked = false;
+
+const VALID_CREDENTIALS = {
+    usuario: 'Pablo',
+    password: 'Prisma'
+};
+
+function showLoginScreen() {
+    elements.loginScreen?.classList.remove('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+}
+
+function handleLogout() {
+    // Limpiar estado de sesión
+    localStorage.removeItem('omia_logged_in');
+    localStorage.removeItem('omia_user');
+
+    // Limpiar campos de login
+    if (elements.loginUser) elements.loginUser.value = '';
+    if (elements.loginPassword) elements.loginPassword.value = '';
+
+    // Reset demo orb click flag
+    demoOrbClicked = false;
+
+    // Mostrar pantalla de login
+    showLoginScreen();
+}
+
+function hideLoginScreen() {
+    elements.loginScreen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.loginScreen?.classList.add('hidden');
+        elements.loginScreen?.classList.remove('fade-out');
+        elements.welcomeScreen?.classList.remove('hidden');
+    }, 300);
+}
+
+function handleLogin(username, password) {
+    // Demo: validación simple (en producción sería un API call)
+    if (username === VALID_CREDENTIALS.usuario && password === VALID_CREDENTIALS.password) {
+        localStorage.setItem('omia_logged_in', 'true');
+        localStorage.setItem('omia_user', username);
+        hideLoginScreen();
+        return true;
+    }
+    return false;
+}
+
+async function handleFaceID() {
+    // Verificar si Face ID / Touch ID está disponible (Web Authentication API)
+    if (!window.PublicKeyCredential) {
+        alert('Tu navegador no soporta autenticación biométrica');
+        return;
+    }
+
+    try {
+        // Verificar si ya hay credencial guardada
+        const credentialId = localStorage.getItem('omia_faceid_credential');
+
+        if (credentialId) {
+            // Autenticar con credencial existente
+            const credential = await navigator.credentials.get({
+                publicKey: {
+                    challenge: new Uint8Array(32),
+                    timeout: 60000,
+                    userVerification: 'required',
+                    allowCredentials: [{
+                        id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)),
+                        type: 'public-key'
+                    }]
+                }
+            });
+
+            if (credential) {
+                localStorage.setItem('omia_logged_in', 'true');
+                hideLoginScreen();
+            }
+        } else {
+            // Primera vez: registrar Face ID
+            const confirmed = confirm('¿Deseas configurar Face ID para acceder rápidamente?');
+            if (!confirmed) return;
+
+            const credential = await navigator.credentials.create({
+                publicKey: {
+                    challenge: new Uint8Array(32),
+                    rp: { name: 'Omia', id: window.location.hostname },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: 'usuario@omia.app',
+                        displayName: 'Usuario Omia'
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+                    timeout: 60000,
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required'
+                    }
+                }
+            });
+
+            if (credential) {
+                // Guardar credential ID para futuras autenticaciones
+                const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                localStorage.setItem('omia_faceid_credential', credId);
+                localStorage.setItem('omia_logged_in', 'true');
+                hideLoginScreen();
+            }
+        }
+    } catch (err) {
+        console.error('Face ID error:', err);
+        if (err.name === 'NotAllowedError') {
+            alert('Autenticación cancelada o no permitida');
+        } else {
+            alert('Error al usar Face ID. Intenta con usuario y contraseña.');
+        }
+    }
+}
+
+function checkAuthOnLoad() {
+    // DEMO MODE: Siempre mostrar login para la demo
+    // Comentar estas 2 líneas para producción
+    localStorage.removeItem('omia_logged_in');
+    localStorage.removeItem('omia_user');
+
+    const isLoggedIn = localStorage.getItem('omia_logged_in') === 'true';
+    if (isLoggedIn) {
+        elements.loginScreen?.classList.add('hidden');
+        elements.welcomeScreen?.classList.remove('hidden');
+    } else {
+        elements.loginScreen?.classList.remove('hidden');
+        elements.welcomeScreen?.classList.add('hidden');
+    }
+}
+
+// Demo: Orb click en login — saludo TTS para Blanca, Pablo ingresa credenciales después
+async function handleDemoOrbClick() {
+    if (demoOrbClicked) return; // Prevent multiple clicks
+    demoOrbClicked = true;
+
+    const greetingText = 'Hola, Blanca, un placer saludarte. Pablo tenía muchas ganas de encontrarse contigo y me da esta oportunidad de enseñarte quién soy, qué hago. Me llamo Omia y he sido creada por Prisma Consul. ¿Vemos qué puedo hacer?';
+
+    // Visual feedback — pulse the orb
+    elements.loginOrbContainer?.classList.add('orb-speaking');
+
+    try {
+        // Play TTS greeting and wait for it to finish
+        await playTTSAndWait(greetingText);
+    } catch (e) {
+        console.error('[Demo] TTS error:', e);
+    }
+
+    // Remove speaking state
+    elements.loginOrbContainer?.classList.remove('orb-speaking');
+
+    // Focus en el campo de usuario para que Pablo ingrese sus credenciales
+    elements.loginUser?.focus();
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
+    // Check authentication on load
+    checkAuthOnLoad();
+
+    // Login button
+    elements.loginBtn?.addEventListener('click', () => {
+        const username = elements.loginUser?.value?.trim();
+        const password = elements.loginPassword?.value;
+
+        if (!handleLogin(username, password)) {
+            alert('Usuario o contraseña incorrectos');
+            elements.loginPassword.value = '';
+            elements.loginPassword.focus();
+        }
+    });
+
+    // Enter key on password field
+    elements.loginPassword?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            elements.loginBtn?.click();
+        }
+    });
+
+    // Face ID button
+    elements.faceidBtn?.addEventListener('click', handleFaceID);
+
+    // Login orb — demo presentation with TTS greeting
+    elements.loginOrbContainer?.addEventListener('click', handleDemoOrbClick);
+
+    // Logout buttons (all screens)
+    elements.logoutBtn?.addEventListener('click', handleLogout);
+    elements.chatLogoutBtn?.addEventListener('click', handleLogout);
+    elements.planLogoutBtn?.addEventListener('click', handleLogout);
+
     // Welcome screen
     elements.profileBtn?.addEventListener('click', () => {
         alert('Pantalla de cuenta - próximamente');

@@ -300,12 +300,12 @@ async def text_to_speech(req: TTSRequest):
     }
     body = {
         "text": summary,
-        "model_id": "eleven_flash_v2_5",
+        "model_id": "eleven_multilingual_v2",
         "language_code": "es",
         "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
+            "stability": 0.35,          # Más bajo = más expresiva y natural
+            "similarity_boost": 0.80,   # Mantener la voz reconocible
+            "style": 0.45,              # Más estilo = más emocional/cálida
             "use_speaker_boost": True,
         },
     }
