@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=3.10.2">
+    <link rel="stylesheet" href="/static/style.css?v=3.11.0">
     <!-- Favicon y iconos para iOS/Android -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=3.9.1">
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.svg?v=3.9.1">
@@ -250,30 +250,34 @@
                 <!-- Los mensajes se añaden dinámicamente -->
             </div>
 
-            <!-- Input del chat — estilo nav bar -->
-            <nav class="chat-bottom-bar">
-                <button class="chat-nav-btn" id="chat-photo-btn" title="Subir foto">
-                    <i class="ph ph-camera"></i>
-                </button>
-                <button class="chat-nav-btn" id="chat-mic-btn" title="Micrófono">
-                    <i class="ph ph-microphone"></i>
-                </button>
-                <button class="chat-nav-btn chat-voice-orb" id="chat-voice-btn" title="Voz de Omia activada">
-                    <i class="ph-bold ph-waveform"></i>
-                </button>
-                <div class="chat-nav-input-wrapper">
-                    <input
-                        type="text"
+            <!-- Input del chat — estilo Claude: input arriba, botones abajo -->
+            <div class="chat-input-container">
+                <!-- Input de texto principal -->
+                <div class="chat-input-row">
+                    <textarea
                         id="chat-input"
-                        class="chat-input"
-                        placeholder="Escribe un mensaje..."
+                        class="chat-textarea"
+                        placeholder="Escribe tu mensaje..."
+                        rows="1"
                         autocomplete="off"
-                    >
+                    ></textarea>
+                    <button class="chat-send-btn" id="chat-send-btn" title="Enviar">
+                        <i class="ph ph-paper-plane-tilt"></i>
+                    </button>
                 </div>
-                <button class="chat-nav-btn chat-nav-btn--send" id="chat-send-btn" title="Enviar">
-                    <i class="ph ph-paper-plane-tilt"></i>
-                </button>
-            </nav>
+                <!-- Botones de acción -->
+                <div class="chat-actions-row">
+                    <button class="chat-action-btn" id="chat-photo-btn" title="Subir foto">
+                        <i class="ph ph-camera"></i>
+                    </button>
+                    <button class="chat-action-btn" id="chat-mic-btn" title="Grabar voz">
+                        <i class="ph ph-microphone"></i>
+                    </button>
+                    <button class="chat-action-btn chat-action-btn--voice" id="chat-voice-btn" title="Voz de Omia">
+                        <i class="ph-bold ph-waveform"></i>
+                    </button>
+                </div>
+            </div>
         </main>
 
         <!-- ============================================
@@ -470,6 +474,6 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- Orb 3D Canvas -->
     <script src="/static/orb.js"></script>
-    <script src="/static/app.js?v=3.10.1"></script>
+    <script src="/static/app.js?v=3.11.0"></script>
 </body>
 </html>

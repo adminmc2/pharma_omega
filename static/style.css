@@ -1676,227 +1676,213 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   CHAT BOTTOM BAR — Same style as plan-bottom-nav
+   CHAT INPUT CONTAINER — Estilo Claude
+   Input arriba, botones abajo
    ============================================ */
-.chat-bottom-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.chat-input-container {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 16px 16px;
-    padding-bottom: calc(16px + var(--safe-bottom));
-    padding-left: calc(16px + env(safe-area-inset-left, 0px));
-    padding-right: calc(16px + env(safe-area-inset-right, 0px));
-    margin: 0;
-    border-radius: 0;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + var(--safe-bottom));
     box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
-    position: relative;
-    min-height: 64px;
-    gap: 8px;
 }
 
-/* iPhone responsive — más espacio en móvil */
-@media (max-width: 480px) {
-    .chat-bottom-bar {
-        padding: 14px 12px;
-        padding-bottom: calc(14px + var(--safe-bottom));
-        min-height: 60px;
-        gap: 6px;
-    }
+/* Fila del input de texto + botón enviar */
+.chat-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+/* Textarea auto-expandible */
+.chat-textarea {
+    flex: 1;
+    border: 1.5px solid rgba(198, 197, 208, 0.4);
+    border-radius: 20px;
+    background: var(--md-sys-color-surface-container-low);
+    font: var(--md-sys-typescale-body-large);
+    padding: 10px 16px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 1rem;
+    min-height: 44px;
+    max-height: 120px;
+    resize: none;
+    overflow-y: auto;
+    line-height: 1.4;
+    transition: border-color 0.2s ease;
+}
+
+.chat-textarea:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+}
+
+.chat-textarea::placeholder {
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Botón de enviar */
+.chat-send-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.chat-send-btn:active {
+    transform: scale(0.92);
+}
+
+.chat-send-btn .ph {
+    font-size: 20px;
+}
+
+/* Fila de botones de acción */
+.chat-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+/* Botones de acción pequeños */
+.chat-action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(234, 231, 241, 0.5);
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.15s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.chat-action-btn .ph {
+    font-size: 18px;
+}
+
+.chat-action-btn:active {
+    transform: scale(0.92);
+    background: rgba(234, 231, 241, 0.8);
+}
+
+/* Botón de micrófono grabando */
+.chat-action-btn.recording {
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    animation: pulse-record 1.5s ease-in-out infinite;
+}
+
+/* Botón de voz de Omia */
+.chat-action-btn--voice {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.chat-action-btn--voice .ph-waveform {
+    font-size: 14px;
+}
+
+.chat-action-btn--voice.voice-orb--active {
+    box-shadow: 0 0 0 2px rgba(45, 91, 160, 0.3);
+    animation: voice-orb-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes voice-orb-glow {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(45, 91, 160, 0.25); }
+    50% { box-shadow: 0 0 0 3px rgba(45, 91, 160, 0.4); }
 }
 
 /* ============================================
-   iPhone 15 Pro Max (430px) y iPhone 14/15 Pro (393px)
-   Optimización específica para pantallas grandes iOS
-   Iconos MÁS PEQUEÑOS con MÁS espaciado
+   iPhone 15 Pro Max responsive
    ============================================ */
 @media (min-width: 390px) and (max-width: 450px) {
-    .chat-bottom-bar {
-        padding: 14px 20px;
-        padding-bottom: calc(18px + var(--safe-bottom));
-        min-height: 64px;
-        gap: 16px; /* Más espacio entre elementos */
-    }
-
-    /* Iconos más pequeños para mejor espaciado */
-    .chat-nav-btn {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-    }
-
-    .chat-nav-btn .ph {
-        font-size: 18px;
-    }
-
-    .chat-input {
-        min-height: 40px;
+    .chat-input-container {
         padding: 10px 16px;
-        font-size: 0.95rem;
+        padding-bottom: calc(10px + var(--safe-bottom));
     }
 
-    /* Voice orb icon proporcionado */
-    .chat-nav-btn.chat-voice-orb .ph-waveform {
-        font-size: 14px;
+    .chat-textarea {
+        min-height: 40px;
+        padding: 8px 14px;
+    }
+
+    .chat-send-btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .chat-action-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .chat-action-btn .ph {
+        font-size: 16px;
     }
 
     /* Header consistente para iPhone */
     .chat-header {
         padding: var(--space-12) var(--space-16);
         padding-top: calc(var(--space-12) + var(--safe-top));
-        min-height: 60px;
+        min-height: 56px;
     }
 
     .back-btn {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
 
     .back-btn .ph {
-        font-size: 20px;
-    }
-
-    .orb-container-chat-header {
-        width: 36px;
-        height: 36px;
-    }
-
-    .chat-title-text {
         font-size: 18px;
     }
 
+    .orb-container-chat-header {
+        width: 32px;
+        height: 32px;
+    }
+
+    .chat-title-text {
+        font-size: 16px;
+    }
+
     .chat-status {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
-/* Dispositivos iOS con notch/Dynamic Island — safe area extra */
+/* Safe area para iOS */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    @media (max-width: 450px) {
-        .chat-bottom-bar {
-            padding-bottom: calc(24px + env(safe-area-inset-bottom, 34px));
-        }
-
-        .chat-screen {
-            padding-bottom: 0;
-        }
+    .chat-input-container {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px));
     }
 }
 
-/* Nav-style icon buttons */
-.chat-nav-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: var(--md-sys-color-on-surface-variant);
-    cursor: pointer;
-    padding: 0;
-    border-radius: var(--md-sys-shape-full);
-    position: relative;
-    transition:
-        color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    flex-shrink: 0;
-    /* iOS touch optimization */
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.chat-nav-btn .ph {
-    font-size: 22px;
-}
-
-.chat-nav-btn:hover {
-    background: rgba(234, 231, 241, 0.5);
-}
-
-.chat-nav-btn:active {
-    background: rgba(234, 231, 241, 0.7);
-}
-
-.chat-nav-btn.recording {
-    background: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-    animation: pulse-record 1.5s var(--md-sys-motion-easing-standard) infinite;
-}
-
-/* Voice orb — modifier on chat-nav-btn, same dark color as send button */
-.chat-nav-btn.chat-voice-orb {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    border-radius: 50%;
-}
-
-.chat-nav-btn.chat-voice-orb .ph-waveform {
-    font-size: 16px;
-}
-
-/* Active state — glow */
-.chat-nav-btn.chat-voice-orb.voice-orb--active {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    box-shadow: 0 0 0 2.5px rgba(45, 91, 160, 0.25), 0 0 8px rgba(45, 91, 160, 0.12);
-    animation: voice-orb-glow 2.5s ease-in-out infinite;
-}
-
-@keyframes voice-orb-glow {
-    0%, 100% { box-shadow: 0 0 0 2.5px rgba(45, 91, 160, 0.25), 0 0 8px rgba(45, 91, 160, 0.1); }
-    50% { box-shadow: 0 0 0 3px rgba(45, 91, 160, 0.4), 0 0 14px rgba(45, 91, 160, 0.2); }
-}
-
-/* Inactive state — same color, no glow */
-.chat-nav-btn.chat-voice-orb:not(.voice-orb--active) {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    box-shadow: none;
-    animation: none;
-}
-
-/* Send button — filled accent */
-.chat-nav-btn--send {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-}
-
-.chat-nav-btn--send:hover {
-    background: var(--md-sys-color-primary);
-    opacity: 0.9;
-}
-
-.chat-nav-btn--send:active {
-    transform: scale(0.92);
-    background: var(--md-sys-color-primary);
-}
-
-/* Input wrapper inside bar */
-.chat-nav-input-wrapper {
-    flex: 1;
-    min-width: 0;
-}
-
+/* Legacy classes for backwards compatibility - hidden */
+.chat-bottom-bar,
+.chat-nav-btn,
+.chat-nav-input-wrapper,
 .chat-input {
-    width: 100%;
-    border: 1.5px solid rgba(198, 197, 208, 0.4);
-    border-radius: var(--md-sys-shape-extra-large);
-    background: var(--md-sys-color-surface-container-low);
-    font: var(--md-sys-typescale-body-large);
-    padding: 10px 16px;
-    color: var(--md-sys-color-on-surface);
-    font-size: 1rem;
-    min-width: 0;
-    min-height: 44px;
+    display: none !important;
     transition:
         border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);

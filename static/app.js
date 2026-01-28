@@ -3008,10 +3008,18 @@ function init() {
     elements.chatSendBtn?.addEventListener('click', sendMessage);
 
     elements.chatInput?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        // Enter envía, Shift+Enter nueva línea
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
+    });
+
+    // Auto-resize textarea
+    elements.chatInput?.addEventListener('input', () => {
+        const textarea = elements.chatInput;
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
 
     // Plan screen
