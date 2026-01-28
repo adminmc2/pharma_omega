@@ -1353,9 +1353,11 @@ function sendToWebSocket(message, responseMode = 'full') {
 
     // Reutilizar WebSocket existente si está abierto
     if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
+        console.log('[WS] Reutilizando conexión existente');
         sendMessage();
         return;
     }
+    console.log('[WS] Creando nueva conexión WebSocket');
 
     // Cerrar WebSocket anterior si existe pero no está abierto
     if (state.websocket) {
@@ -1380,7 +1382,8 @@ function sendToWebSocket(message, responseMode = 'full') {
         state.websocket = null;
     };
 
-    state.websocket.onclose = () => {
+    state.websocket.onclose = (event) => {
+        console.log('[WS] Connection closed — code:', event.code, 'reason:', event.reason, 'wasClean:', event.wasClean);
         elements.chatStatus.textContent = 'En línea';
         state.websocket = null;
     };
@@ -2861,12 +2864,44 @@ function init() {
 
     elements.planCard?.addEventListener('click', showPlanScreen);
 
-    // FAQ chips (event delegation)
-    elements.faqSection?.addEventListener('click', (e) => {
+    // FAQ chips (event delegation) - optimized for mobile touch
+    const handleFaqChipClick = (e) => {
         const chip = e.target.closest('.faq-chip');
         if (chip && chip.dataset.question) {
+            // Prevent double-firing from touch + click
+            if (e.type === 'touchend') {
+                e.preventDefault();
+            }
             saveRecentSearch(chip.dataset.question);
             showChatScreen(chip.dataset.question, true); // true = mostrar selector
+        }
+    };
+
+    // Touch feedback for mobile
+    elements.faqSection?.addEventListener('touchstart', (e) => {
+        const chip = e.target.closest('.faq-chip');
+        if (chip) {
+            chip.classList.add('touch-active');
+        }
+    }, { passive: true });
+
+    elements.faqSection?.addEventListener('touchend', (e) => {
+        const chip = e.target.closest('.faq-chip');
+        if (chip) {
+            chip.classList.remove('touch-active');
+            handleFaqChipClick(e);
+        }
+    });
+
+    elements.faqSection?.addEventListener('touchcancel', () => {
+        document.querySelectorAll('.faq-chip.touch-active').forEach(c => c.classList.remove('touch-active'));
+    }, { passive: true });
+
+    // Desktop click fallback
+    elements.faqSection?.addEventListener('click', (e) => {
+        // Only handle if not from touch (prevents double-fire)
+        if (!e.sourceCapabilities?.firesTouchEvents) {
+            handleFaqChipClick(e);
         }
     });
 

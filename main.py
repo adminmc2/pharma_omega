@@ -484,6 +484,8 @@ async def websocket_chat(websocket: WebSocket):
             if not user_message.strip():
                 continue
 
+            print(f"[WS] Mensaje recibido — historial actual: {len(conversation_history)} msgs — query: {user_message[:50]}...")
+
             # Strip wake word ("Hola Omia") from the message
             cleaned = strip_wake_word(user_message)
             if not cleaned:
@@ -721,9 +723,9 @@ INFORMACIÓN DE CONTEXTO (Base de conocimiento):
                 })
 
     except WebSocketDisconnect:
-        print("Cliente desconectado")
+        print(f"[WS] Cliente desconectado — historial tenía {len(conversation_history)} mensajes")
     except Exception as e:
-        print(f"Error WebSocket: {e}")
+        print(f"[WS] Error WebSocket: {e}")
 
 
 if __name__ == "__main__":

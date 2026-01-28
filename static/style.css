@@ -153,6 +153,20 @@ html {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ============================================
+   iOS TOUCH OPTIMIZATION — Global
+   Elimina el delay de 300ms en todos los elementos táctiles
+   ============================================ */
+button,
+a,
+[role="button"],
+.clickable,
+input[type="submit"],
+input[type="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     /* Mood tint — JS sets these via data-mood-active */
     --mood-tint: 220, 200, 240;    /* default: lavanda (happy) */
@@ -730,15 +744,29 @@ body[data-mood-active] .bento-card--mood {
         background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
         transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    /* iOS touch optimization */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.faq-chip:hover {
-    background: rgba(234, 231, 241, 0.7);
-    border-color: var(--md-sys-color-outline);
+/* Desktop hover */
+@media (hover: hover) and (pointer: fine) {
+    .faq-chip:hover {
+        background: rgba(234, 231, 241, 0.7);
+        border-color: var(--md-sys-color-outline);
+    }
 }
 
-.faq-chip:active {
-    transform: scale(0.97);
+/* Touch/click active state - más visible para móvil */
+.faq-chip:active,
+.faq-chip.touch-active {
+    transform: scale(0.96);
+    background: var(--md-sys-color-primary-container);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary-container);
 }
 
 /* ============================================
@@ -1667,6 +1695,53 @@ body[data-mood-active] .message.assistant {
     }
 }
 
+/* ============================================
+   iPhone 15 Pro Max (430px) y iPhone 14/15 Pro (393px)
+   Optimización específica para pantallas grandes iOS
+   ============================================ */
+@media (min-width: 390px) and (max-width: 450px) {
+    .chat-bottom-bar {
+        padding: 16px 16px;
+        padding-bottom: calc(20px + var(--safe-bottom));
+        min-height: 72px;
+        gap: 12px;
+    }
+
+    .chat-nav-btn {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+    }
+
+    .chat-nav-btn .ph {
+        font-size: 24px;
+    }
+
+    .chat-input {
+        min-height: 48px;
+        padding: 12px 18px;
+        font-size: 1rem;
+    }
+
+    /* Voice orb icon más grande */
+    .chat-nav-btn.chat-voice-orb .ph-waveform {
+        font-size: 18px;
+    }
+}
+
+/* Dispositivos iOS con notch/Dynamic Island — safe area extra */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    @media (max-width: 450px) {
+        .chat-bottom-bar {
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 34px));
+        }
+
+        .chat-screen {
+            padding-bottom: 0;
+        }
+    }
+}
+
 /* Nav-style icon buttons */
 .chat-nav-btn {
     display: flex;
@@ -1681,11 +1756,18 @@ body[data-mood-active] .message.assistant {
     position: relative;
     transition:
         color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
-        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
     width: 44px;
     height: 44px;
     min-width: 44px;
     flex-shrink: 0;
+    /* iOS touch optimization */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .chat-nav-btn .ph {
