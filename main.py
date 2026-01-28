@@ -460,6 +460,10 @@ async def websocket_chat(websocket: WebSocket):
     """
     await websocket.accept()
 
+    # Historial de conversación para mantener contexto
+    conversation_history = []
+    MAX_HISTORY = 10  # Mantener últimos 10 intercambios (20 mensajes)
+
     try:
         while True:
             # Recibir mensaje del usuario
@@ -666,13 +670,20 @@ INFORMACIÓN DE CONTEXTO (Base de conocimiento):
                 else:
                     max_tokens = 1000
 
+                # Construir mensajes con historial de conversación
+                messages = [{"role": "system", "content": full_prompt}]
+
+                # Añadir historial previo (para contexto de conversación)
+                for hist_msg in conversation_history:
+                    messages.append(hist_msg)
+
+                # Añadir mensaje actual del usuario
+                messages.append({"role": "user", "content": user_message})
+
                 # Stream de respuesta con Kimi K2 (Groq)
                 stream = llm_client.chat.completions.create(
                     model=LLM_MODEL,
-                    messages=[
-                        {"role": "system", "content": full_prompt},
-                        {"role": "user", "content": user_message}
-                    ],
+                    messages=messages,
                     stream=True,
                     max_tokens=max_tokens,
                     temperature=0.7
@@ -688,6 +699,14 @@ INFORMACIÓN DE CONTEXTO (Base de conocimiento):
                             "type": "token",
                             "content": token
                         })
+
+                # Guardar en historial
+                conversation_history.append({"role": "user", "content": user_message})
+                conversation_history.append({"role": "assistant", "content": full_response})
+
+                # Limitar historial para no exceder contexto
+                if len(conversation_history) > MAX_HISTORY * 2:
+                    conversation_history = conversation_history[-(MAX_HISTORY * 2):]
 
                 # Señal de fin de mensaje
                 await websocket.send_json({

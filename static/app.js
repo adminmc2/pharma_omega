@@ -1274,15 +1274,14 @@ function sendToWebSocket(message, responseMode = 'full') {
     addTypingIndicator();
     elements.chatStatus.textContent = 'Escribiendo...';
 
-    // Crear WebSocket
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    state.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
-
     state.currentMessage = '';
     state.currentQuery = message; // Guardar query para persistencia
+
+    // Variable local para rastrear el mensaje del asistente de esta solicitud
     let assistantMessage = null;
 
-    state.websocket.onopen = () => {
+    // Función para enviar el mensaje
+    const sendMessage = () => {
         const payload = { message, response_mode: responseMode };
         if (state.mood.submitted) {
             payload.mood = {
@@ -1294,7 +1293,8 @@ function sendToWebSocket(message, responseMode = 'full') {
         state.websocket.send(JSON.stringify(payload));
     };
 
-    state.websocket.onmessage = (event) => {
+    // Función para manejar mensajes entrantes
+    const handleMessage = (event) => {
         const data = JSON.parse(event.data);
 
         if (data.type === 'token') {
@@ -1318,9 +1318,6 @@ function sendToWebSocket(message, responseMode = 'full') {
             if (assistantMessage && state.currentMessage) {
                 assistantMessage.innerHTML = renderMarkdown(state.currentMessage, true);
                 initResponsiveTables(assistantMessage);
-                // DESHABILITADO: Infografía — para re-activar, descomentar las 2 líneas siguientes
-                // const messageRow = assistantMessage.closest('.message-row') || assistantMessage;
-                // appendInfographicCTA(messageRow, state.currentMessage);
 
                 // Persistir respuesta en búsquedas recientes
                 if (state.currentQuery) {
@@ -1337,6 +1334,8 @@ function sendToWebSocket(message, responseMode = 'full') {
             // Limpiar estado de cobertura RAG
             state.pendingRagCoverage = null;
             state.pendingRagScore = 0;
+            // Reset assistantMessage for next query
+            assistantMessage = null;
         }
         else if (data.type === 'agent_info') {
             console.log('Agente:', data.agent, '- Documentos:', data.context_docs, '- Cobertura RAG:', data.rag_coverage);
@@ -1348,17 +1347,42 @@ function sendToWebSocket(message, responseMode = 'full') {
             removeTypingIndicator();
             addMessage('Error: ' + data.message, 'assistant');
             elements.chatStatus.textContent = 'En línea';
+            assistantMessage = null;
         }
     };
+
+    // Reutilizar WebSocket existente si está abierto
+    if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
+        sendMessage();
+        return;
+    }
+
+    // Cerrar WebSocket anterior si existe pero no está abierto
+    if (state.websocket) {
+        state.websocket.close();
+        state.websocket = null;
+    }
+
+    // Crear nuevo WebSocket
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    state.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+
+    state.websocket.onopen = () => {
+        sendMessage();
+    };
+
+    state.websocket.onmessage = handleMessage;
 
     state.websocket.onerror = () => {
         removeTypingIndicator();
         addMessage('Error de conexión', 'assistant');
         elements.chatStatus.textContent = 'Desconectado';
+        state.websocket = null;
     };
 
     state.websocket.onclose = () => {
         elements.chatStatus.textContent = 'En línea';
+        state.websocket = null;
     };
 }
 
@@ -2182,6 +2206,10 @@ function startWakeWordListening() {
         for (let i = event.resultIndex; i < event.results.length; i++) {
             for (let a = 0; a < event.results[i].length; a++) {
                 const transcript = event.results[i][a].transcript;
+                // Debug: log what the browser heard
+                if (transcript.trim()) {
+                    console.log('[WakeWord] Heard:', `"${transcript}"`, '| Match:', containsWakeWord(transcript));
+                }
                 if (containsWakeWord(transcript)) {
                     console.log('[WakeWord] Wake word detected:', transcript);
                     // Prevent onend from restarting listening during the transition
@@ -2202,6 +2230,8 @@ function startWakeWordListening() {
     };
 
     recognition.onerror = (event) => {
+        // Log ALL errors for debugging (including no-speech)
+        console.log('[WakeWord] Event error:', event.error);
         // 'no-speech', 'aborted', 'network' are normal in continuous mode
         if (['no-speech', 'aborted', 'network'].includes(event.error)) {
             return;
@@ -2220,6 +2250,7 @@ function startWakeWordListening() {
     };
 
     recognition.onend = () => {
+        console.log('[WakeWord] Session ended, will restart...');
         state.wakeWordActive = false;
         // Auto-restart: always restart if enabled, with a very short delay
         // Chrome stops continuous mode after ~5-10s of silence, so this is critical
