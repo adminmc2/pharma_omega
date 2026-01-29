@@ -563,7 +563,9 @@ async def websocket_chat(websocket: WebSocket):
             user_message = cleaned
 
             # Saludos y mensajes vagos: responder directamente sin agente ni RAG
-            if is_greeting_or_vague(user_message):
+            # SOLO si no hay historial — si el usuario ya hizo preguntas, pasar al agente
+            # para que pueda usar el contexto de la conversación anterior
+            if is_greeting_or_vague(user_message) and not conversation_history:
                 await websocket.send_json({
                     "type": "agent_info",
                     "agent": "saludo",
