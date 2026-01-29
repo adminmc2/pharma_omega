@@ -864,6 +864,9 @@ function showChatScreenWithAnswer(question, answer) {
 }
 
 function showWelcomeScreen() {
+    // Detener TTS inmediatamente al navegar atrás
+    stopTTS();
+
     elements.chatScreen.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
@@ -899,6 +902,7 @@ function showPlanScreen() {
 }
 
 function showWelcomeFromPlan() {
+    stopTTS();
     elements.planScreen.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
     renderRecentSearches();
@@ -1391,9 +1395,9 @@ function sendToWebSocket(message, responseMode = 'full') {
                     updateRecentSearchAnswer(state.currentQuery, state.currentMessage);
                 }
 
-                // TTS: añadir botón speaker + auto-play si está habilitado
+                // TTS: añadir botón speaker + auto-play si está habilitado o fue interacción por voz
                 addSpeakerButton(assistantMessage, state.currentMessage);
-                if (state.ttsEnabled) {
+                if (state.ttsEnabled || state.voiceTriggered) {
                     playTTS(state.currentMessage);
                 }
             }
@@ -1478,9 +1482,24 @@ async function startRecording() {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
-        state.mediaRecorder = new MediaRecorder(stream, {
-            mimeType: 'audio/webm;codecs=opus'
-        });
+        // Detect supported mimeType (webm for desktop, mp4 for iOS)
+        let mimeType = 'audio/webm;codecs=opus';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            // iOS doesn't support webm — use mp4
+            if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                mimeType = 'audio/mp4';
+            } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                mimeType = 'audio/aac';
+            } else {
+                // Fallback: let browser choose
+                mimeType = '';
+            }
+        }
+        console.log('[Recording] Using mimeType:', mimeType || 'browser default');
+
+        const recorderOptions = mimeType ? { mimeType } : {};
+        state.mediaRecorder = new MediaRecorder(stream, recorderOptions);
+        state.recordingMimeType = mimeType; // Save for blob creation
 
         state.audioChunks = [];
 
@@ -1491,8 +1510,12 @@ async function startRecording() {
         };
 
         state.mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
-            await transcribeAudio(audioBlob);
+            // Use the actual mimeType that was recorded
+            const blobType = state.recordingMimeType || 'audio/webm';
+            const extension = blobType.includes('mp4') ? 'mp4' : blobType.includes('aac') ? 'aac' : 'webm';
+            const audioBlob = new Blob(state.audioChunks, { type: blobType });
+            console.log('[Recording] Created blob:', blobType, 'size:', audioBlob.size);
+            await transcribeAudio(audioBlob, extension);
             stream.getTracks().forEach(track => track.stop());
         };
 
@@ -1634,10 +1657,10 @@ function updateRecordingUI(recording, processing = false) {
     }
 }
 
-async function transcribeAudio(audioBlob) {
+async function transcribeAudio(audioBlob, extension = 'webm') {
     try {
         const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.webm');
+        formData.append('audio', audioBlob, `recording.${extension}`);
 
         const response = await fetch('/api/voice', {
             method: 'POST',
@@ -2501,7 +2524,7 @@ function resumeWakeWordAfterRecording() {
 // Estado TTS
 state.ttsAudio = null;       // Audio element actual
 state.ttsPlaying = false;    // Reproducción en curso
-state.ttsEnabled = true;     // Auto-play habilitado (se puede toggle)
+state.ttsEnabled = false;    // Auto-play desactivado por defecto — el usuario lo activa con el botón de voz
 
 /**
  * Toggles TTS auto-play on/off via the voice button in chat bottom bar.
@@ -2552,6 +2575,7 @@ function updateVoiceButton(enabled) {
 async function playTTS(text) {
     // Detener audio previo si existe
     stopTTS();
+    state.ttsCancelled = false;  // Reset flag para esta nueva reproducción
 
     if (!text || !text.trim()) return;
 
@@ -2563,6 +2587,12 @@ async function playTTS(text) {
             body: JSON.stringify({ text })
         });
 
+        // Si el usuario navegó atrás mientras el fetch estaba en progreso, no reproducir
+        if (state.ttsCancelled) {
+            console.log('[TTS] Cancelled during fetch — not playing');
+            return;
+        }
+
         if (!response.ok) {
             console.error('[TTS] Server error:', response.status);
             return;
@@ -2570,6 +2600,13 @@ async function playTTS(text) {
 
         // Reproducir como blob (más compatible que MediaSource para MP3 streaming)
         const blob = await response.blob();
+
+        // Revisar de nuevo después de leer el blob
+        if (state.ttsCancelled) {
+            console.log('[TTS] Cancelled during blob read — not playing');
+            return;
+        }
+
         const audioUrl = URL.createObjectURL(blob);
         const audio = new Audio(audioUrl);
 
@@ -2621,7 +2658,7 @@ async function playTTS(text) {
  */
 function playTTSAndWait(text) {
     return new Promise(async (resolve) => {
-        // No llamar stopTTS aquí — puede interrumpir el audio del demo
+        state.ttsCancelled = false;
         try {
             console.log('[TTS] playTTSAndWait: requesting audio for:', text.substring(0, 50) + '...');
             const response = await fetch('/api/tts', {
@@ -2629,6 +2666,9 @@ function playTTSAndWait(text) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, skip_summary: true })
             });
+
+            if (state.ttsCancelled) { resolve(); return; }
+
             if (!response.ok) {
                 console.error('[TTS] playTTSAndWait: server error', response.status);
                 resolve();
@@ -2637,6 +2677,8 @@ function playTTSAndWait(text) {
 
             // Esperar a que se descargue todo el audio antes de reproducir
             const blob = await response.blob();
+
+            if (state.ttsCancelled) { resolve(); return; }
 
             console.log('[TTS] playTTSAndWait: got complete blob, size:', blob.size);
             if (blob.size === 0) {
@@ -2686,6 +2728,7 @@ function playTTSAndWait(text) {
  * Detiene la reproducción TTS actual.
  */
 function stopTTS() {
+    state.ttsCancelled = true;  // Cancelar cualquier TTS en progreso (fetch pendiente)
     if (state.ttsAudio) {
         state.ttsAudio.pause();
         state.ttsAudio.currentTime = 0;
@@ -2746,6 +2789,7 @@ const VALID_CREDENTIALS = {
 };
 
 function showLoginScreen() {
+    stopTTS();
     elements.loginScreen?.classList.remove('hidden');
     elements.welcomeScreen?.classList.add('hidden');
     elements.chatScreen?.classList.add('hidden');
@@ -2753,6 +2797,9 @@ function showLoginScreen() {
 }
 
 function handleLogout() {
+    // Detener TTS al cerrar sesión
+    stopTTS();
+
     // Limpiar estado de sesión
     localStorage.removeItem('omia_logged_in');
     localStorage.removeItem('omia_user');
@@ -2881,10 +2928,13 @@ async function handleDemoOrbClick() {
     if (demoOrbClicked) return; // Prevent multiple clicks
     demoOrbClicked = true;
 
-    const greetingText = 'Hola, Blanca, un placer saludarte. Pablo tenía muchas ganas de encontrarse contigo y me da esta oportunidad de enseñarte quién soy, qué hago. Me llamo Omia y he sido creada por Prisma Consul. ¿Vemos qué puedo hacer?';
+    // Unlock audio on user gesture (required for iOS)
+    warmupIOSAudio();
 
-    // Visual feedback — pulse the orb
-    elements.loginOrbContainer?.classList.add('orb-speaking');
+    // Immediate visual feedback — activate 3D orb animation instantly
+    if (window.orbSetListening) window.orbSetListening(true);
+
+    const greetingText = 'Hola, Blanca, un placer saludarte. Pablo tenía muchas ganas de encontrarse contigo y me da esta oportunidad de enseñarte quién soy, qué hago. Me llamo Omia y he sido creada por Prisma Consul. ¿Vemos qué puedo hacer?';
 
     try {
         // Play TTS greeting and wait for it to finish
@@ -2893,8 +2943,8 @@ async function handleDemoOrbClick() {
         console.error('[Demo] TTS error:', e);
     }
 
-    // Remove speaking state
-    elements.loginOrbContainer?.classList.remove('orb-speaking');
+    // Stop orb animation
+    if (window.orbSetListening) window.orbSetListening(false);
 
     // Focus en el campo de usuario para que Pablo ingrese sus credenciales
     elements.loginUser?.focus();
@@ -3161,15 +3211,21 @@ function init() {
     // TTS voice button in chat bottom bar
     document.getElementById('chat-voice-btn')?.addEventListener('click', toggleTTS);
 
-    // Restore TTS preference from localStorage (default: on)
+    // Restore TTS preference from localStorage (default: off)
     const savedTTS = localStorage.getItem('omia_tts');
-    if (savedTTS === 'off') {
-        state.ttsEnabled = false;
-        updateVoiceButton(false);
-    } else {
+    if (savedTTS === 'on') {
         state.ttsEnabled = true;
         updateVoiceButton(true);
+    } else {
+        state.ttsEnabled = false;
+        updateVoiceButton(false);
     }
+
+    // Detener TTS cuando el usuario sale de la pestaña o navega atrás en el navegador
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopTTS();
+    });
+    window.addEventListener('pagehide', () => stopTTS());
 
     console.log('Omia inicializada');
 }

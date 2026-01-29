@@ -907,31 +907,18 @@ body[data-mood-active] .bento-card--mood {
     margin: 0 0 var(--space-20) 0;
 }
 
-/* Orb wrapper */
+/* Orb wrapper — fixed size prevents layout shift during animation */
 .login-orb-wrapper {
     width: 200px;
     height: 200px;
     margin-bottom: var(--space-20);
+    overflow: hidden;
 }
 
 #login-orb-container {
     width: 200px;
     height: 200px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-#login-orb-container:hover {
-    transform: scale(1.05);
-}
-
-#login-orb-container.orb-speaking {
-    animation: orb-pulse-speaking 1.5s ease-in-out infinite;
-}
-
-@keyframes orb-pulse-speaking {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
 }
 
 /* Descripción — separada del form con más espacio */
