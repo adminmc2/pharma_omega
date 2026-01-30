@@ -40,6 +40,7 @@ const state = {
     currentMessage: '',
     orbMode: 'minimize', // Opción fija: orb minimizado flotante en chat
     audioStream: null,
+    cachedMicStream: null,  // Cached mic stream to avoid repeated permission prompts
     // Silence detection
     audioContext: null,
     analyser: null,
@@ -1498,12 +1499,25 @@ async function startRecording() {
         // Stop TTS if playing (don't talk while listening)
         stopTTS();
 
+        // iOS: ensure audio element is warmed up for later TTS playback
+        warmupIOSAudio();
+
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Reuse cached mic stream if still active, otherwise request new one
+        let stream;
+        if (state.cachedMicStream && state.cachedMicStream.active &&
+            state.cachedMicStream.getAudioTracks().some(t => t.readyState === 'live')) {
+            stream = state.cachedMicStream;
+            console.log('[Recording] Reusing cached mic stream');
+        } else {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            state.cachedMicStream = stream;
+            console.log('[Recording] New mic stream obtained');
+        }
         state.audioStream = stream;
 
         // Detect supported mimeType (webm for desktop, mp4 for iOS)
@@ -1540,7 +1554,8 @@ async function startRecording() {
             const audioBlob = new Blob(state.audioChunks, { type: blobType });
             console.log('[Recording] Created blob:', blobType, 'size:', audioBlob.size);
             await transcribeAudio(audioBlob, extension);
-            stream.getTracks().forEach(track => track.stop());
+            // Don't stop tracks here — keep stream cached to avoid repeated permission prompts
+            // Tracks are released when voice session ends or page unloads
         };
 
         state.mediaRecorder.start();
@@ -1565,6 +1580,14 @@ function stopRecording() {
         state.mediaRecorder.stop();
         state.isRecording = false;
         updateRecordingUI(false, true); // processing = true
+    }
+}
+
+function releaseCachedMicStream() {
+    if (state.cachedMicStream) {
+        state.cachedMicStream.getTracks().forEach(track => track.stop());
+        state.cachedMicStream = null;
+        console.log('[Recording] Released cached mic stream');
     }
 }
 
@@ -1891,6 +1914,7 @@ function sendMessage() {
 
     // Text input → always send directly as 'full', no mode selector
     state.voiceTriggered = false;
+    releaseCachedMicStream();
 
     // Si estamos en welcome, ir al chat
     if (!elements.welcomeScreen.classList.contains('hidden')) {
@@ -2632,7 +2656,11 @@ async function playTTS(text) {
         }
 
         const audioUrl = URL.createObjectURL(blob);
-        const audio = new Audio(audioUrl);
+
+        // iOS Safari: reuse warmed-up audio element to keep user gesture context
+        // Desktop/Android: create new Audio (no gesture restrictions)
+        const audio = state.iosAudioElement || new Audio();
+        audio.src = audioUrl;
 
         state.ttsAudio = audio;
         state.ttsPlaying = true;
@@ -2640,7 +2668,10 @@ async function playTTS(text) {
         // Activar orb en modo "hablando"
         if (window.orbSetListening) window.orbSetListening(true);
 
-        audio.addEventListener('ended', () => {
+        // Use one-time event handlers to avoid stacking listeners on reused element
+        const onEnded = () => {
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
             state.ttsPlaying = false;
             URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
@@ -2658,13 +2689,19 @@ async function playTTS(text) {
                 // Solo reanudar wake word si no es modo voz
                 resumeWakeWordAfterRecording();
             }
-        });
+        };
 
-        audio.addEventListener('error', (e) => {
+        const onError = (e) => {
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
             console.error('[TTS] Audio playback error:', e);
             state.ttsPlaying = false;
+            URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
-        });
+        };
+
+        audio.addEventListener('ended', onEnded);
+        audio.addEventListener('error', onError);
 
         await audio.play();
         console.log('[TTS] Playing audio');
@@ -2712,31 +2749,40 @@ function playTTSAndWait(text) {
             }
 
             const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
+
+            // iOS Safari: reuse warmed-up audio element for user gesture context
+            const audio = state.iosAudioElement || new Audio();
+            audio.src = audioUrl;
             state.ttsAudio = audio;
 
             // Activar orb en modo "hablando"
             if (window.orbSetListening) window.orbSetListening(true);
 
-            audio.addEventListener('ended', () => {
+            const onEnded = () => {
+                audio.removeEventListener('ended', onEnded);
+                audio.removeEventListener('error', onError);
                 console.log('[TTS] playTTSAndWait: audio ended naturally');
                 URL.revokeObjectURL(audioUrl);
                 state.ttsAudio = null;
                 if (window.orbSetListening) window.orbSetListening(false);
                 resolve();
-            });
-            audio.addEventListener('error', (e) => {
+            };
+            const onError = (e) => {
+                audio.removeEventListener('ended', onEnded);
+                audio.removeEventListener('error', onError);
                 console.error('[TTS] playTTSAndWait: audio error', e);
                 URL.revokeObjectURL(audioUrl);
                 state.ttsAudio = null;
                 if (window.orbSetListening) window.orbSetListening(false);
                 resolve();
-            });
+            };
+            audio.addEventListener('ended', onEnded);
+            audio.addEventListener('error', onError);
 
             console.log('[TTS] playTTSAndWait: starting playback, duration will be shown after load');
             audio.addEventListener('loadedmetadata', () => {
                 console.log('[TTS] playTTSAndWait: audio duration:', audio.duration, 'seconds');
-            });
+            }, { once: true });
 
             await audio.play();
             console.log('[TTS] playTTSAndWait: playback started');
@@ -2756,7 +2802,10 @@ function stopTTS() {
     if (state.ttsAudio) {
         state.ttsAudio.pause();
         state.ttsAudio.currentTime = 0;
-        state.ttsAudio = null;
+        // Don't null out if it's the reused iOS audio element — just stop playback
+        if (state.ttsAudio !== state.iosAudioElement) {
+            state.ttsAudio = null;
+        }
     }
     state.ttsPlaying = false;
     if (window.orbSetListening) window.orbSetListening(false);
@@ -3249,7 +3298,10 @@ function init() {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) stopTTS();
     });
-    window.addEventListener('pagehide', () => stopTTS());
+    window.addEventListener('pagehide', () => {
+        stopTTS();
+        releaseCachedMicStream();
+    });
 
     console.log('Omia inicializada');
 }

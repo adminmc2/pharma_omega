@@ -40,6 +40,12 @@ class AgenteProductos(BaseAgent):
         'depresion': ['Natural EPA+DHA'],
         'vision': ['Natural DHA'],
         'ocular': ['Natural DHA'],
+        'cancer': ['Pro-Resolving Mediators'],
+        'cáncer': ['Pro-Resolving Mediators'],
+        'oncológico': ['Pro-Resolving Mediators'],
+        'oncologico': ['Pro-Resolving Mediators'],
+        'tumor': ['Pro-Resolving Mediators'],
+        'quimioterapia': ['Pro-Resolving Mediators'],
     }
 
     def __init__(self):

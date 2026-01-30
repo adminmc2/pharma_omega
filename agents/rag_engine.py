@@ -70,6 +70,12 @@ SYNONYMS: Dict[str, List[str]] = {
     'cerebro': ['cerebral', 'cognitivo', 'mental', 'neurológico', 'memoria'],
     'cognitivo': ['cerebro', 'cerebral', 'mental', 'memoria', 'concentración'],
     'inflamación': ['inflamatorio', 'antiinflamatorio', 'artritis', 'dolor'],
+    'cáncer': ['oncológico', 'oncologico', 'tumor', 'tumoral', 'coadyuvante', 'quimioterapia'],
+    'cancer': ['oncológico', 'oncologico', 'tumor', 'tumoral', 'coadyuvante', 'quimioterapia'],
+    'oncológico': ['cáncer', 'cancer', 'tumor', 'tumoral', 'oncologia'],
+    'oncologico': ['cáncer', 'cancer', 'tumor', 'tumoral', 'oncologia'],
+    'quimioterapia': ['oncológico', 'cáncer', 'cancer', 'quimio'],
+    'tumor': ['cáncer', 'cancer', 'oncológico', 'tumoral'],
 
     # Embarazo
     'embarazo': ['embarazada', 'gestación', 'prenatal', 'lactancia', 'maternidad'],

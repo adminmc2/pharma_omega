@@ -678,12 +678,15 @@ REGLAS OBLIGATORIAS:
 1. Usa SOLO la información de los HECHOS VERIFICADOS de arriba.
 2. NO añadas datos externos. Si necesitas mencionar algo fuera del contexto, di "según consenso médico general" SIN cifras.
 3. Si una sección de tu formato no tiene datos verificados, OMÍTELA entera. No incluyas tablas con celdas vacías ni secciones sin contenido real.
-4. Aprovecha al MÁXIMO los datos que SÍ tienes: preséntelos de forma persuasiva, clara y útil para vender."""
+4. Aprovecha al MÁXIMO los datos que SÍ tienes: preséntelos de forma persuasiva, clara y útil para vender.
+5. PROHIBIDO EXTRAPOLAR INDICACIONES: Si un producto aparece en los datos verificados con indicación X, NO lo recomiendes para indicación Y. Solo recomienda cada producto para las indicaciones que EXPLÍCITAMENTE aparecen en los datos verificados. Ejemplo: si un producto está indicado para "función cardiovascular", NO lo recomiendes para oncología a menos que los datos verificados digan EXPLÍCITAMENTE que tiene indicación oncológica.
+6. Menciona SOLO los productos que tengan indicación EXPLÍCITA para la condición consultada en los datos verificados."""
                 else:
                     rag_instruction = """COBERTURA RAG: ALTA — Tienes buenos datos verificados arriba.
 Responde EXCLUSIVAMENTE con los datos verificados. NO complementes con conocimiento externo.
 Si alguna sección de tu formato no tiene datos verificados, OMÍTELA — no dejes huecos ni placeholders.
-Presenta TODA la información disponible de forma persuasiva, completa y útil para que el representante venda con confianza."""
+Presenta TODA la información disponible de forma persuasiva, completa y útil para que el representante venda con confianza.
+PROHIBIDO EXTRAPOLAR INDICACIONES: Recomienda cada producto SOLO para las indicaciones que aparecen EXPLÍCITAMENTE en los datos verificados. No atribuyas indicaciones nuevas a un producto existente."""
 
                 # Instrucción de longitud según modo de respuesta
                 # Si cobertura baja, el formato ya está definido en rag_instruction — no aplicar templates de agente
