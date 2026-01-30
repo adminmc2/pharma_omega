@@ -1,6 +1,7 @@
 """
 Agente de Objeciones - Especializado en manejar objeciones del médico
 """
+from typing import List, Tuple
 from .base_agent import BaseAgent
 
 
@@ -15,6 +16,14 @@ class AgenteObjeciones(BaseAgent):
     - Comparativas con competencia
     """
 
+    # Clasificador de tipo de objeción
+    OBJECTION_TYPES = {
+        'precio': ['caro', 'costoso', 'precio', 'barato', 'económico', 'economico', 'cuesta', 'costo', 'coste'],
+        'eficacia': ['no funciona', 'no sirve', 'resultado', 'evidencia', 'eficacia', 'eficaz', 'tarda'],
+        'seguridad': ['seguro', 'seguridad', 'efecto secundario', 'metal', 'tóxico', 'toxico', 'contraindicación', 'interacción'],
+        'competencia': ['otra marca', 'genérico', 'generico', 'ya uso', 'cambiar', 'nordic', 'competencia'],
+    }
+
     def __init__(self):
         super().__init__()
         self.name = "Agente Objeciones"
@@ -27,6 +36,17 @@ class AgenteObjeciones(BaseAgent):
             "tecnologia_calidad",
             "certificaciones"
         ]
+
+    def enrich_context(self, query: str, results: List[Tuple[dict, float]]) -> str:
+        """Detecta el tipo de objeción para adaptar la respuesta Feel-Felt-Found"""
+        query_lower = query.lower()
+        detected = [obj_type for obj_type, keywords in self.OBJECTION_TYPES.items()
+                    if any(kw in query_lower for kw in keywords)]
+        if detected:
+            types_str = ', '.join(detected)
+            return (f"TIPO DE OBJECIÓN DETECTADA: {types_str}.\n"
+                    f"Adapta tu respuesta Feel-Felt-Found al tipo específico: {types_str}.")
+        return ""
 
     @property
     def system_prompt(self) -> str:
@@ -106,13 +126,7 @@ Giro persuasivo: convierte la objeción en argumento a favor, o cambia el marco 
 5. SIEMPRE incluye un reencuadre con Boomerang o aversión a la pérdida.
 6. NUNCA critiques directamente a la competencia por nombre.
 7. NUNCA contradigas al médico frontalmente. Valida primero, redirige después.
-8. Prioriza SIEMPRE la información del contexto proporcionado (base de conocimiento RAG). Esta es tu fuente PRINCIPAL y PREFERIDA.
-9. MINIMIZA el uso de información externa. Solo como ÚLTIMO RECURSO:
-   - Primero AGOTA toda la información del contexto RAG. Reorganízala, reinterpreta, conecta datos entre sí.
-   - Solo si un dato CRÍTICO falta completamente para rebatir la objeción, puedes complementar con conocimiento general.
-   - Limita la información externa a MÁXIMO 1-2 datos puntuales por respuesta, NUNCA como fuente principal.
-   - Marca CADA dato externo con "*(fuente externa no empresarial)*".
-   - NUNCA uses información externa para secciones completas. Construye el argumento con los datos RAG disponibles.
-   - SIEMPRE defiende la posición del producto. Tu rol es desarmar objeciones, no confirmarlas.
-10. NO inventes cifras exactas ni estudios que no conozcas. Presenta datos generales como tendencias o consenso.
-11. NUNCA dejes una sección vacía. Completa con razonamiento clínico general sin necesidad de marcar como fuente externa."""
+8. Usa EXCLUSIVAMENTE los datos de la sección 'DATOS VERIFICADOS DE PURO OMEGA'. Esos son los ÚNICOS datos reales.
+9. PROHIBIDO añadir información externa: NO inventes cifras, estudios, porcentajes ni nombres de productos que no estén en los datos verificados.
+10. Si una sección del formato no tiene datos verificados disponibles, OMITE esa sección entera. Es mejor una respuesta corta y precisa que una larga con datos inventados.
+11. NUNCA cites estudios, journals ni meta-análisis que no aparezcan en los datos verificados."""

@@ -847,6 +847,9 @@ function showChatScreen(initialMessage, showSelector = false, skipSend = false) 
 function showChatScreenWithAnswer(question, answer) {
     elements.welcomeScreen.classList.add('fade-out');
 
+    // Guardar contexto previo para que el próximo mensaje lo envíe al backend
+    state.priorContext = { question, answer };
+
     setTimeout(() => {
         elements.welcomeScreen.classList.add('hidden');
         elements.welcomeScreen.classList.remove('fade-out');
@@ -879,6 +882,9 @@ function showWelcomeScreen() {
         state.websocket.close();
         state.websocket = null;
     }
+
+    // Limpiar contexto previo
+    state.priorContext = null;
 
     // Actualizar búsquedas recientes
     renderRecentSearches();
@@ -1175,6 +1181,15 @@ function enrichWithIcons(html) {
         return `<div class="table-responsive">${match}</div>`;
     });
 
+    // 7. Wrap "Ficha Técnica" section in a card div
+    // Detects any <h3> containing "Ficha Técnica" — wraps from that h3 to the next <h2>/<h3> or end
+    finalHTML = finalHTML.replace(
+        /(<h3[^>]*>(?:[^<]*(?:<[^>]*>)*)*?[Ff]icha\s+[Tt][eé]cnica[\s\S]*?)(?=<h[23][^>]*>|$)/i,
+        (fichaBlock) => {
+            return `<div class="ficha-tecnica">${fichaBlock}</div>`;
+        }
+    );
+
     return finalHTML;
 }
 
@@ -1361,6 +1376,13 @@ function sendToWebSocket(message, responseMode = 'full') {
                 category: state.mood.category
             };
         }
+        // Enviar contexto previo (chat guardado) para que el backend tenga historial
+        if (state.priorContext) {
+            payload.prior_context = state.priorContext;
+            console.log('[WS] Enviando prior_context:', state.priorContext.question?.substring(0, 50));
+            state.priorContext = null; // Solo enviar una vez
+        }
+        console.log('[WS] Payload keys:', Object.keys(payload).join(', '));
         state.websocket.send(JSON.stringify(payload));
     };
 
@@ -1425,6 +1447,8 @@ function sendToWebSocket(message, responseMode = 'full') {
     // Reutilizar WebSocket existente si está abierto
     if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
         console.log('[WS] Reutilizando conexión existente');
+        // Actualizar handler para que use el nuevo closure (assistantMessage, etc.)
+        state.websocket.onmessage = handleMessage;
         sendMessage();
         return;
     }

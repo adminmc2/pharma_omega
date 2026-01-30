@@ -1759,51 +1759,64 @@ body[data-mood-active] .message.assistant {
     font-size: 20px;
 }
 
-/* Fila de botones de acción */
+/* Fila de botones de acción — alineados al final de la barra de texto */
 .chat-actions-row {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
+    justify-content: flex-end;
+    gap: 8px;
+    /* 44px (botón enviar) + 8px (gap) = 52px → los botones terminan al borde derecho del textarea */
+    margin-right: 52px;
 }
 
-/* Botones de acción pequeños */
+/* Botones de acción rectangulares con texto */
 .chat-action-btn {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(234, 231, 241, 0.5);
+    height: 30px;
+    border: 1px solid rgba(198, 197, 208, 0.45);
+    border-radius: 8px;
+    background: rgba(234, 231, 241, 0.35);
     color: var(--md-sys-color-on-surface-variant);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
+    padding: 0 10px;
     transition: background 0.15s ease, transform 0.15s ease;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
 
-.chat-action-btn .ph {
-    font-size: 18px;
+.chat-action-btn .ph,
+.chat-action-btn .ph-bold {
+    font-size: 15px;
+}
+
+.chat-action-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: inherit;
 }
 
 .chat-action-btn:active {
-    transform: scale(0.92);
-    background: rgba(234, 231, 241, 0.8);
+    transform: scale(0.96);
+    background: rgba(234, 231, 241, 0.7);
 }
 
 /* Botón de micrófono grabando */
 .chat-action-btn.recording {
     background: var(--md-sys-color-error);
     color: var(--md-sys-color-on-error);
+    border-color: var(--md-sys-color-error);
     animation: pulse-record 1.5s ease-in-out infinite;
 }
 
-/* Botón de voz de Omia */
+/* Botón de voz de Omia — mismo estilo que los demás (sin azul) */
 .chat-action-btn--voice {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
+    background: rgba(234, 231, 241, 0.35);
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .chat-action-btn--voice .ph-waveform {
@@ -1811,13 +1824,15 @@ body[data-mood-active] .message.assistant {
 }
 
 .chat-action-btn--voice.voice-orb--active {
-    box-shadow: 0 0 0 2px rgba(45, 91, 160, 0.3);
+    background: rgba(153, 78, 149, 0.12);
+    border-color: rgba(153, 78, 149, 0.4);
+    color: var(--md-sys-color-secondary);
     animation: voice-orb-glow 2.5s ease-in-out infinite;
 }
 
 @keyframes voice-orb-glow {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(45, 91, 160, 0.25); }
-    50% { box-shadow: 0 0 0 3px rgba(45, 91, 160, 0.4); }
+    0%, 100% { box-shadow: 0 0 0 2px rgba(153, 78, 149, 0.15); }
+    50% { box-shadow: 0 0 0 3px rgba(153, 78, 149, 0.3); }
 }
 
 /* ============================================
@@ -1841,12 +1856,18 @@ body[data-mood-active] .message.assistant {
     }
 
     .chat-action-btn {
-        width: 32px;
-        height: 32px;
+        height: 28px;
+        padding: 0 8px;
+        gap: 4px;
     }
 
-    .chat-action-btn .ph {
-        font-size: 16px;
+    .chat-action-btn .ph,
+    .chat-action-btn .ph-bold {
+        font-size: 14px;
+    }
+
+    .chat-action-label {
+        font-size: 10px;
     }
 
     /* Header consistente para iPhone */
@@ -3671,5 +3692,103 @@ body[data-mood-active] .message.assistant {
     }
     .tts-speaker-btn {
         display: none !important;
+    }
+}
+
+/* ============================================
+   FICHA TÉCNICA — Recuadro final de producto
+   ============================================ */
+.ficha-tecnica {
+    margin-top: var(--space-16);
+    padding: var(--space-16) var(--space-16) var(--space-12);
+    border: 1.5px solid rgba(45, 91, 160, 0.25);
+    border-radius: var(--md-sys-shape-large);
+    background: linear-gradient(145deg, rgba(45, 91, 160, 0.05) 0%, rgba(153, 78, 149, 0.04) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Accent bar at top */
+.ficha-tecnica::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-secondary) 100%);
+    border-radius: var(--md-sys-shape-large) var(--md-sys-shape-large) 0 0;
+}
+
+/* Ficha heading */
+.ficha-tecnica > h3:first-child {
+    margin: 0 0 var(--space-12) 0;
+    font: var(--md-sys-typescale-title-medium);
+    color: var(--md-sys-color-primary);
+    letter-spacing: 0.02em;
+}
+
+/* Tighter spacing inside ficha */
+.ficha-tecnica table {
+    margin: var(--space-8) 0;
+}
+
+.ficha-tecnica .table-responsive {
+    margin: var(--space-8) 0;
+}
+
+/* Table inside ficha: more compact, branded header */
+.ficha-tecnica thead th {
+    background: linear-gradient(180deg, rgba(45, 91, 160, 0.14) 0%, rgba(45, 91, 160, 0.08) 100%);
+    font-size: 0.8125rem;
+    padding: 6px var(--space-12);
+}
+
+.ficha-tecnica tbody td {
+    padding: 5px var(--space-12);
+    font-size: 0.875rem;
+}
+
+/* Lists inside ficha */
+.ficha-tecnica ul,
+.ficha-tecnica ol {
+    margin: var(--space-4) 0;
+    padding-left: var(--space-16);
+}
+
+.ficha-tecnica li {
+    margin-bottom: 2px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Paragraphs inside ficha */
+.ficha-tecnica p {
+    margin: var(--space-4) 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Remove hr that preceded the ficha (already visually separated by the card) */
+.ficha-tecnica-separator {
+    display: none;
+}
+
+/* ---- Mobile adjustments ---- */
+@media (max-width: 479px) {
+    .ficha-tecnica {
+        padding: var(--space-12) var(--space-12) var(--space-8);
+        margin-top: var(--space-12);
+    }
+    .ficha-tecnica > h3:first-child {
+        font-size: 0.9375rem;
+    }
+    .ficha-tecnica thead th {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+    .ficha-tecnica tbody td {
+        padding: 4px 8px;
+        font-size: 0.8125rem;
     }
 }

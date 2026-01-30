@@ -118,41 +118,54 @@ Responde SOLO con una palabra: productos, objeciones o argumentos"""
             print(f"Error en clasificación: {e}")
             return self.default_agent
 
+    # Patrones ESTRICTOS de objeción: solo rechazo/resistencia explícita del médico
+    OBJECTION_PATTERNS = [
+        r'\bno funciona\b', r'\bno sirve\b', r'\bno veo resultado',
+        r'\bes caro\b', r'\bmuy caro\b', r'\bcostoso\b',
+        r'\bprecio\b.*\b(?:alto|elevado|caro)\b',
+        r'\bmetales pesados\b', r'\befecto.? secundario',
+        r'\binteracci[oó]n', r'\bcontraindicac',
+        r'\bya uso otra\b', r'\bpor qu[eé] cambiar\b',
+        r'\bobje[cs]i[oó]n', r'\bel m[eé]dico dice\b',
+        r'\bel doctor dice\b', r'\bno (?:le |me )?convence\b',
+        r'\bcompetencia\b', r'\botra marca\b',
+        r'\bno (?:le |me )?(?:gusta|interesa|convence)',
+        r'\bprefiere? (?:otra|otro|genérico|gen[eé]rico)',
+    ]
+
+    # Patrones de argumentos: contexto de venta, visita o especialidad
+    ARGUMENT_PATTERNS = [
+        r'\bc[oó]mo vend', r'\bc[oó]mo present', r'\bargumento',
+        r'\bestrategi.* vent', r'\bperfil.* paciente',
+        r'\bdiferencia.* competencia', r'\bventaja',
+        # Especialidades con o sin contexto de venta
+        r'\bcardi[oó]logo\b', r'\bginec[oó]logo\b', r'\bneur[oó]logo\b',
+        r'\bpsiquiatra\b', r'\bpediatra\b', r'\breumat[oó]logo\b',
+        r'\bendocrin[oó]logo\b', r'\binternista\b',
+        r'\bespecialista\b', r'\bespecialidad\b',
+    ]
+
     def classify_intent_rules(self, message: str) -> str:
         """
-        Clasificación basada en reglas (fallback rápido).
+        Clasificación contextual en 2 fases.
+
+        Fase 1: Detecta estructura de OBJECIÓN (rechazo/resistencia explícita).
+        Fase 2: Detecta estructura de ARGUMENTO (venta/especialidad).
+        Default: PRODUCTOS (temas médicos, info técnica, dudas generales).
         """
         message_lower = message.lower()
 
-        # Patrones de objeciones
-        objection_patterns = [
-            r'\bcaro\b', r'\bcostoso\b', r'\bprecio\b', r'\bbarato\b',
-            r'\bno funciona\b', r'\bno sirve\b', r'\bno veo resultado',
-            r'\bmetales pesados\b', r'\bseguridad\b', r'\bseguro\b',
-            r'\befecto.? secundario', r'\binteracci', r'\bcontraindicac',
-            r'\botra marca\b', r'\bcompetencia\b', r'\bya uso\b',
-            r'\bobjeci[oó]n', r'\bduda\b', r'\bpreocupa'
-        ]
-
-        for pattern in objection_patterns:
+        # Fase 1: ¿Hay rechazo/resistencia explícita?
+        for pattern in self.OBJECTION_PATTERNS:
             if re.search(pattern, message_lower):
                 return "objeciones"
 
-        # Patrones de argumentos
-        argument_patterns = [
-            r'\bc[oó]mo vend', r'\bc[oó]mo present', r'\bargumento',
-            r'\bcardi[oó]logo', r'\bginec[oó]logo', r'\bneur[oó]logo',
-            r'\bpsiquiatra\b', r'\bpediatra\b', r'\breumat[oó]logo',
-            r'\bespecialista\b', r'\bespecialidad\b',
-            r'\bperfil.? de paciente', r'\bestrategi',
-            r'\bdiferencia.* competencia', r'\bventaja'
-        ]
-
-        for pattern in argument_patterns:
+        # Fase 2: ¿Hay contexto de venta/especialidad?
+        for pattern in self.ARGUMENT_PATTERNS:
             if re.search(pattern, message_lower):
                 return "argumentos"
 
-        # Default a productos
+        # Default: productos (incluye temas médicos, dudas, info técnica)
         return "productos"
 
     def get_agent(self, agent_name: str) -> BaseAgent:

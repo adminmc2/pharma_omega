@@ -1,6 +1,7 @@
 """
 Agente de Argumentos - Especializado en argumentos de venta por especialidad
 """
+from typing import List, Tuple
 from .base_agent import BaseAgent
 
 
@@ -15,6 +16,22 @@ class AgenteArgumentos(BaseAgent):
     - Diferenciación de productos
     """
 
+    # Detector de especialidad médica
+    SPECIALTIES = {
+        'cardiologo': 'Cardiología', 'cardiólogo': 'Cardiología',
+        'ginecologo': 'Ginecología', 'ginecólogo': 'Ginecología',
+        'neurologo': 'Neurología', 'neurólogo': 'Neurología',
+        'psiquiatra': 'Psiquiatría',
+        'pediatra': 'Pediatría',
+        'reumatologo': 'Reumatología', 'reumatólogo': 'Reumatología',
+        'endocrinologo': 'Endocrinología', 'endocrinólogo': 'Endocrinología',
+        'internista': 'Medicina Interna',
+        'dermatólogo': 'Dermatología', 'dermatologo': 'Dermatología',
+        'oftalmólogo': 'Oftalmología', 'oftalmologo': 'Oftalmología',
+        'medicina general': 'Medicina General',
+        'médico general': 'Medicina General', 'medico general': 'Medicina General',
+    }
+
     def __init__(self):
         super().__init__()
         self.name = "Agente Argumentos"
@@ -26,6 +43,16 @@ class AgenteArgumentos(BaseAgent):
             "indicaciones_clinicas",
             "empresa_marca"
         ]
+
+    def enrich_context(self, query: str, results: List[Tuple[dict, float]]) -> str:
+        """Detecta la especialidad médica para adaptar argumentos SPIN y Teach"""
+        query_lower = query.lower()
+        for key, specialty_name in self.SPECIALTIES.items():
+            if key in query_lower:
+                return (f"ESPECIALIDAD DETECTADA: {specialty_name}.\n"
+                        f"Adapta TODOS los argumentos SPIN y el Teach a {specialty_name}. "
+                        f"Usa lenguaje y casos clínicos relevantes para {specialty_name}.")
+        return "ESPECIALIDAD NO DETECTADA. Usa 'Medicina General' como default."
 
     @property
     def system_prompt(self) -> str:
@@ -128,13 +155,7 @@ Estructura SIEMPRE tu respuesta así (usa markdown):
 7. SIEMPRE termina con un guion que lleve al cierre con compromiso.
 8. SIEMPRE usa tablas markdown para la comparativa de productos.
 9. Adapta TODO a la especialidad mencionada. Si no se menciona, usa "Medicina General".
-10. Prioriza SIEMPRE la información del contexto proporcionado (base de conocimiento RAG). Esta es tu fuente PRINCIPAL y PREFERIDA.
-11. MINIMIZA el uso de información externa. Solo como ÚLTIMO RECURSO:
-    - Primero AGOTA toda la información del contexto RAG. Reorganízala, reinterpreta, conecta datos entre sí.
-    - Solo si un dato CRÍTICO falta completamente (ej: especialidad no cubierta en RAG), puedes complementar con conocimiento general.
-    - Limita la información externa a MÁXIMO 1-2 datos puntuales por respuesta, NUNCA como fuente principal.
-    - Marca CADA dato externo con "*(fuente externa no empresarial)*".
-    - NUNCA uses información externa para secciones completas. Construye el argumentario con los datos RAG disponibles.
-    - SIEMPRE proporciona un argumentario completo. El representante NUNCA debe entrar sin argumentos.
-12. NO inventes cifras exactas ni estudios que no conozcas. Presenta datos generales como tendencias o consenso.
-13. NUNCA dejes una sección vacía. Completa con razonamiento clínico general sin necesidad de marcar como fuente externa."""
+10. Usa EXCLUSIVAMENTE los datos de la sección 'DATOS VERIFICADOS DE PURO OMEGA'. Esos son los ÚNICOS datos reales.
+11. PROHIBIDO añadir información externa: NO inventes cifras, estudios, porcentajes ni nombres de productos que no estén en los datos verificados.
+12. Si una sección del formato no tiene datos verificados disponibles, OMITE esa sección entera. Es mejor una respuesta corta y precisa que una larga con datos inventados.
+13. NUNCA cites estudios, journals ni meta-análisis que no aparezcan en los datos verificados."""

@@ -1,6 +1,7 @@
 """
 Agente de Productos - Especializado en información técnica de productos
 """
+from typing import List, Tuple
 from .base_agent import BaseAgent
 
 
@@ -17,6 +18,30 @@ class AgenteProductos(BaseAgent):
     - Omega-3 Index
     """
 
+    # Mapa condición médica → productos recomendados de Puro Omega
+    CONDITION_PRODUCT_MAP = {
+        'artritis': ['Pro-Resolving Mediators'],
+        'reumatoide': ['Pro-Resolving Mediators'],
+        'inflamacion': ['Pro-Resolving Mediators'],
+        'inflamatorio': ['Pro-Resolving Mediators'],
+        'antiinflamatorio': ['Pro-Resolving Mediators'],
+        'embarazo': ['Natural DHA'],
+        'embarazada': ['Natural DHA'],
+        'prenatal': ['Natural DHA'],
+        'lactancia': ['Natural DHA'],
+        'gestacion': ['Natural DHA'],
+        'cardiovascular': ['Natural EPA+DHA'],
+        'trigliceridos': ['Natural EPA+DHA'],
+        'corazon': ['Natural EPA+DHA'],
+        'cardiaco': ['Natural EPA+DHA'],
+        'cerebro': ['Natural DHA'],
+        'cognitivo': ['Natural DHA'],
+        'memoria': ['Natural DHA'],
+        'depresion': ['Natural EPA+DHA'],
+        'vision': ['Natural DHA'],
+        'ocular': ['Natural DHA'],
+    }
+
     def __init__(self):
         super().__init__()
         self.name = "Agente Productos"
@@ -32,6 +57,19 @@ class AgenteProductos(BaseAgent):
             "diagnostico_omega3_index",
             "empresa_marca"
         ]
+
+    def enrich_context(self, query: str, results: List[Tuple[dict, float]]) -> str:
+        """Enriquece el contexto con sugerencias de productos según la condición médica detectada"""
+        query_lower = query.lower()
+        suggestions = []
+        for condition, products in self.CONDITION_PRODUCT_MAP.items():
+            if condition in query_lower:
+                suggestions.append(
+                    f"SUGERENCIA DEL AGENTE: Para '{condition}', "
+                    f"los productos relevantes son: {', '.join(products)}. "
+                    f"Busca estos nombres en los DATOS VERIFICADOS de arriba."
+                )
+        return '\n'.join(suggestions) if suggestions else ""
 
     @property
     def system_prompt(self) -> str:
@@ -82,7 +120,7 @@ Estructura SIEMPRE tu respuesta así (usa markdown):
 
 ## [Nombre del producto o tema]
 
-**Composición / Datos clave**
+### Ficha Técnica: [Nombre del producto]
 | Parámetro | Valor |
 |-----------|-------|
 | (ej. EPA) | (ej. 900 mg) |
@@ -106,13 +144,7 @@ Estructura SIEMPRE tu respuesta así (usa markdown):
 3. SIEMPRE incluye al menos un "dato diferenciador" como cita textual que el representante pueda usar.
 4. SIEMPRE aplica FAB: nunca presentes una característica sin su ventaja y beneficio.
 5. SIEMPRE abre con el dato más impactante (anchoring). El primer dato debe ser el más fuerte.
-6. Prioriza SIEMPRE la información del contexto proporcionado (base de conocimiento RAG). Esta es tu fuente PRINCIPAL y PREFERIDA.
-7. MINIMIZA el uso de información externa. Solo como ÚLTIMO RECURSO:
-   - Primero AGOTA toda la información del contexto RAG. Reorganízala, reinterpreta, conecta datos entre sí.
-   - Solo si un dato CRÍTICO falta completamente (ej: un estudio clave que el médico preguntó directamente), puedes complementar con conocimiento general.
-   - Limita la información externa a MÁXIMO 1-2 datos puntuales por respuesta, NUNCA como fuente principal.
-   - Marca CADA dato externo con "*(fuente externa no empresarial)*".
-   - NUNCA uses información externa para secciones completas. Si una sección no tiene datos RAG, construye el argumento con lógica clínica general sin citar fuentes externas específicas.
-   - SIEMPRE defiende el valor del producto. Tu rol es apoyar al representante, no dejarle sin argumentos.
-8. NO inventes cifras exactas ni estudios que no conozcas. Presenta datos generales como tendencias o consenso.
-9. NUNCA dejes una sección vacía. Completa con razonamiento clínico general sin necesidad de marcar como fuente externa."""
+6. Usa EXCLUSIVAMENTE los datos de la sección 'DATOS VERIFICADOS DE PURO OMEGA'. Esos son los ÚNICOS datos reales.
+7. PROHIBIDO añadir información externa: NO inventes cifras, estudios, porcentajes ni nombres de productos que no estén en los datos verificados.
+8. Si una sección del formato no tiene datos verificados disponibles, OMITE esa sección entera. Es mejor una respuesta corta y precisa que una larga con datos inventados.
+9. NUNCA cites estudios, journals ni meta-análisis que no aparezcan en los datos verificados."""

@@ -467,10 +467,28 @@ def strip_wake_word(message: str) -> str:
 
 def is_greeting_or_vague(message: str) -> bool:
     """Detecta si un mensaje NO contiene consulta pharma real.
-    Usa whitelist: si no hay ninguna palabra clave del dominio, es vago."""
+    Usa whitelist: si no hay ninguna palabra clave del dominio, es vago.
+    Excluye follow-ups conversacionales que indican continuación de charla."""
     import unicodedata
     t = unicodedata.normalize('NFD', message.lower().strip())
     t = re.sub(r'[\u0300-\u036f]', '', t)  # quitar acentos
+
+    # Follow-ups conversacionales — NUNCA son greetings aunque no tengan keywords pharma
+    followup_patterns = [
+        r'cuentame', r'cuenteme', r'dime\s+mas', r'dame\s+mas', r'amplia',
+        r'profundiza', r'explica', r'explicame', r'detalla', r'detallame',
+        r'elabora', r'desarrolla', r'resume', r'resumeme', r'resumi',
+        r'continua', r'sigue', r'prosigue', r'mas\s+informacion',
+        r'mas\s+detalles', r'mas\s+sobre', r'que\s+mas', r'algo\s+mas',
+        r'otra\s+cosa', r'otra\s+pregunta', r'y\s+sobre', r'tambien',
+        r'ademas', r'aparte', r'igualmente', r'por\s+otro\s+lado',
+        r'en\s+cuanto\s+a', r'respecto\s+a', r'sobre\s+eso',
+        r'y\s+eso', r'por\s+que', r'como\s+asi', r'a\s+que\s+te\s+refieres',
+        r'no\s+entiendo', r'no\s+entendi', r'repite', r'repetir',
+        r'otra\s+vez', r'de\s+nuevo',
+    ]
+    if any(re.search(p, t) for p in followup_patterns):
+        return False
 
     # Palabras clave que indican consulta real sobre el dominio pharma/ventas
     pharma_patterns = [
@@ -550,10 +568,22 @@ async def websocket_chat(websocket: WebSocket):
             user_message = message_data.get("message", "")
             response_mode = message_data.get("response_mode", "full")  # "short" o "full"
 
+            # Contexto previo de chat guardado — poblar historial para continuidad
+            prior = message_data.get("prior_context")
+            if prior and not conversation_history:
+                q = prior.get("question", "")
+                a = prior.get("answer", "")
+                if q and a:
+                    conversation_history.append({"role": "user", "content": q})
+                    conversation_history.append({"role": "assistant", "content": a})
+                    print(f"[WS] Contexto previo restaurado: Q={q[:50]}... A={a[:50]}...")
+                else:
+                    print(f"[WS] prior_context recibido pero q/a vacíos: q='{q[:30]}' a='{a[:30]}'")
+            elif prior and conversation_history:
+                print(f"[WS] prior_context ignorado — ya hay {len(conversation_history)} msgs en historial")
+
             if not user_message.strip():
                 continue
-
-            print(f"[WS] Mensaje recibido — historial actual: {len(conversation_history)} msgs — query: {user_message[:50]}...")
 
             # Strip wake word ("Hola Omia") from the message
             cleaned = strip_wake_word(user_message)
@@ -562,10 +592,13 @@ async def websocket_chat(websocket: WebSocket):
                 continue
             user_message = cleaned
 
+            is_vague = is_greeting_or_vague(user_message)
+            print(f"[WS] Mensaje recibido — historial: {len(conversation_history)} msgs — vague: {is_vague} — query: '{user_message[:60]}'")
+
             # Saludos y mensajes vagos: responder directamente sin agente ni RAG
             # SOLO si no hay historial — si el usuario ya hizo preguntas, pasar al agente
             # para que pueda usar el contexto de la conversación anterior
-            if is_greeting_or_vague(user_message) and not conversation_history:
+            if is_vague and not conversation_history:
                 await websocket.send_json({
                     "type": "agent_info",
                     "agent": "saludo",
@@ -591,9 +624,14 @@ async def websocket_chat(websocket: WebSocket):
                 # Obtener agente correspondiente
                 agent = orchestrator.get_agent(intent)
 
-                # Buscar contexto relevante en RAG
-                results = agent.search_knowledge(user_message, top_k=5)
+                # Buscar contexto relevante en RAG (con fallback si score bajo)
+                results = agent.search_knowledge_with_fallback(user_message, top_k=5)
                 context = agent.format_context(results, min_score=0.1)
+
+                # Enriquecer contexto con inteligencia del agente
+                enrichment = agent.enrich_context(user_message, results)
+                if enrichment:
+                    context += f"\n\n═══ CONTEXTO ADICIONAL DEL AGENTE ═══\n{enrichment}"
 
                 # Evaluar cobertura RAG
                 relevant_docs = [r for r in results if r[1] >= 0.1]
@@ -612,40 +650,40 @@ async def websocket_chat(websocket: WebSocket):
 
                 # Instrucciones dinámicas según cobertura RAG
                 if rag_coverage == "low":
-                    rag_instruction = """⚠️ INSTRUCCIÓN CRÍTICA — COBERTURA RAG: BAJA (la base de conocimiento tiene poca o ninguna información específica para esta consulta).
+                    rag_instruction = """⚠️ COBERTURA RAG: BAJA — Hay poca información específica para esta consulta.
 
-REGLAS OBLIGATORIAS:
-1. NO generes un argumentario completo ni una respuesta extensa. La respuesta debe ser CORTA (máximo 150 palabras).
-2. NO inventes cifras, porcentajes ni datos específicos. NUNCA escribas cosas como "reduce el riesgo en un 25%" si ese dato no está en el contexto RAG.
-3. SÍ puedes mencionar consenso médico general sin cifras exactas. Ejemplo correcto: "El omega-3 podría contribuir a reducir el riesgo residual cardiovascular." Ejemplo INCORRECTO: "El omega-3 reduce el riesgo cardiovascular en un 25% *(fuente externa)*."
-4. Si HAY algún dato relevante en el contexto RAG de arriba (aunque sea tangencial), menciónalo. Esos datos SÍ son verificados de Puro Omega.
-5. Sé honesto: indica que no tienes información específica de Puro Omega sobre ese tema exacto.
-6. Redirige al usuario hacia temas que SÍ puedes cubrir. Sugiere 2-3 preguntas relacionadas con productos o indicaciones de Puro Omega.
+REGLAS:
+1. Respuesta CORTA (máximo 150 palabras). No generes un argumentario completo.
+2. NO inventes cifras, porcentajes ni datos específicos.
+3. SÍ puedes mencionar consenso médico general sin cifras exactas (ej: "El omega-3 podría contribuir a reducir el riesgo residual cardiovascular").
+4. Si HAY algún dato relevante en el contexto RAG de arriba (aunque sea tangencial), úsalo — son datos verificados de Puro Omega.
+5. Redirige al usuario hacia temas que SÍ puedes cubrir con preguntas sugeridas.
+6. NO muestres secciones vacías ni uses placeholders.
 
-FORMATO OBLIGATORIO para cobertura baja:
+FORMATO para cobertura baja:
 ## [Tema consultado]
 
-Actualmente no tengo información específica de Puro Omega sobre [tema exacto].
+[Si hay datos RAG relevantes, preséntalos de forma útil y persuasiva]
 
-[Si hay datos RAG relevantes: "Sin embargo, en la base de conocimiento de Puro Omega encontré que..." + datos del contexto RAG]
-
-[Si aplica: 1-2 frases de consenso médico general SIN cifras inventadas, usando lenguaje como "podría contribuir", "se ha asociado con", "la evidencia sugiere"]
+[1-2 frases de consenso médico general SIN cifras inventadas si aplica]
 
 **Te puedo ayudar con:**
 - [Pregunta sugerida 1 sobre productos/indicaciones de Puro Omega]
 - [Pregunta sugerida 2]
 - [Pregunta sugerida 3]"""
                 elif rag_coverage == "medium":
-                    rag_instruction = """⚠️ INSTRUCCIÓN CRÍTICA — COBERTURA RAG: PARCIAL.
+                    rag_instruction = """⚠️ COBERTURA RAG: PARCIAL — Los datos verificados de arriba son limitados.
 
 REGLAS OBLIGATORIAS:
-1. Usa PRIMERO la información del contexto RAG anterior. Esos datos NO necesitan marcador.
-2. CADA dato que NO esté en el contexto RAG DEBE ir seguido INMEDIATAMENTE de *(fuente externa no empresarial)*. Sin excepciones.
-3. Ejemplo: Si el contexto RAG dice "EPA 900mg" eso NO lleva marcador. Pero si tú añades "reduce inflamación vesical" y eso NO está en el contexto, DEBES poner: "reduce inflamación vesical *(fuente externa no empresarial)*".
-4. NO omitas el marcador. Si un dato no aparece literalmente en el contexto RAG de arriba, NECESITA marcador.
-5. Minimiza el uso de información externa (máximo 1-2 datos puntuales). Prioriza siempre el contexto RAG."""
+1. Usa SOLO la información de los HECHOS VERIFICADOS de arriba.
+2. NO añadas datos externos. Si necesitas mencionar algo fuera del contexto, di "según consenso médico general" SIN cifras.
+3. Si una sección de tu formato no tiene datos verificados, OMÍTELA entera. No incluyas tablas con celdas vacías ni secciones sin contenido real.
+4. Aprovecha al MÁXIMO los datos que SÍ tienes: preséntelos de forma persuasiva, clara y útil para vender."""
                 else:
-                    rag_instruction = """Responde basándote en el contexto anterior. Solo si falta un dato CRÍTICO, complementa con conocimiento general y márcalo con *(fuente externa no empresarial)*."""
+                    rag_instruction = """COBERTURA RAG: ALTA — Tienes buenos datos verificados arriba.
+Responde EXCLUSIVAMENTE con los datos verificados. NO complementes con conocimiento externo.
+Si alguna sección de tu formato no tiene datos verificados, OMÍTELA — no dejes huecos ni placeholders.
+Presenta TODA la información disponible de forma persuasiva, completa y útil para que el representante venda con confianza."""
 
                 # Instrucción de longitud según modo de respuesta
                 # Si cobertura baja, el formato ya está definido en rag_instruction — no aplicar templates de agente
@@ -724,10 +762,23 @@ REGLAS DE MODO RESUMIDO:
                 else:
                     length_instruction = "MODO EXTENDIDO: Responde con el formato completo y detallado según tu estructura habitual."
 
-                # Preparar prompt completo con contexto RAG
-                full_prompt = f"""{agent.system_prompt}
+                # Preparar prompt completo con anti-fabricación AL INICIO + contexto RAG
+                anti_fabrication = (
+                    "══════════════════════════════════════════\n"
+                    "REGLA #1 — LA MÁS IMPORTANTE DE TODAS:\n"
+                    "══════════════════════════════════════════\n"
+                    "USA SOLO datos de la sección 'DATOS VERIFICADOS DE PURO OMEGA' de abajo.\n"
+                    "- NO inventes cifras (mg, %, ratios) ni estudios que no estén en los datos verificados.\n"
+                    "- NO menciones productos que no aparezcan en los datos verificados.\n"
+                    "- Si una sección de tu formato NO tiene datos verificados disponibles → OMITE esa sección ENTERA. No la incluyas.\n"
+                    "- NUNCA pongas '—', 'No disponible', 'Consultar ficha técnica' ni celdas vacías. Si no hay dato, no pongas la fila/sección.\n"
+                    "- SÍ usa técnicas de persuasión (FAB, SPIN, Feel-Felt-Found, storytelling) con los datos que SÍ tienes.\n"
+                    "- Presenta los datos verificados de forma COMPLETA, ÚTIL y PERSUASIVA para que el representante pueda vender.\n"
+                    "══════════════════════════════════════════\n\n"
+                )
 
-INFORMACIÓN DE CONTEXTO (Base de conocimiento):
+                full_prompt = f"""{anti_fabrication}{agent.system_prompt}
+
 {context}
 
 ---
@@ -750,6 +801,31 @@ INFORMACIÓN DE CONTEXTO (Base de conocimiento):
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
 
+                # Instrucción de continuidad conversacional (inyectada justo antes del user msg)
+                if conversation_history:
+                    # Extraer la última pregunta del historial para dar contexto explícito
+                    last_user_q = ""
+                    for h in reversed(conversation_history):
+                        if h["role"] == "user":
+                            last_user_q = h["content"][:120]
+                            break
+                    messages.append({"role": "system", "content": (
+                        "CONTINUIDAD CONVERSACIONAL OBLIGATORIA:\n"
+                        f"El usuario venía hablando sobre: \"{last_user_q}\"\n"
+                        "Su nueva pregunta es un FOLLOW-UP de esa conversación.\n\n"
+                        "REGLAS:\n"
+                        "1. Tu respuesta DEBE conectar temáticamente con lo anterior. "
+                        "Si antes hablaban de precio y ahora preguntan sobre duración, "
+                        "conecta ambos temas (ej: el coste-beneficio a largo plazo).\n"
+                        "2. NO uses frases genéricas como 'En relación con lo anterior...' o "
+                        "'Continuando con el tema...'. En su lugar, conecta de forma ESPECÍFICA "
+                        "mencionando el tema concreto (ej: 'Precisamente, uno de los argumentos "
+                        "más potentes frente a la objeción del precio es el tiempo de respuesta...').\n"
+                        "3. NO repitas información ya dada. Amplía, profundiza o conecta con ángulos nuevos.\n"
+                        "4. Mantén tono conversacional natural, como un colega que te está explicando algo "
+                        "y tú le haces otra pregunta — no como un chatbot que empieza de cero cada vez."
+                    )})
+
                 # Añadir mensaje actual del usuario
                 messages.append({"role": "user", "content": user_message})
 
@@ -759,7 +835,7 @@ INFORMACIÓN DE CONTEXTO (Base de conocimiento):
                     messages=messages,
                     stream=True,
                     max_tokens=max_tokens,
-                    temperature=0.7
+                    temperature=0.3
                 )
 
                 # Enviar chunks al frontend
