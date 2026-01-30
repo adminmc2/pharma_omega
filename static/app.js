@@ -3007,7 +3007,7 @@ async function handleDemoOrbClick() {
     // Immediate visual feedback — activate 3D orb animation instantly
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = 'Hola, Blanca, un placer saludarte. Pablo tenía muchas ganas de encontrarse contigo y me da esta oportunidad de enseñarte quién soy, qué hago. Me llamo Omia y he sido creada por Prisma Consul. ¿Vemos qué puedo hacer?';
+    const greetingText = 'Muchas gracias Blanca por la oportunidad de conocernos. Me han dicho que te he causado una buena impresión. Recuerda que estaré siempre a tu disposición y será un placer que colaboremos juntos.';
 
     try {
         // Play TTS greeting and wait for it to finish
