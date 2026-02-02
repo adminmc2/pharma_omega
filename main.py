@@ -191,6 +191,14 @@ async def transcribe_voice(audio: UploadFile = File(...)):
         # Leer el archivo de audio
         audio_bytes = await audio.read()
 
+        # Log para debug iOS
+        print(f"[VOICE] Received audio: filename={audio.filename}, size={len(audio_bytes)} bytes, content_type={audio.content_type}")
+
+        # Si el audio está vacío, devolver error claro
+        if len(audio_bytes) < 100:
+            print(f"[VOICE] Audio too small ({len(audio_bytes)} bytes), likely empty recording")
+            return {"text": "", "success": False, "error": f"Audio vacío ({len(audio_bytes)} bytes)"}
+
         # Crear archivo temporal para Groq (usar /tmp para permisos en Docker)
         import tempfile
         ext = audio.filename.split('.')[-1] if audio.filename else 'webm'
@@ -210,9 +218,11 @@ async def transcribe_voice(audio: UploadFile = File(...)):
         # Limpiar archivo temporal
         os.remove(temp_filename)
 
+        print(f"[VOICE] Transcription result: '{transcription.text}'")
         return {"text": transcription.text, "success": True}
 
     except Exception as e:
+        print(f"[VOICE] ERROR: {e}")
         return {"text": "", "success": False, "error": str(e)}
 
 

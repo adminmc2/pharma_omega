@@ -1507,17 +1507,8 @@ async function startRecording() {
             stopWakeWordListening();
         }
 
-        // Reuse cached mic stream if still active, otherwise request new one
-        let stream;
-        if (state.cachedMicStream && state.cachedMicStream.active &&
-            state.cachedMicStream.getAudioTracks().some(t => t.readyState === 'live')) {
-            stream = state.cachedMicStream;
-            console.log('[Recording] Reusing cached mic stream');
-        } else {
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            state.cachedMicStream = stream;
-            console.log('[Recording] New mic stream obtained');
-        }
+        // Always request fresh getUserMedia — iOS requires this for each recording
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
         // Detect supported mimeType (webm for desktop, mp4 for iOS)
@@ -1554,8 +1545,8 @@ async function startRecording() {
             const audioBlob = new Blob(state.audioChunks, { type: blobType });
             console.log('[Recording] Created blob:', blobType, 'size:', audioBlob.size);
             await transcribeAudio(audioBlob, extension);
-            // Don't stop tracks here — keep stream cached to avoid repeated permission prompts
-            // Tracks are released when voice session ends or page unloads
+            // Close tracks after each recording (iOS needs fresh stream each time)
+            stream.getTracks().forEach(track => track.stop());
         };
 
         state.mediaRecorder.start();
@@ -1583,18 +1574,16 @@ function stopRecording() {
     }
 }
 
-function releaseCachedMicStream() {
-    if (state.cachedMicStream) {
-        state.cachedMicStream.getTracks().forEach(track => track.stop());
-        state.cachedMicStream = null;
-        console.log('[Recording] Released cached mic stream');
-    }
-}
-
 // ============================================
 // Detección automática de silencio (pausa prudencial)
 // ============================================
 function startSilenceDetection(stream) {
+    // Close any previous AudioContext to avoid iOS conflicts with multiple contexts
+    if (state.audioContext) {
+        state.audioContext.close().catch(() => {});
+        state.audioContext = null;
+        state.analyser = null;
+    }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
@@ -1611,8 +1600,8 @@ function startSilenceDetection(stream) {
     const SILENCE_THRESHOLD = 15;
     // Voice mode answer is a single word — use faster silence detection
     const isVoiceMode = state.voiceModeRecording;
-    const SILENCE_DURATION = isVoiceMode ? 500 : 5000;   // 0.5s for mode, 5s normal
-    const MIN_RECORDING = isVoiceMode ? 500 : 2000;      // 0.5s for mode, 2s normal
+    const SILENCE_DURATION = isVoiceMode ? 1000 : 3000;   // 1s for mode, 3s normal
+    const MIN_RECORDING = isVoiceMode ? 1000 : 1500;     // 1s for mode, 1.5s normal
     const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
 
     let silenceStart = null;
@@ -1723,6 +1712,16 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             // If the transcription was ONLY a wake word (nothing else), skip sending
             if (!cleanText) {
                 console.log('[Voice] Transcription was only a wake word, ignoring');
+                // If awaiting voice mode, fallback to 'full' silently
+                if (state.awaitingVoiceMode) {
+                    const pendingMessage = state.awaitingVoiceMode;
+                    state.awaitingVoiceMode = null;
+                    state.voiceModeRecording = false;
+                    if (state.voiceModeTimeout) { clearTimeout(state.voiceModeTimeout); state.voiceModeTimeout = null; }
+                    const asking = document.querySelector('.voice-mode-asking');
+                    if (asking) asking.remove();
+                    sendToWebSocket(pendingMessage, 'full');
+                }
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -1790,9 +1789,21 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             }
         } else {
             console.error('Error transcripción:', data.error);
-            // Show capabilities message when transcription fails
-            if (!elements.chatScreen.classList.contains('hidden')) {
-                addMessage('No pude entender lo que dijiste. Puedes preguntarme sobre:\n\n- **Productos**: "¿Qué es Natural DHA?"\n- **Objeciones**: "Un médico dice que es caro"\n- **Argumentos**: "¿Cómo presento Puro Omega a un cardiólogo?"', 'assistant');
+            // If awaiting voice mode answer and transcription failed, fallback to 'full' silently
+            if (state.awaitingVoiceMode) {
+                console.log('[Voice Mode] Transcription failed, falling back to full mode');
+                if (state.voiceModeTimeout) { clearTimeout(state.voiceModeTimeout); state.voiceModeTimeout = null; }
+                state.voiceModeRecording = false;
+                const pendingMessage = state.awaitingVoiceMode;
+                state.awaitingVoiceMode = null;
+                const asking = document.querySelector('.voice-mode-asking');
+                if (asking) asking.remove();
+                sendToWebSocket(pendingMessage, 'full');
+            } else {
+                // Show capabilities message when transcription fails (only for normal queries)
+                if (!elements.chatScreen.classList.contains('hidden')) {
+                    addMessage('No pude entender lo que dijiste. Puedes preguntarme sobre:\n\n- **Productos**: "¿Qué es Natural DHA?"\n- **Objeciones**: "Un médico dice que es caro"\n- **Argumentos**: "¿Cómo presento Puro Omega a un cardiólogo?"', 'assistant');
+                }
             }
         }
 
@@ -1800,8 +1811,20 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
 
     } catch (error) {
         console.error('Error transcripción:', error);
-        if (!elements.chatScreen.classList.contains('hidden')) {
-            addMessage('No pude entender lo que dijiste. Intenta de nuevo.', 'assistant');
+        // If awaiting voice mode answer and error, fallback to 'full' silently
+        if (state.awaitingVoiceMode) {
+            console.log('[Voice Mode] Transcription error, falling back to full mode');
+            if (state.voiceModeTimeout) { clearTimeout(state.voiceModeTimeout); state.voiceModeTimeout = null; }
+            state.voiceModeRecording = false;
+            const pendingMessage = state.awaitingVoiceMode;
+            state.awaitingVoiceMode = null;
+            const asking = document.querySelector('.voice-mode-asking');
+            if (asking) asking.remove();
+            sendToWebSocket(pendingMessage, 'full');
+        } else {
+            if (!elements.chatScreen.classList.contains('hidden')) {
+                addMessage('No pude entender lo que dijiste. Intenta de nuevo.', 'assistant');
+            }
         }
         updateRecordingUI(false);
     }
