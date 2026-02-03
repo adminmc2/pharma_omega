@@ -56,6 +56,8 @@ const state = {
     voiceModeRecording: false,  // true when recording mode answer (longer silence detection)
     // iOS audio unlock
     iosAudioElement: null,      // pre-created Audio element for iOS
+    // Streaming markdown parser (smd)
+    _smdParser: null,
     // Mood
     mood: {
         value: 100,
