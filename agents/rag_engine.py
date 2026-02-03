@@ -93,7 +93,8 @@ SYNONYMS: Dict[str, List[str]] = {
     'previene': ['prevenir', 'prevención', 'evita', 'protege'],
 
     # Específicos de omega-3
-    'omega': ['omega3', 'omega-3', 'ácido', 'graso', 'aceite', 'pescado'],
+    'omega': ['omega3', 'omega-3', 'omega 3', 'ácido', 'graso', 'aceite', 'pescado'],
+    'omega3': ['omega', 'omega-3', 'omega 3', 'ácido graso'],
     'epa': ['ácido eicosapentaenoico', 'antiinflamatorio'],
     'dha': ['ácido docosahexaenoico', 'cerebral', 'visual'],
     'rtg': ['triglicérido', 'reesterificado', 'biodisponible', 'natural'],
@@ -142,10 +143,20 @@ class RAGEngine:
         self.qa_pairs = data['qa_pairs']
         print(f"[RAG] Cargadas {len(self.qa_pairs)} preguntas")
 
+    # Nombres de producto con guion → forma canónica (sin guion)
+    PRODUCT_ALIASES = {
+        'omega-3': 'omega3',
+        'omega 3': 'omega3',
+        'puro-omega': 'puro omega',
+    }
+
     def _normalize(self, text: str) -> str:
-        """Normaliza texto: minúsculas, sin acentos para búsqueda"""
+        """Normaliza texto: minúsculas, sin acentos, unifica nombres de producto"""
         text = text.lower()
-        # Preservar acentos en el texto pero normalizar para búsqueda
+        # Unificar nombres de producto con/sin guion ANTES de quitar acentos
+        for alias, canonical in self.PRODUCT_ALIASES.items():
+            text = text.replace(alias, canonical)
+        # Quitar acentos para búsqueda
         replacements = {
             'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
             'ü': 'u', 'ñ': 'n'
